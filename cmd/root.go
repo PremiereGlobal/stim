@@ -31,7 +31,6 @@ func check(e error) { // This helper will streamline our error checks below.
 }
 
 func init() {
-
 	// Set version for local testing if not set by build system
 	if version == "" {
 		version = "local"
@@ -48,9 +47,9 @@ func init() {
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
-	n := notify.New()
-	n.BindCommand(rootCmd)
-	n.BindLogger(log)
+  notifyHandler := notify.New()
+  notifyHandler.BindCommand(rootCmd)
+  notifyHandler.BindLogger(log)
 }
 
 func initConfig() {
