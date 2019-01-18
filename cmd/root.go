@@ -35,9 +35,9 @@ func init() {
   rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
   viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 
-  n := notify.New()
-  n.BindCommand(rootCmd)
-  n.BindLogger(log)
+  notifyHandler := notify.New()
+  notifyHandler.BindCommand(rootCmd)
+  notifyHandler.BindLogger(log)
 }
 
 func initConfig() {
