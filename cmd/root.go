@@ -18,6 +18,9 @@ var rootCmd = &cobra.Command {
   },
 }
 
+// Version is normally set at build time
+var version string
+
 var configFile string
 var log *logrus.Logger
 var Verbose bool
@@ -29,6 +32,12 @@ func check(e error) { // This helper will streamline our error checks below.
 }
 
 func init() {
+
+  // Set version for local testing if not set by build system
+  if version == ""  {
+    version = "local"
+  }
+
   log = logrus.New()
   cobra.OnInitialize(initConfig)
   rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.stim.yaml)")
