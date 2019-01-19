@@ -3,19 +3,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f6c72d2b35f8d85e25c78698feb04d334310f7146e913c40bba323040b4a21cc"
-  name = "github.com/bartlettc22/stim-pkgs"
-  packages = ["pkg/notify"]
-  pruneopts = "UT"
-  revision = "bd0b28fae180fe5238c53ee15959cf851429adfe"
-
-[[projects]]
-  digest = "1:a571648c5f1a3f20fa405d1cf924b941c5bb236ea6d0565a63c0994e38dd8f82"
-  name = "github.com/caarlos0/env"
+  digest = "1:de4eb123b15ad1a4b72b1ee2f84c42bec40332e25de9eaafd6d8d25bca777744"
+  name = "github.com/PagerDuty/go-pagerduty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "518fcfb943252f77846f92ce5794086d9cb4a1b5"
-  version = "v3.5.0"
+  revision = "fe8f9c4593d05f029afeb2c08c3e220120306506"
+  source = "github.com/PagerDuty/go-pagerduty"
 
 [[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
@@ -32,6 +25,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = "UT"
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:0ade334594e69404d80d9d323445d2297ff8161637f9b2d347cc6973d2d6f05b"
@@ -317,7 +318,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/bartlettc22/stim-pkgs/pkg/notify",
+    "github.com/PagerDuty/go-pagerduty",
     "github.com/hashicorp/vault/api",
     "github.com/mitchellh/go-homedir",
     "github.com/sirupsen/logrus",

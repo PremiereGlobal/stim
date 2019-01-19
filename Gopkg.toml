@@ -24,6 +24,11 @@
 #   go-tests = true
 #   unused-packages = true
 
+[[override]]
+  name = "github.com/PagerDuty/go-pagerduty"
+  branch = "master"
+  source = "github.com/PagerDuty/go-pagerduty"
+
 [prune]
   go-tests = true
   unused-packages = true

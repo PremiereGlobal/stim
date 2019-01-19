@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/bartlettc22/stim-pkgs/pkg/notify"
+	"github.com/readytalk/stim/pkg/notify"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
