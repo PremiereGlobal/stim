@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/readytalk/stim/pkg/notify"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/readytalk/stim/pkg/notify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -51,20 +51,12 @@ func init() {
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
-  notifyHandler := notify.New()
-  notifyHandler.BindCommand(rootCmd)
-  notifyHandler.BindLogger(log)
+	notifyHandler := notify.New()
+	notifyHandler.BindCommand(rootCmd)
+	notifyHandler.BindLogger(log)
 }
 
 func initConfig() {
-
-	// Set log level
-	if viper.GetBool("verbose") == true {
-		log.SetLevel(logrus.DebugLevel)
-		log.Debug("Stim version: ", version)
-		log.Debug("Debug log level set")
-	}
-
 	viper.SetConfigType("yaml") // set the config file type
 
 	// Don't forget to read config either from CfgFile or from home directory!
@@ -83,6 +75,12 @@ func initConfig() {
 
 	configFile = viper.ConfigFileUsed()
 
+	// Set log level. We can now have verbose from the config file
+	if viper.GetBool("verbose") == true {
+		log.SetLevel(logrus.DebugLevel)
+		log.Debug("Stim version: ", version)
+		log.Debug("Debug log level set")
+	}
 	log.Debug("Using config file: ", configFile)
 
 	if viper.Get("noprompt") == false && isAutomated() {
