@@ -52,8 +52,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	notify := notify.New()
-	notify.BindCommand(rootCmd)
 	notify.BindLogger(log)
+	notify.BindCommand(rootCmd)
 
 }
 
