@@ -66,7 +66,7 @@ func initConfig() {
 		log.Debug("Debug log level set")
 	}
 
-      	viper.SetConfigType("yaml") // set the config file type
+          	viper.SetConfigType("yaml") // set the config file type
 
 	// Don't forget to read config either from CfgFile or from home directory!
 	if configFile != "" {
