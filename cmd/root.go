@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/readytalk/stim/pkg/notify"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/readytalk/stim/pkg/notify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -51,9 +51,9 @@ func init() {
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
-  notify := notify.New()
-  notify.BindCommand(rootCmd)
-  notify.BindLogger(log)
+	notify := notify.New()
+	notify.BindCommand(rootCmd)
+	notify.BindLogger(log)
 
 }
 
@@ -66,7 +66,7 @@ func initConfig() {
 		log.Debug("Debug log level set")
 	}
 
-      	viper.SetConfigType("yaml") // set the config file type
+	viper.SetConfigType("yaml") // set the config file type
 
 	// Don't forget to read config either from CfgFile or from home directory!
 	if configFile != "" {
