@@ -51,9 +51,10 @@ func init() {
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
-	notifyHandler := notify.New()
-	notifyHandler.BindCommand(rootCmd)
-	notifyHandler.BindLogger(log)
+	notify := notify.New()
+	notify.BindCommand(rootCmd)
+	notify.BindLogger(log)
+
 }
 
 func initConfig() {
