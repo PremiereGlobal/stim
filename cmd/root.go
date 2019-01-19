@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -44,6 +45,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 
+	rootCmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")
+	viper.BindPFlag("noprompt", rootCmd.PersistentFlags().Lookup("noprompt"))
+
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
@@ -80,6 +84,18 @@ func initConfig() {
 	configFile = viper.ConfigFileUsed()
 
 	log.Debug("Using config file: ", configFile)
+
+	if viper.Get("noprompt") == false && isAutomated() {
+		log.Debug("Detected automation. Setting --noprompt")
+		viper.Set("noprompt", true)
+	}
+}
+
+func isAutomated() bool {
+	if os.Getenv("JENKINS_URL") == "" {
+		return false
+	}
+	return true
 }
 
 func Execute() {
