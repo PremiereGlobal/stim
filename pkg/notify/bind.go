@@ -1,8 +1,8 @@
 package notify
 
 import (
-	"github.com/readytalk/stim/pkg/pagerduty"
 	VaultApi "github.com/hashicorp/vault/api"
+	"github.com/readytalk/stim/pkg/pagerduty"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

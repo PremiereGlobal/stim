@@ -1,11 +1,11 @@
 package pagerduty
 
 import (
-  "os"
 	pdApi "github.com/PagerDuty/go-pagerduty"
-	"github.com/readytalk/stim/pkg/utils"
 	VaultApi "github.com/hashicorp/vault/api"
+	"github.com/readytalk/stim/pkg/utils"
 	"github.com/sirupsen/logrus"
+	"os"
 )
 
 type Pagerduty struct {
@@ -45,6 +45,7 @@ func (p *Pagerduty) Init() {
 		p.log.Fatal(err)
 	}
 	apikey := secret.Data[p.Options.VaultApikeyKey].(string)
+
 	client := pdApi.NewClient(apikey)
 	p.client = client
 }
@@ -97,7 +98,7 @@ func (p *Pagerduty) SendEvent() {
 
 	integrationid := p.GetServiceIntegrationId(o.Service)
 
-  source, _ := os.Hostname()
+	source, _ := os.Hostname()
 
 	payload := pdApi.V2Payload{
 		Summary:   o.Summary,

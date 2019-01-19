@@ -36,7 +36,7 @@ func (p *Pagerduty) BindCommand(parentCommand *cobra.Command) {
 	cmd.Flags().StringP("service", "s", "", "Required. Name of Pagerduty service to send notification to")
 	viper.BindPFlag("notify-pagerduty-service", cmd.Flags().Lookup("service"))
 
-	cmd.Flags().StringP("severity", "x", "", "Required. How impacted the affected system is. Displayed to users in lists and influences the priority of any created incidents. Must be one of [Info, Warning, Error, Critical]")
+	cmd.Flags().StringP("severity", "r", "", "Required. How impacted the affected system is. Displayed to users in lists and influences the priority of any created incidents. Must be one of [Info, Warning, Error, Critical]")
 	viper.BindPFlag("notify-pagerduty-severity", cmd.Flags().Lookup("severity"))
 
 	cmd.Flags().StringP("summary", "m", "", "Required. A high-level, text summary message of the event. Will be used to construct an alert's description.")
