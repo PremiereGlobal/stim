@@ -1,5 +1,5 @@
 sudo: required
-language: go
+language: minimal
 services:
 - docker
 script:
