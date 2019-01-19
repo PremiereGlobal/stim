@@ -20,4 +20,4 @@ ENV CONFIGURATION_PATH=/config
 
 COPY --from=builder /go/src/github.com/readytalk/stim/ /usr/bin
 
-CMD ["stim"]
+ENTRYPOINT ["stim"]
