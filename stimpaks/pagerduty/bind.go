@@ -1,19 +1,9 @@
 package pagerduty
 
 import (
-	VaultApi "github.com/hashicorp/vault/api"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-func (p *Pagerduty) BindLogger(log *logrus.Logger) {
-	p.log = log
-}
-
-func (p *Pagerduty) BindVault(vault *VaultApi.Client) {
-	p.vault = vault
-}
 
 func (p *Pagerduty) BindCommand(parentCommand *cobra.Command) {
 
@@ -22,10 +12,7 @@ func (p *Pagerduty) BindCommand(parentCommand *cobra.Command) {
 		Short: "Send events to Pagerduty",
 		Long:  `Sends trigger, acknowledge and resolve events to Pagerduty`,
 		Run: func(cmd *cobra.Command, args []string) {
-			p.log.Debug("Running pagerduty command")
-			viper.Unmarshal(p.Options)
-			p.CheckRequiredFields()
-			p.Init()
+			p.log.Debug("Running `pagerduty` command")
 			p.SendEvent()
 		},
 	}
@@ -34,7 +21,7 @@ func (p *Pagerduty) BindCommand(parentCommand *cobra.Command) {
 	viper.BindPFlag("notify-pagerduty-action", cmd.Flags().Lookup("action"))
 
 	cmd.Flags().StringP("service", "s", "", "Required. Name of Pagerduty service to send notification to")
-	viper.BindPFlag("notify-pagerduty-service", cmd.Flags().Lookup("service"))
+	p.api.Config.BindPFlag("notify-pagerduty-service", cmd.Flags().Lookup("service"))
 
 	cmd.Flags().StringP("severity", "r", "", "Required. How impacted the affected system is. Displayed to users in lists and influences the priority of any created incidents. Must be one of [Info, Warning, Error, Critical]")
 	viper.BindPFlag("notify-pagerduty-severity", cmd.Flags().Lookup("severity"))
@@ -65,3 +52,16 @@ func (p *Pagerduty) BindCommand(parentCommand *cobra.Command) {
 
 	parentCommand.AddCommand(cmd)
 }
+
+// type Event struct {
+// 	Action    string `mapstructure:"notify-pagerduty-action"`
+// 	Service   string `mapstructure:"notify-pagerduty-service"`
+// 	Severity  string `mapstructure:"notify-pagerduty-severity"`
+// 	Summary   string `mapstructure:"notify-pagerduty-summary"`
+// 	Source    string `mapstructure:"notify-pagerduty-source"`
+// 	Component string `mapstructure:"notify-pagerduty-component"`
+// 	Group     string `mapstructure:"notify-pagerduty-group"`
+// 	Class     string `mapstructure:"notify-pagerduty-class"`
+// 	Details   string `mapstructure:"notify-pagerduty-details"`
+// 	DedupKey  string `mapstructure:"notify-pagerduty-dedupkey"`
+// }

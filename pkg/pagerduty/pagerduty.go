@@ -1,56 +1,40 @@
 package pagerduty
 
 import (
+	"errors"
 	pdApi "github.com/PagerDuty/go-pagerduty"
-	VaultApi "github.com/hashicorp/vault/api"
 	"github.com/readytalk/stim/pkg/utils"
-	"github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 type Pagerduty struct {
-	client  *pdApi.Client
-	log     *logrus.Logger
-	vault   *VaultApi.Client
-	Options *Options
+	client *pdApi.Client
 }
 
-type Options struct {
-	Action          string `mapstructure:"notify-pagerduty-action"`
-	Service         string `mapstructure:"notify-pagerduty-service"`
-	Severity        string `mapstructure:"notify-pagerduty-severity"`
-	Summary         string `mapstructure:"notify-pagerduty-summary"`
-	Source          string `mapstructure:"notify-pagerduty-source"`
-	Component       string `mapstructure:"notify-pagerduty-component"`
-	Group           string `mapstructure:"notify-pagerduty-group"`
-	Class           string `mapstructure:"notify-pagerduty-class"`
-	Details         string `mapstructure:"notify-pagerduty-details"`
-	DedupKey        string `mapstructure:"notify-pagerduty-dedupkey"`
-	VaultApikeyPath string `mapstructure:"vault-pagerduty-apikey-path"`
-	VaultApikeyKey  string `mapstructure:"vault-pagerduty-apikey-key"`
+type Event struct {
+	Action    string
+	Service   string
+	Severity  string
+	Summary   string
+	Source    string
+	Component string
+	Group     string
+	Class     string
+	Details   string
+	DedupKey  string
 }
 
-func New() *Pagerduty {
+func New(apiKey string) *Pagerduty {
 
-	o := &Options{}
-	p := &Pagerduty{Options: o}
+	// Initialize client
+	client := pdApi.NewClient(apiKey)
+	p := &Pagerduty{client: client}
+
 	return p
 }
 
-func (p *Pagerduty) Init() {
-
-	p.log.Info("Fetching Pagerduty API key from Vault...")
-	secret, err := p.vault.Logical().Read(p.Options.VaultApikeyPath)
-	if err != nil {
-		p.log.Fatal(err)
-	}
-	apikey := secret.Data[p.Options.VaultApikeyKey].(string)
-
-	client := pdApi.NewClient(apikey)
-	p.client = client
-}
-
-func (p *Pagerduty) GetServiceIntegrationId(servicename string) string {
+func (p *Pagerduty) GetServiceIntegrationId(servicename string) (string, error) {
 
 	var serviceid string
 	var integrationid string
@@ -63,10 +47,8 @@ func (p *Pagerduty) GetServiceIntegrationId(servicename string) string {
 		for _, s := range svcs.Services {
 			if s.Name == servicename {
 				serviceid = s.ID
-				p.log.Debug("Pagerduty service \"", servicename, "\" found")
 				for _, i := range s.Integrations {
 					if i.Type == "events_api_v2_inbound_integration" {
-						p.log.Debug("Pagerduty EventsAPIv2 integration ID found")
 						integrationid = i.IntegrationKey
 					}
 				}
@@ -75,89 +57,99 @@ func (p *Pagerduty) GetServiceIntegrationId(servicename string) string {
 	}
 
 	if serviceid == "" {
-		p.log.Fatal("Pagerduty service \"", servicename, "\" not found")
+		return "", errors.New("Pagerduty service \"" + servicename + "\" not found")
 	}
 
+	// Create integration if it doesn't exist
 	if integrationid == "" {
-		p.log.Debug("Pagerduty EventsAPIv2 integration ID not found, creating it")
 		var integration pdApi.Integration
 		integration.Type = "events_api_v2_inbound_integration"
 		i, err := p.client.CreateIntegration(serviceid, integration)
 		if err != nil {
-			p.log.Fatal("Error creating EventsAPIv2 integration ID for service ", err)
+			return "", err
 		}
 		integrationid = i.IntegrationKey
 	}
 
-	return integrationid
+	return integrationid, nil
 }
 
-func (p *Pagerduty) SendEvent() {
+func (p *Pagerduty) SendEvent(e *Event) error {
 
-	o := p.Options
+	err := p.validateEventFields(e)
+	if err != nil {
+		return err
+	}
 
-	integrationid := p.GetServiceIntegrationId(o.Service)
+	integrationid, err := p.GetServiceIntegrationId(e.Service)
+	if err != nil {
+		return err
+	}
 
-	source, _ := os.Hostname()
+	var source string
+	if e.Source == "" {
+		source, err = os.Hostname()
+		if err != nil {
+			source = "unknown"
+		}
+	} else {
+		source = e.Source
+	}
 
 	payload := pdApi.V2Payload{
-		Summary:   o.Summary,
+		Summary:   e.Summary,
 		Source:    source,
-		Severity:  o.Severity,
-		Component: o.Component,
-		Group:     o.Group,
-		Class:     o.Class,
-		Details:   o.Details,
+		Severity:  e.Severity,
+		Component: e.Component,
+		Group:     e.Group,
+		Class:     e.Class,
+		Details:   e.Details,
 	}
 
 	event := pdApi.V2Event{
 		RoutingKey: integrationid,
-		Action:     o.Action,
+		Action:     e.Action,
 		Payload:    &payload,
-		DedupKey:   o.DedupKey,
+		DedupKey:   e.DedupKey,
 	}
 
-	p.log.Info("Sending event to Pagerduty")
-	response, err := pdApi.ManageEvent(event)
+	_, err = pdApi.ManageEvent(event)
 	if err != nil {
-		p.log.Fatal(err)
+		return err
 	}
 
-	p.log.Debug(response)
+	// p.log.Debug(response)
 
+	return nil
 }
 
-func (p *Pagerduty) CheckRequiredFields() {
-	if p.Options.Service == "" {
-		p.log.Fatal("Service name (--service) must be set")
+func (p *Pagerduty) validateEventFields(e *Event) error {
+	if e.Service == "" {
+		return errors.New("Pagerduty: Event Service Name must be set")
 	}
-	if p.Options.Summary == "" {
-		p.log.Fatal("Summary (--summary) must be set")
+	if e.Summary == "" {
+		return errors.New("Pagerduty: Event Summary")
 	}
-	if p.Options.Action == "" {
-		p.log.Fatal("Action (--action) must be set")
+	if e.Action == "" {
+		return errors.New("Pagerduty: Event Action must be set")
 	}
-	actions := []string{"trigger", "acknowledge", "resolve"}
-	if !utils.Contains(actions, p.Options.Action) {
-		p.log.Fatal("Invalid value for action (--action)")
+	validActions := []string{"trigger", "acknowledge", "resolve"}
+	if !utils.Contains(validActions, e.Action) {
+		return errors.New("Pagerduty: Invalid value for Event Action. Valid values are: [" + strings.Join(validActions, ",") + "]")
 	}
-	if p.Options.Severity == "" {
-		p.log.Fatal("Severity (--severity) must be set")
+	if e.Severity == "" {
+		return errors.New("Pagerduty: Event Severity must be set")
 	}
-	severities := []string{"critical", "warning", "error", "info"}
-	if !utils.Contains(severities, p.Options.Severity) {
-		p.log.Fatal("Invalid value for severity (--severity)")
+	validSeverities := []string{"critical", "warning", "error", "info"}
+	if !utils.Contains(validSeverities, e.Severity) {
+		return errors.New("Pagerduty: Invalid value for Event Severity. Valid values are: [" + strings.Join(validSeverities, ",") + "]")
 	}
-	if p.Options.Source == "" {
-		p.log.Fatal("Source (--source) must be set")
+	if e.Source == "" {
+		return errors.New("Pagerduty: Event Source must be set")
 	}
-	if p.Options.VaultApikeyPath == "" {
-		p.log.Fatal("Vault APIkey path for Pagerduty not found")
+	if e.Summary == "" {
+		return errors.New("Pagerduty: Event Summary must be set")
 	}
-	if p.Options.VaultApikeyKey == "" {
-		p.log.Fatal("Vault APIkey key for Pagerduty not found")
-	}
-	if p.Options.Summary == "" {
-		p.log.Fatal("Summary (--summary) must be set")
-	}
+
+	return nil
 }

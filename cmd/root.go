@@ -2,7 +2,9 @@ package cmd
 
 import (
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/readytalk/stim/pkg/notify"
+	"github.com/readytalk/stim/api"
+	"github.com/readytalk/stim/stimpaks/pagerduty"
+	"github.com/readytalk/stim/stimpaks/vault"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,12 +17,14 @@ var rootCmd = &cobra.Command{
 	Long:  "Speeding up development with glue that brings tools together.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Show help if no sub-commands are specified
+		log.Debug("Running root command")
 		cmd.Help()
 	},
 }
 
 // Version is normally set at build time
 var version string
+var config *viper.Viper
 
 var configFile string
 var log *logrus.Logger
@@ -32,6 +36,7 @@ func check(e error) { // This helper will streamline our error checks below.
 }
 
 func init() {
+
 	// Set version for local testing if not set by build system
 	if version == "" {
 		version = "local"
@@ -40,55 +45,65 @@ func init() {
 	// Initialize logger
 	log = logrus.New()
 
+	// Initialize viper (config)
+	config = viper.New()
+
+	// Initialize API
+	log.Info("Initializing API")
+	api := api.New(config)
+	api.BindLogger(log)
+
 	// Set root-level flags
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.stim.yaml)")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
-
+	config.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 	rootCmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")
-	viper.BindPFlag("noprompt", rootCmd.PersistentFlags().Lookup("noprompt"))
+	config.BindPFlag("noprompt", rootCmd.PersistentFlags().Lookup("noprompt"))
 
 	// Sets the passed functions to be run when each command's Execute method is called.
 	cobra.OnInitialize(initConfig)
 
-	notify := notify.New()
-	notify.BindLogger(log)
-	notify.BindCommand(rootCmd)
+	// Initialize Pagerduty stimpak
+	pagerduty := pagerduty.New(api)
+	pagerduty.Bind(rootCmd)
 
+	// Initialize Vault stimpak
+	vault := vault.New(api)
+	vault.Bind(rootCmd)
 }
 
 func initConfig() {
 
+	config.SetConfigType("yaml") // set the config file type
+
+	// Don't forget to read config either from CfgFile or from home directory!
+	if configFile != "" {
+		config.SetConfigFile(configFile) // Use config file from the flag.
+	} else {
+		home, err := homedir.Dir() // Find home directory.
+		check(err)
+
+		config.AddConfigPath(home)
+		config.SetConfigName(".stim")
+	}
+
+	err := config.ReadInConfig()
+	check(err)
+
+	configFile = config.ConfigFileUsed()
+	log.Info("config loaded")
 	// Set log level
-	if viper.GetBool("verbose") == true {
+	if config.GetBool("verbose") == true {
 		log.SetLevel(logrus.DebugLevel)
 		log.Debug("Stim version: ", version)
 		log.Debug("Debug log level set")
 	}
 
-	viper.SetConfigType("yaml") // set the config file type
-
-	// Don't forget to read config either from CfgFile or from home directory!
-	if configFile != "" {
-		viper.SetConfigFile(configFile) // Use config file from the flag.
-	} else {
-		home, err := homedir.Dir() // Find home directory.
-		check(err)
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".stim")
-	}
-
-	err := viper.ReadInConfig()
-	check(err)
-
-	configFile = viper.ConfigFileUsed()
-
 	log.Debug("Using config file: ", configFile)
 
-	if viper.Get("noprompt") == false && isAutomated() {
+	if config.Get("noprompt") == false && isAutomated() {
 		log.Debug("Detected automation. Setting --noprompt")
-		viper.Set("noprompt", true)
+		config.Set("noprompt", true)
 	}
 }
 
