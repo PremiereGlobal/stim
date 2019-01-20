@@ -11,6 +11,30 @@
   source = "github.com/PagerDuty/go-pagerduty"
 
 [[projects]]
+  digest = "1:c47f4964978e211c6e566596ec6246c329912ea92e9bb99c00798bb4564c5b09"
+  name = "github.com/armon/go-radix"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1a2de0c21c94309923825da3df33a4381872c795"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:1343a2963481a305ca4d051e84bc2abd16b601ee22ed324f8d605de1adb291b0"
+  name = "github.com/bgentry/speakeasy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4aabc24848ce5fd31929f7d1e4ea74d3709c14cd"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
+  name = "github.com/fatih/color"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
+  version = "v1.7.0"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -102,10 +126,11 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ac52144f192f9c6a37ac9d0abdb9c837da80446a25a881db2b63c04e1259bd8a"
+  digest = "1:5b5a2285b4295ff2819351b705e3c52a7b865435fc7bd1431286a7bf53d0271c"
   name = "github.com/hashicorp/vault"
   packages = [
     "api",
+    "command/token",
     "helper/compressutil",
     "helper/consts",
     "helper/hclutil",
@@ -142,6 +167,30 @@
   version = "v1.8.0"
 
 [[projects]]
+  digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  digest = "1:0981502f9816113c9c8c4ac301583841855c8cf4da8c72f696b3ebedf6d0e4e5"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
+  version = "v0.0.4"
+
+[[projects]]
+  digest = "1:dac0667a3fcdd4102a5da07abeddc89eb2f125b1e91af1ea9544c80eaff19c9a"
+  name = "github.com/mitchellh/cli"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3d22a244be8aa6fb16ac24af0e195c08b7d973aa"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:78bbb1ba5b7c3f2ed0ea1eab57bdd3859aec7e177811563edc41198a760b06af"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
@@ -175,6 +224,19 @@
   pruneopts = "UT"
   revision = "635575b42742856941dbc767b44905bb9ba083f6"
   version = "v2.0.7"
+
+[[projects]]
+  digest = "1:57e168c6dfcc02c1c53bdf1589afbef59694d819cac65bfd3a855de2256d4950"
+  name = "github.com/posener/complete"
+  packages = [
+    ".",
+    "cmd",
+    "cmd/install",
+    "match",
+  ]
+  pruneopts = "UT"
+  revision = "3ef9b31a6a0613ae832e7ecf208374027c3b2343"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:0e792eea6c96ec55ff302ef33886acbaa5006e900fefe82689e88d96439dcd84"
@@ -320,6 +382,7 @@
   input-imports = [
     "github.com/PagerDuty/go-pagerduty",
     "github.com/hashicorp/vault/api",
+    "github.com/hashicorp/vault/command/token",
     "github.com/mitchellh/go-homedir",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",

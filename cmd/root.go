@@ -90,7 +90,7 @@ func initConfig() {
 	}
 }
 
-func isAutomated() bool {
+func isAutomated() bool { // detect if running on a builder
 	if os.Getenv("JENKINS_URL") == "" {
 		return false
 	}
