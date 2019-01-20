@@ -75,15 +75,16 @@ func (v *Client) Setup() {
 		// Reading token from user's dot file
 		token, _ := v.tokenHelper.Get()
     check(err)
-		v.client.SetToken(token)
-	}
-
-	if v.client.Token() == "" { // If we still can not find the token
-		log.Debug("No token found. Trying to login.")
-    v.userLoginPrompt()
+    if token != "" {
+  		v.client.SetToken(token)
+      log.Debug("Reading token from user's dot file")
+    } else {// If we still can not find the token
+       log.Debug("No token found. Trying to login.")
+       v.userLoginPrompt()
+    }
 	} else {
-		log.Debug("Reading token from user's environment variable")
-	}
+    log.Debug("Reading token from user's environment variable")
+  }
 
 	// Test token and see if a vault login is needed
   loginToVault := false
@@ -131,7 +132,7 @@ func (v *Client) userLoginPrompt() (bool) {
   // Maybe someday vault will allow anonymous access to "vault auth list"
 
   if v.Config.Noprompt == true {
-    log.Error("No interactive prompt is set, but Vault login is required to continue")
+    log.Error("No interactive prompt is set, but user input is required to continue")
     os.Exit(1)
   }
 
