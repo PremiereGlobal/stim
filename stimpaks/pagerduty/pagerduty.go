@@ -6,12 +6,17 @@ import (
 )
 
 type Pagerduty struct {
+	name string
 	stim *stim.Stim
 }
 
 func New() *Pagerduty {
-	pagerduty := &Pagerduty{}
+	pagerduty := &Pagerduty{name: "pagerduty"}
 	return pagerduty
+}
+
+func (p *Pagerduty) Name() string {
+	return p.name
 }
 
 func (p *Pagerduty) SendEvent() {

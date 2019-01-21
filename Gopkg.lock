@@ -99,20 +99,20 @@
   version = "v0.5.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:45aad874d3c7d5e8610427c81870fb54970b981692930ec2a319ce4cb89d7a00"
+  digest = "1:a54ada9beb59fdc35b69322979e870ff0b780e03f4dc309c4c8674b94927df75"
   name = "github.com/hashicorp/go-rootcerts"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
+  revision = "63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:14f2005c31ddf99c4a0f36fc440f8d1ac43224194c7c4a904b3c8f4ba5654d0b"
+  digest = "1:3c4c27026ab6a3218dbde897568f651c81062e2ee6e617e57ae46ca95bb1db6b"
   name = "github.com/hashicorp/go-sockaddr"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e92cdb5343bbaf42b0a596937ae0f382270d6759"
+  revision = "3aed17b5ee41761cc2b04f2a94c7107d428967e5"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -134,7 +134,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:5b5a2285b4295ff2819351b705e3c52a7b865435fc7bd1431286a7bf53d0271c"
+  digest = "1:fc0da9baf2b510e32e7b998de710d44d64535ae9fdd4a9c0de507c75625ebd09"
   name = "github.com/hashicorp/vault"
   packages = [
     "api",
@@ -147,8 +147,8 @@
     "helper/strutil",
   ]
   pruneopts = "UT"
-  revision = "08df121c8b9adcc2b8fd55fc8506c3f9714c7e61"
-  version = "v1.0.1"
+  revision = "37a1dc9c477c1c68c022d2084550f25bf20cac33"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -342,7 +342,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b6bbc489acd7bf1d4c6782138ffb75f46634007713795667ed7ad287fd80c070"
+  digest = "1:e480830d20470d74d24bc36a52d4152c420c2cab67503e54f8f08e2db52579c5"
   name = "golang.org/x/net"
   packages = [
     "http/httpguts",
@@ -351,18 +351,18 @@
     "idna",
   ]
   pruneopts = "UT"
-  revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
+  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
 
 [[projects]]
   branch = "master"
-  digest = "1:5ee4df7ab18e945607ac822de8d10b180baea263b5e8676a1041727543b9c1e4"
+  digest = "1:72f402ba458cb14ed7964c8b9a38d992f27834b3cf3479f3b08ea9e5334811b3"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "48ac38b7c8cbedd50b1613c0fccacfc7d88dfcdf"
+  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -417,6 +417,7 @@
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
+    "golang.org/x/crypto/ssh/terminal",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

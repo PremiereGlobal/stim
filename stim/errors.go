@@ -1,6 +1,6 @@
 package stim
 
-func (stim *Stim) Debug(err error) {
+func (stim *Stim) DebugError(err error) {
 	if err != nil {
 		stim.log.Debug(err)
 	}

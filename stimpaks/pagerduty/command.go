@@ -1,9 +1,14 @@
 package pagerduty
 
 import (
+	"github.com/readytalk/stim/stim"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+func (p *Pagerduty) BindStim(s *stim.Stim) {
+	p.stim = s
+}
 
 func (p *Pagerduty) Command(viper *viper.Viper) *cobra.Command {
 
