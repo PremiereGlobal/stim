@@ -23,13 +23,13 @@ docker run \
 The project is broken down into 4 major componenets: `api`, `command`, `packages`, and `stimpacks`. More explaination below.
 
 ```
-├── api/
 ├── cmd/
 ├── pkg/
 │   ├── pagerduty/
 │   ├── utils/
 │   ├── vault/
 │   ├── ...
+├── stim/
 ├── stimpacks/
 │   ├── deploy/
 │   ├── vault/
