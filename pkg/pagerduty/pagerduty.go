@@ -118,8 +118,6 @@ func (p *Pagerduty) SendEvent(e *Event) error {
 		return err
 	}
 
-	// p.log.Debug(response)
-
 	return nil
 }
 
@@ -128,7 +126,7 @@ func (p *Pagerduty) validateEventFields(e *Event) error {
 		return errors.New("Pagerduty: Event Service Name must be set")
 	}
 	if e.Summary == "" {
-		return errors.New("Pagerduty: Event Summary")
+		return errors.New("Pagerduty: Event Summary must be set")
 	}
 	if e.Action == "" {
 		return errors.New("Pagerduty: Event Action must be set")
@@ -143,9 +141,6 @@ func (p *Pagerduty) validateEventFields(e *Event) error {
 	validSeverities := []string{"critical", "warning", "error", "info"}
 	if !utils.Contains(validSeverities, e.Severity) {
 		return errors.New("Pagerduty: Invalid value for Event Severity. Valid values are: [" + strings.Join(validSeverities, ",") + "]")
-	}
-	if e.Source == "" {
-		return errors.New("Pagerduty: Event Source must be set")
 	}
 	if e.Summary == "" {
 		return errors.New("Pagerduty: Event Summary must be set")

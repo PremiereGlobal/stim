@@ -1,9 +1,14 @@
 package main
 
 import (
-	"github.com/readytalk/stim/cmd"
+	"github.com/readytalk/stim/stim"
+	"github.com/readytalk/stim/stimpaks/pagerduty"
+	"github.com/readytalk/stim/stimpaks/vault"
 )
 
 func main() {
-	cmd.Execute()
+	stim := stim.New()
+	stim.AddStimpak(pagerduty.New())
+	stim.AddStimpak(vault.New())
+	stim.Execute()
 }

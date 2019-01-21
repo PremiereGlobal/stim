@@ -1,0 +1,37 @@
+package stim
+
+import (
+	"github.com/mitchellh/go-homedir"
+)
+
+func (stim *Stim) GetConfig(configKey string) string {
+	configValue := stim.config.Get(configKey)
+	if configValue != nil {
+		return configValue.(string)
+	}
+
+	return ""
+}
+
+func (stim *Stim) LoadConfigFile() error {
+
+	// Set the config file type
+	stim.config.SetConfigType("yaml")
+
+	// Don't forget to read config either from CfgFile or from home directory!
+	if configFile := stim.GetConfig("config-file"); configFile != "" {
+		stim.config.SetConfigFile(configFile)
+	} else {
+		// Find home directory
+		home, err := homedir.Dir()
+		if err != nil {
+			return err
+		}
+
+		stim.config.AddConfigPath(home)
+		stim.config.SetConfigName(".stim")
+	}
+
+	err := stim.config.ReadInConfig()
+	return err
+}

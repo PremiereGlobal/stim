@@ -1,32 +1,29 @@
 package pagerduty
 
 import (
-	"github.com/readytalk/stim/api"
 	pd "github.com/readytalk/stim/pkg/pagerduty"
-	"github.com/spf13/cobra"
+	"github.com/readytalk/stim/stim"
 )
 
 type Pagerduty struct {
-	api *api.Api
-	log api.Log
+	stim *stim.Stim
 }
 
-func New(api *api.Api) *Pagerduty {
-	pagerduty := &Pagerduty{api: api, log: api.Log}
+func New() *Pagerduty {
+	pagerduty := &Pagerduty{}
 	return pagerduty
-}
-
-func (p *Pagerduty) Bind(parentCmd *cobra.Command) {
-	p.BindCommand(parentCmd)
 }
 
 func (p *Pagerduty) SendEvent() {
 
-	pagerduty := p.api.Pagerduty()
+	pagerduty := p.stim.Pagerduty()
 
-	p.log.Info("Sending event to Pagerduty")
-	err := pagerduty.SendEvent(&pd.Event{Summary: "b"})
-	if err != nil {
-		p.log.Fatal(err)
-	}
+	err := pagerduty.SendEvent(&pd.Event{
+		Service:  p.stim.GetConfig("pagerduty-service"),
+		Summary:  p.stim.GetConfig("pagerduty-summary"),
+		Action:   p.stim.GetConfig("pagerduty-action"),
+		Severity: p.stim.GetConfig("pagerduty-severity"),
+	})
+	p.stim.Fatal(err)
+
 }
