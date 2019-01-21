@@ -42,7 +42,7 @@ var vaultLoginCmd = &cobra.Command{
 	Short: "login",
 	Long:  "Stuff",
 	Run: func(cmd *cobra.Command, args []string) {
-    vaultHandler.Setup()
+		vaultHandler.Setup()
 		// vaultHandler.Login()
 	},
 }
