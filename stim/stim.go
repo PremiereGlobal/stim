@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+var version string
+
 type Stim struct {
 	config   *viper.Viper
 	rootCmd  *cobra.Command
@@ -32,8 +34,10 @@ func New() *Stim {
 	stim.config = viper.New()
 
 	// Set version for local testing if not set by build system
-	if stim.version == "" {
+	if version == "" {
 		stim.version = "local"
+	} else {
+		stim.version = version
 	}
 
 	stim.rootCmd = stim.rootCommand(stim.config)
