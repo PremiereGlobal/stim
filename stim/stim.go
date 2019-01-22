@@ -1,7 +1,6 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/cmd"
 	"github.com/readytalk/stim/pkg/pagerduty"
 	"github.com/readytalk/stim/pkg/vault"
 	"github.com/sirupsen/logrus"
@@ -17,13 +16,6 @@ type Stim struct {
 	log      *logrus.Logger
 	stimpaks []*Stimpak
 	version  string
-}
-
-// This is the interface for stimpaks
-type Stimpak interface {
-	Command(*viper.Viper) *cobra.Command
-	Name() string
-	BindStim(*Stim)
 }
 
 var stim *Stim
@@ -44,20 +36,11 @@ func New() *Stim {
 		stim.version = "local"
 	}
 
-	stim.rootCmd = cmd.Command(stim.config)
+	stim.rootCmd = stim.rootCommand(stim.config)
 
 	stim.commandInit()
 
 	return stim
-}
-
-func (stim *Stim) AddStimpak(s Stimpak) {
-
-	stim.log.Debug("Loading stimpak `", s.Name(), "`")
-	s.BindStim(stim)
-	// s.Stim = stim
-	cmd := s.Command(stim.config)
-	stim.rootCmd.AddCommand(cmd)
 }
 
 func (stim *Stim) Execute() {
