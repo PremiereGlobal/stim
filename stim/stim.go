@@ -46,7 +46,7 @@ func New() *Stim {
 
 	stim.rootCmd = cmd.Command(stim.config)
 
-	stim.commandInit()
+	// stim.commandInit()
 
 	return stim
 }
@@ -62,7 +62,7 @@ func (stim *Stim) AddStimpak(s Stimpak) {
 
 func (stim *Stim) Execute() {
 	// rootCmd = cmd.rootCmd
-	// cobra.OnInitialize(stim.commandInit)
+	cobra.OnInitialize(stim.commandInit)
 
 	err := stim.rootCmd.Execute()
 	stim.Fatal(err)
@@ -86,12 +86,6 @@ func (stim *Stim) commandInit() {
 		stim.log.Debug("No config file loaded")
 		stim.log.Debug(loadConfigErr)
 	}
-
-	if stim.config.Get("noprompt") == false && stim.isAutomated() {
-		stim.log.Debug("Detected automation. Setting --noprompt")
-		stim.config.Set("noprompt", true)
-	}
-
 }
 
 func (stim *Stim) Pagerduty() *pagerduty.Pagerduty {
@@ -117,7 +111,8 @@ func (stim *Stim) Vault() *vault.Vault {
 
 	vault, err := vault.New(&vault.Config{
 		Address:  address,
-		Noprompt: stim.config.GetBool("noprompt"),
+		Noprompt: stim.config.Get("noprompt") == false && stim.IsAutomated(),
+		Logger:   stim.log,
 	})
 	// err := vault.InitClient()
 	if err != nil {
@@ -130,7 +125,7 @@ func (stim *Stim) BindCommand(command *cobra.Command, parentCommand *cobra.Comma
 	parentCommand.AddCommand(command)
 }
 
-func (stim *Stim) isAutomated() bool {
+func (stim *Stim) IsAutomated() bool {
 	if os.Getenv("JENKINS_URL") == "" {
 		return false
 	}

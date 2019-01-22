@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
+	// "log"
+	"fmt"
 )
 
 type Vault struct {
@@ -15,10 +17,29 @@ type Vault struct {
 type Config struct {
 	Noprompt bool
 	Address  string //`vrequired:"true" mapstructure:"vault-address"`
+	Logger
+}
+
+type Logger interface {
+	Debug(args ...interface{})
+	Info(args ...interface{})
+}
+
+func (v *Vault) Debug(message string) {
+	if v.config.Logger != nil {
+		v.config.Debug(message)
+	}
+}
+
+func (v *Vault) Info(message string) {
+	if v.config.Logger != nil {
+		v.config.Info(message)
+	} else {
+		fmt.Println(message)
+	}
 }
 
 func New(config *Config) (*Vault, error) {
-
 	// Ensure that the Vault address is set
 	if config.Address == "" {
 		return nil, errors.New("Vault address not set")
