@@ -11,7 +11,7 @@ mkdir -p bin
 docker build --build-arg VERSION=${VERSION} --build-arg GOOS=${GOOS} -t ${DOCKER_REPO}:${VERSION}-${GOOS} ./
 
 # Run the container in the background in order to extract the binary
-docker run --rm --name stim-build -d ${DOCKER_REPO}:${VERSION}-${GOOS} sh -c "sleep 120"
+docker run --rm --entrypoint "" --name stim-build -d ${DOCKER_REPO}:${VERSION}-${GOOS} sh -c "sleep 120"
 
 docker cp stim-build:/usr/bin/stim bin
 docker stop stim-build
