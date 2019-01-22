@@ -117,7 +117,7 @@ func (stim *Stim) Vault() *vault.Vault {
 
 	vault, err := vault.New(&vault.Config{
 		Address:  address,
-		Noprompt: false,
+		Noprompt: stim.config.GetBool("noprompt"),
 	})
 	// err := vault.InitClient()
 	if err != nil {
