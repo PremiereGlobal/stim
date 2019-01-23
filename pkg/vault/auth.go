@@ -16,7 +16,6 @@ import (
 	// 	"regexp"
 	"strings"
 	"syscall"
-	// 	"time"
 )
 
 // This is the main Login function
@@ -31,7 +30,7 @@ func (v *Vault) Login() error {
 		}
 		if token != "" {
 			v.client.SetToken(token)
-			v.Debug("Reading token from user's dot file")
+			v.Debug("Reading token from: " + v.tokenHelper.Path())
 		} else { // If we still can not find the token
 			v.Debug("No token found. Trying to login.")
 			err = v.userLogin()
@@ -40,7 +39,7 @@ func (v *Vault) Login() error {
 			}
 		}
 	} else {
-		v.Debug("Reading token from user's environment variable")
+		v.Debug("Reading token from environment 'VAULT_TOKEN'")
 	}
 
 	// Test token and see if a vault login is needed

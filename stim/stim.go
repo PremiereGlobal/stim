@@ -58,7 +58,7 @@ func (stim *Stim) commandInit() {
 	loadConfigErr := stim.LoadConfigFile()
 
 	// Set log level, this is done as early as possible so we can start using it
-	if stim.config.GetBool("verbose") == true {
+	if stim.GetConfigBool("verbose") == true {
 		stim.log.SetLevel(logrus.DebugLevel)
 		stim.log.Debug("Stim version: ", stim.version)
 		stim.log.Debug("Debug log level set")
@@ -100,7 +100,7 @@ func (stim *Stim) Vault() *vault.Vault {
 
 	vault, err := vault.New(&vault.Config{
 		Address:  stim.GetConfig("vault-address"),
-		Noprompt: stim.config.Get("noprompt") == false && stim.IsAutomated(),
+		Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
 		Logger:   stim.log,
 		Username: username,
 	})
@@ -133,7 +133,7 @@ func (stim *Stim) User() (string, error) {
 func (stim *Stim) UpdateVaultUser(username string) error {
 	if username != stim.GetConfig("vault-username") {
 		stim.Set("vault-username", username)
-		err := stim.UpdateConfigFile()
+		err := stim.UpdateConfigFileKey("vault-username", username)
 		if err != nil {
 			return err
 		}

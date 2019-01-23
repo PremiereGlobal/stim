@@ -2,6 +2,10 @@ package stim
 
 import (
 	"github.com/mitchellh/go-homedir"
+	yaml "gopkg.in/yaml.v2"
+
+	"io/ioutil"
+	"os"
 )
 
 func (stim *Stim) GetConfig(configKey string) string {
@@ -26,8 +30,26 @@ func (stim *Stim) Set(key string, value string) {
 	stim.config.Set(key, value)
 }
 
-func (stim *Stim) UpdateConfigFile() error {
-	err := stim.config.WriteConfig()
+func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
+	config := make(map[string]interface{})
+
+	f, err := ioutil.ReadFile(stim.config.ConfigFileUsed())
+	if err != nil {
+		return err
+	}
+	err = yaml.Unmarshal(f, config)
+	if err != nil {
+		return err
+	}
+
+	config[key] = value
+
+	f, err = yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(stim.config.ConfigFileUsed(), f, os.FileMode(0644))
 	if err != nil {
 		return err
 	}
