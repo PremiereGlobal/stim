@@ -13,6 +13,15 @@ func (stim *Stim) GetConfig(configKey string) string {
 	return ""
 }
 
+func (stim *Stim) GetConfigBool(configKey string) bool {
+	configValue := stim.config.Get(configKey)
+	if configValue != nil {
+		return configValue.(bool)
+	}
+
+	return false
+}
+
 func (stim *Stim) Set(key string, value string) {
 	stim.config.Set(key, value)
 }
