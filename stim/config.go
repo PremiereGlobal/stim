@@ -8,6 +8,15 @@ import (
 	"os"
 )
 
+func (stim *Stim) Get(configKey string) interface{} {
+	configValue := stim.config.Get(configKey)
+	if configValue != nil {
+		return configValue
+	}
+
+	return nil
+}
+
 func (stim *Stim) GetConfig(configKey string) string {
 	configValue := stim.config.Get(configKey)
 	if configValue != nil {

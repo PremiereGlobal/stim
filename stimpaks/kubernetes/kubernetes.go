@@ -1,12 +1,14 @@
 package kubernetes
 
 import (
+	vault "github.com/readytalk/stim/pkg/vault"
 	"github.com/readytalk/stim/stim"
 )
 
 type Kubernetes struct {
-	name string
-	stim *stim.Stim
+	name  string
+	stim  *stim.Stim
+	vault *vault.Vault
 }
 
 func New() *Kubernetes {

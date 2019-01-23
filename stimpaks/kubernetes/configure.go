@@ -1,39 +1,44 @@
 package kubernetes
 
 import (
-	"errors"
 	kubepkg "github.com/readytalk/stim/pkg/kubernetes"
+	// "github.com/davecgh/go-spew/spew"
 )
 
 func (k *Kubernetes) configureContext() error {
 
-	// Ensure we have the fields we need
-	err := k.validateConfigureFields()
+	// Create a Vault instance
+	k.vault = k.stim.Vault()
+
+	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.GetConfig("kube-config-cluster"))
 	if err != nil {
 		return err
 	}
 
-	// Define some vars
-	cluster := k.stim.GetConfig("kube-configure-cluster")
-	sa := k.stim.GetConfig("kube-service-account")
+	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.GetConfig("kube-service-account"))
+	if err != nil {
+		return err
+	}
 
 	// Get secrets from Vault
-	vault := k.stim.Vault()
-	secretValues, err := vault.GetSecretKeys("secret/kubernetes/" + cluster + "/" + sa + "/kube-config")
+	secretValues, err := k.vault.GetSecretKeys("secret/kubernetes/" + cluster + "/" + sa + "/kube-config")
 	if err != nil {
 		return err
 	}
 
-	// Set default context
-	var context string
-	if context = k.stim.GetConfig("kube-context"); context == "" {
-		context = cluster
+	namespace, err := k.stim.PromptString("Select Default Namespace", k.stim.GetConfig("kube-service-account"), secretValues["default-namespace"])
+	if err != nil {
+		return err
 	}
 
-	// Set default namespace
-	var namespace string
-	if namespace = k.stim.GetConfig("kube-config-namespace"); namespace == "" {
-		namespace = secretValues["default-namespace"]
+	context, err := k.stim.PromptString("Context Name", k.stim.GetConfig("kube-context"), cluster)
+	if err != nil {
+		return err
+	}
+
+	currentContext, err := k.stim.PromptBool("Set as current context?", k.stim.GetConfigBool("kube-current-context"), true)
+	if err != nil {
+		return err
 	}
 
 	// Build the config options
@@ -44,7 +49,7 @@ func (k *Kubernetes) configureContext() error {
 		AuthName:                cluster + "-" + sa,
 		AuthToken:               secretValues["user-token"],
 		ContextName:             context,
-		ContextSetCurrent:       k.stim.GetConfigBool("kube-current-context"),
+		ContextSetCurrent:       currentContext,
 		ContextDefaultNamespace: namespace,
 	}
 
@@ -53,20 +58,6 @@ func (k *Kubernetes) configureContext() error {
 	err = kube.SetKubeconfig(kubeConfigOptions)
 	if err != nil {
 		return err
-	}
-
-	return nil
-}
-
-// Validates fields for setting up kubeconfig
-func (k *Kubernetes) validateConfigureFields() error {
-
-	if k.stim.GetConfig("kube-configure-cluster") == "" {
-		return errors.New("Must specify cluster name")
-	}
-
-	if k.stim.GetConfig("kube-service-account") == "" {
-		return errors.New("Must specify service account")
 	}
 
 	return nil

@@ -1,10 +1,11 @@
 package prometheus
 
 import (
+	"context"
+	"fmt"
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/client_golang/api/prometheus/v1"
-	// "time"
-	"context"
+	"time"
 )
 
 type Prometheus struct {
@@ -16,6 +17,26 @@ type Prometheus struct {
 
 type Config struct {
 	Address string
+	Logger
+}
+
+type Logger interface {
+	Debug(args ...interface{})
+	Info(args ...interface{})
+}
+
+func (p *Prometheus) Debug(message string) {
+	if p.config.Logger != nil {
+		p.config.Debug(message)
+	}
+}
+
+func (p *Prometheus) Info(message string) {
+	if p.config.Logger != nil {
+		p.config.Info(message)
+	} else {
+		fmt.Println(message)
+	}
 }
 
 func New(config *Config) (*Prometheus, error) {
@@ -33,15 +54,15 @@ func New(config *Config) (*Prometheus, error) {
 	return p, nil
 }
 
-// func (p *Prometheus) QueryInstant(query string) (string, error) {
-// 	result, err := p.client.API.Query(p.context, query, time.Now())
-// 	if err != nil {
-// 		return "", err
-// 	}
-//
-// 	t := result.Type()
-// 	var d []byte
-// 	t.UnmarshalJSON(d)
-//
-// 	return string(d), nil
-// }
+func (p *Prometheus) QueryInstant(query string) (string, error) {
+	result, err := p.API.Query(p.context, query, time.Now())
+	if err != nil {
+		return "", err
+	}
+
+	t := result.Type()
+	var d []byte
+	t.UnmarshalJSON(d)
+
+	return string(d), nil
+}

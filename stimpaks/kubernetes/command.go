@@ -9,15 +9,15 @@ func (k *Kubernetes) Command(viper *viper.Viper) *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "kube",
-		Short: "Used to configure and interact with Kubernetes",
-		Long:  "Used to configure and interact with Kubernetes",
+		Short: "Used to config and interact with Kubernetes",
+		Long:  "Used to config and interact with Kubernetes",
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
 	}
 
-	var configureCmd = &cobra.Command{
-		Use:   "configure",
+	var configCmd = &cobra.Command{
+		Use:   "config",
 		Short: "Create/modify a Kubernetes context",
 		Long:  "Create/modify a Kubernetes context",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -28,18 +28,18 @@ func (k *Kubernetes) Command(viper *viper.Viper) *cobra.Command {
 		},
 	}
 
-	configureCmd.Flags().StringP("cluster", "c", "", "Required. Name of cluster to configure")
-	viper.BindPFlag("kube-configure-cluster", configureCmd.Flags().Lookup("cluster"))
-	configureCmd.Flags().StringP("service-account", "s", "", "Required. Name of service account to use")
-	viper.BindPFlag("kube-service-account", configureCmd.Flags().Lookup("service-account"))
-	configureCmd.Flags().StringP("context", "t", "", "Optional. Name of context to set. Default is cluster name")
-	viper.BindPFlag("kube-context", configureCmd.Flags().Lookup("context"))
-	configureCmd.Flags().BoolP("current-context", "r", false, "Optional. Set to current context")
-	viper.BindPFlag("kube-current-context", configureCmd.Flags().Lookup("current-context"))
-	configureCmd.Flags().StringP("namespace", "n", "", "Optional. Name of default namespace")
-	viper.BindPFlag("kube-config-namespace", configureCmd.Flags().Lookup("namespace"))
+	configCmd.Flags().StringP("cluster", "c", "", "Required. Name of cluster to config")
+	viper.BindPFlag("kube-config-cluster", configCmd.Flags().Lookup("cluster"))
+	configCmd.Flags().StringP("service-account", "s", "", "Required. Name of service account to use")
+	viper.BindPFlag("kube-service-account", configCmd.Flags().Lookup("service-account"))
+	configCmd.Flags().StringP("context", "t", "", "Optional. Name of context to set. Default is cluster name")
+	viper.BindPFlag("kube-context", configCmd.Flags().Lookup("context"))
+	configCmd.Flags().BoolP("current-context", "r", false, "Optional. Set to current context")
+	viper.BindPFlag("kube-current-context", configCmd.Flags().Lookup("current-context"))
+	configCmd.Flags().StringP("namespace", "n", "", "Optional. Name of default namespace")
+	viper.BindPFlag("kube-config-namespace", configCmd.Flags().Lookup("namespace"))
 
-	k.stim.BindCommand(configureCmd, cmd)
+	k.stim.BindCommand(configCmd, cmd)
 
 	return cmd
 }

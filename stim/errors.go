@@ -1,5 +1,11 @@
 package stim
 
+func (stim *Stim) Debug(message string) {
+	if message != "" {
+		stim.log.Debug(message)
+	}
+}
+
 func (stim *Stim) DebugError(err error) {
 	if err != nil {
 		stim.log.Debug(err)

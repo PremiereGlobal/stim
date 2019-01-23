@@ -19,6 +19,7 @@ type Stim struct {
 	log      *logrus.Logger
 	stimpaks []*Stimpak
 	version  string
+	vault    *vault.Vault
 }
 
 var stim *Stim
@@ -87,34 +88,40 @@ func (stim *Stim) Pagerduty() *pagerduty.Pagerduty {
 }
 
 func (stim *Stim) Vault() *vault.Vault {
-	stim.log.Debug("Stim-Vault: Creating")
 
-	username := stim.GetConfig("vault-username")
-	if username == "" {
-		var err error
-		username, err = stim.User()
-		if err != nil {
-			stim.log.Fatal("Stim-vault: ", err)
+	if stim.vault == nil {
+
+		stim.log.Debug("Stim-Vault: Creating")
+
+		username := stim.GetConfig("vault-username")
+		if username == "" {
+			var err error
+			username, err = stim.User()
+			if err != nil {
+				stim.log.Fatal("Stim-vault: ", err)
+			}
 		}
+
+		vault, err := vault.New(&vault.Config{
+			Address:  stim.GetConfig("vault-address"),
+			Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
+			Logger:   stim.log,
+			Username: username,
+		})
+		if err != nil {
+			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
+		}
+
+		// Update the user set in local configs to make new logins friendly
+		err = stim.UpdateVaultUser(vault.GetUser())
+		if err != nil {
+			stim.log.Fatal("Stim-Vault: Error Updating username in configuration file: ", err)
+		}
+
+		stim.vault = vault
 	}
 
-	vault, err := vault.New(&vault.Config{
-		Address:  stim.GetConfig("vault-address"),
-		Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-		Logger:   stim.log,
-		Username: username,
-	})
-	if err != nil {
-		stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
-	}
-
-	// Update the user set in local configs to make new logins friendly
-	err = stim.UpdateVaultUser(vault.GetUser())
-	if err != nil {
-		stim.log.Fatal("Stim-Vault: Error Updating username in configuration file: ", err)
-	}
-
-	return vault
+	return stim.vault
 }
 
 func (stim *Stim) BindCommand(command *cobra.Command, parentCommand *cobra.Command) {
