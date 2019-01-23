@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"fmt"
 	"github.com/readytalk/stim/stim"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,6 +35,7 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 		Long:  "Stuff",
 		Run: func(cmd *cobra.Command, args []string) {
 			v.Login()
+			fmt.Println("HERE2-1")
 		},
 	}
 

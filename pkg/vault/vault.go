@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
-	// "log"
+
 	"fmt"
 )
 
@@ -16,7 +16,8 @@ type Vault struct {
 
 type Config struct {
 	Noprompt bool
-	Address  string //`vrequired:"true" mapstructure:"vault-address"`
+	Address  string
+	Username string
 	Logger
 }
 
@@ -47,6 +48,8 @@ func New(config *Config) (*Vault, error) {
 
 	v := &Vault{config: config}
 
+	// v.Debug("Username: "+ v.config.username)
+
 	// Configure new Vault Client
 	apiConfig := api.DefaultConfig()
 	apiConfig.Address = v.config.Address // Since we read the env we can override
@@ -72,6 +75,10 @@ func New(config *Config) (*Vault, error) {
 	}
 
 	return v, nil
+}
+
+func (v *Vault) GetUser() string {
+	return v.config.Username
 }
 
 // )
@@ -104,22 +111,6 @@ func New(config *Config) (*Vault, error) {
 //
 // }
 
-// =======
-// func check(e error, exit ...bool) { // This helper will streamline our error checks below.
-// 	if e != nil {
-// 		log.Error(e)
-// 		if len(exit) != 0 {
-// 			if exit[0] == true {
-// 				os.Exit(1)
-// 			}
-// 		}
-// 	}
-// }
-
-// func SetLogger(givenLog *logrus.Logger) {
-// 	log = givenLog
-// }
-
 // func NewVault() *Client {
 // 	config := &Config{}
 //
@@ -130,27 +121,4 @@ func New(config *Config) (*Vault, error) {
 
 // func (v *Client) Setup() {
 //
-// }
-
-// Gather username and password from the user
-// Could also use: github.com/hashicorp/vault/helper/password
-
-// func checkRequired(spec *Config) {
-// 	t := reflect.TypeOf(*spec)
-//
-// 	for i := 0; i < t.NumField(); i++ {
-// 		// Get the field, returns https://golang.org/pkg/reflect/#StructField
-// 		field := t.Field(i)
-//
-// 		// Get the field tag value
-// 		tag := field.Tag.Get("vrequired")
-//
-// 		if tag == "true" && field.Type.Name() != "bool" {
-// 			r := reflect.ValueOf(spec)
-// 			fieldValue := reflect.Indirect(r).FieldByName(field.Name)
-// 			if fieldValue.String() == "" {
-// 				log.Fatal(field.Name + " required but not set. Use environment variable " + field.Tag.Get("envconfig") + " or command line options: --" + field.Tag.Get("long") + ", -" + field.Tag.Get("short"))
-// 			}
-// 		}
-// 	}
 // }
