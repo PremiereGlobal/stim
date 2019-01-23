@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 
 	"os"
+	"os/user"
 )
 
 var version string
@@ -42,15 +43,11 @@ func New() *Stim {
 
 	stim.rootCmd = stim.rootCommand(stim.config)
 
-	// stim.commandInit()
-
 	return stim
 }
 
 func (stim *Stim) Execute() {
-	// rootCmd = cmd.rootCmd
 	cobra.OnInitialize(stim.commandInit)
-
 	err := stim.rootCmd.Execute()
 	stim.Fatal(err)
 }
@@ -90,26 +87,59 @@ func (stim *Stim) Pagerduty() *pagerduty.Pagerduty {
 }
 
 func (stim *Stim) Vault() *vault.Vault {
-
 	stim.log.Debug("Stim-Vault: Creating")
 
-	address := stim.GetConfig("vault-address")
-	stim.log.Debug("Stim-Vault: Using Address ", address)
+	username := stim.GetConfig("vault-username")
+	if username == "" {
+		var err error
+		username, err = stim.User()
+		if err != nil {
+			stim.log.Fatal("Stim-vault: ", err)
+		}
+	}
 
 	vault, err := vault.New(&vault.Config{
-		Address:  address,
+		Address:  stim.GetConfig("vault-address"),
 		Noprompt: stim.config.Get("noprompt") == false && stim.IsAutomated(),
 		Logger:   stim.log,
+		Username: username,
 	})
-	// err := vault.InitClient()
 	if err != nil {
 		stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
 	}
+
+	// Update the user set in local configs to make new logins friendly
+	err = stim.UpdateVaultUser(vault.GetUser())
+	if err != nil {
+		stim.log.Fatal("Stim-Vault: Error Updating username in configuration file: ", err)
+	}
+
 	return vault
 }
 
 func (stim *Stim) BindCommand(command *cobra.Command, parentCommand *cobra.Command) {
 	parentCommand.AddCommand(command)
+}
+
+func (stim *Stim) User() (string, error) {
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	return user.Username, nil
+}
+
+func (stim *Stim) UpdateVaultUser(username string) error {
+	if username != stim.GetConfig("vault-username") {
+		stim.Set("vault-username", username)
+		err := stim.UpdateConfigFile()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (stim *Stim) IsAutomated() bool {

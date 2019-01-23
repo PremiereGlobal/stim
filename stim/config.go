@@ -13,6 +13,19 @@ func (stim *Stim) GetConfig(configKey string) string {
 	return ""
 }
 
+func (stim *Stim) Set(key string, value string) {
+	stim.config.Set(key, value)
+}
+
+func (stim *Stim) UpdateConfigFile() error {
+	err := stim.config.WriteConfig()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (stim *Stim) LoadConfigFile() error {
 
 	// Set the config file type

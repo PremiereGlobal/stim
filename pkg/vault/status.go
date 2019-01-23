@@ -1,20 +1,24 @@
 package vault
 
+import (
+	"strconv"
+	"time"
+)
+
 func (v *Vault) isVaultHealthy() (bool, error) {
-	_, err := v.client.Sys().Health()
+	result, err := v.client.Sys().Health()
 	if err != nil {
 		return false, err
 	}
 
-	// log.Debug("Vault server info from (", v.client.Address(), ")")
-	// log.Debug("  Initialized: ", result.Initialized)
-	// log.Debug("  Sealed: ", result.Sealed)
-	// log.Debug("  Standby: ", result.Standby)
-	// log.Debug("  Version: ", result.Version)
-	// log.Debug("  ClusterName: ", result.ClusterName)
-	// log.Debug("  ClusterID: ", result.ClusterID)
-	// log.Debug("  ServerTime: (", result.ServerTimeUTC, ") ", time.Unix(result.ServerTimeUTC, 0).UTC())
-	// log.Debug("  Standby: ", result.Standby)
+	v.Debug("Vault server info from (" + v.client.Address() + ")")
+	v.Debug("  Initialized: " + strconv.FormatBool(result.Initialized))
+	v.Debug("  Sealed: " + strconv.FormatBool(result.Sealed))
+	v.Debug("  Standby: " + strconv.FormatBool(result.Standby))
+	v.Debug("  Version: " + result.Version)
+	v.Debug("  ClusterName: " + result.ClusterName)
+	v.Debug("  ClusterID: " + result.ClusterID)
+	v.Debug("  ServerTime: (" + strconv.FormatInt(result.ServerTimeUTC, 10) + ") " + time.Unix(result.ServerTimeUTC, 0).UTC().String())
 
 	return true, nil
 }

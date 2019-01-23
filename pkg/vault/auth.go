@@ -11,7 +11,7 @@ import (
 	// 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
-	"os/user"
+	// "os/user"
 	// 	"reflect"
 	// 	"regexp"
 	"strings"
@@ -21,7 +21,6 @@ import (
 
 // This is the main Login function
 func (v *Vault) Login() error {
-
 	v.tokenHelper = token.InternalTokenHelper{}
 
 	if v.client.Token() == "" { // If no environment token set
@@ -32,18 +31,17 @@ func (v *Vault) Login() error {
 		}
 		if token != "" {
 			v.client.SetToken(token)
-			// log.Debug("Reading token from user's dot file")
+			v.Debug("Reading token from user's dot file")
 		} else { // If we still can not find the token
-			// log.Debug("No token found. Trying to login.")
+			v.Debug("No token found. Trying to login.")
 			err = v.userLogin()
 			if err != nil {
 				return err
 			}
 		}
+	} else {
+		v.Debug("Reading token from user's environment variable")
 	}
-	// else {
-	// 	log.Debug("Reading token from user's environment variable")
-	// }
 
 	// Test token and see if a vault login is needed
 	// loginToVault := false
@@ -79,14 +77,13 @@ func (v *Vault) userLogin() error {
 
 	if v.config.Noprompt == true {
 		return errors.New("No interactive prompt is set, but user input is required to continue")
-		// log.Error("No interactive prompt is set, but user input is required to continue")
-		// os.Exit(1)
 	}
 
 	username, password, err := v.getCredentials()
 	if err != nil {
 		return err
 	}
+
 	// fmt.Printf("Username: %s, Password: %s\n", username, password)
 
 	// No hacking: Test username
@@ -124,18 +121,26 @@ func (v *Vault) userLogin() error {
 	return nil
 }
 
+// Gather username and password from the user
+// Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
-
-	user, _ := user.Current()
-	// v.stim.DebugError(err)
-
 	fmt.Println("Vault needs your LDAP Linux user/pass.")
-	fmt.Printf("Username (%s): ", user.Username)
+	if v.config.Username != "" {
+		fmt.Printf("Username (%s): ", v.config.Username)
+	} else {
+		fmt.Printf("Username: ")
+	}
 	reader := bufio.NewReader(os.Stdin)
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
-	if len(username) <= 0 {
-		username = user.Username
+
+	if len(username) <= 0 { // If user just clicked enter
+		if v.config.Username == "" { // If there also isn't default
+			return "", "", errors.New("No username given")
+		}
+		username = v.config.Username
+	} else {
+		v.config.Username = username
 	}
 
 	fmt.Print("Password: ")
@@ -143,7 +148,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	// check(err)
+	fmt.Println("")
 	password := string(bytePassword)
 
 	return strings.TrimSpace(username), strings.TrimSpace(password), nil
