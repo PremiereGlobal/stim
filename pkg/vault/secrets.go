@@ -24,3 +24,26 @@ func (v *Vault) GetSecretKey(path string, key string) (string, error) {
 
 	return secret.Data[key].(string), nil
 }
+
+// Pulls all keys from a secret path and returns the value as a map[string]string
+func (v *Vault) GetSecretKeys(path string) (map[string]string, error) {
+
+	secret, err := v.client.Logical().Read(path)
+	if err != nil {
+		return nil, err
+	}
+
+	// If we got back an empty response, fail
+	if secret == nil {
+		return nil, errors.New("Could not find secret `" + path + "`")
+	}
+
+	// Loop through and get all the keys
+	var secretList map[string]string
+	secretList = make(map[string]string)
+	for key, value := range secret.Data {
+		secretList[key] = value.(string)
+	}
+
+	return secretList, nil
+}
