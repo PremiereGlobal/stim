@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/hashicorp/vault/command/token"
-	// 	"context"
+	"context"
 	"fmt"
 	// 	VaultApi "github.com/hashicorp/vault/api"
 	// 	VaultToken "github.com/hashicorp/vault/command/token"
@@ -43,25 +43,25 @@ func (v *Vault) Login() error {
 	}
 
 	// Test token and see if a vault login is needed
-	// loginToVault := false
-	// r := v.client.NewRequest("GET", "/v1/auth/token/lookup-self")
-	// ctx, cancelFunc := context.WithCancel(context.Background())
-	// defer cancelFunc()
-	// resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
-	// if err != nil {
-	//   if resp.StatusCode == 403 {
-	//     log.Debug("Got permission denied. Trying to login.")
-	//     loginToVault = true
-	//   } else {
-	//     log.Error(err)
-	//   }
-	// }
-	// defer resp.Body.Close()
-	//
-	// if loginToVault == true {
-	//   log.Debug("Need to login to Vault")
-	//   v.userLoginPrompt()
-	// }
+	loginToVault := false
+	r := v.client.NewRequest("GET", "/v1/auth/token/lookup-self")
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+	resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
+	if err != nil {
+	  if resp.StatusCode == 403 {
+	    v.Debug("Got permission denied. Trying to login.")
+	    loginToVault = true
+	  } else {
+	    return err
+	  }
+	}
+	defer resp.Body.Close()
+
+	if loginToVault == true {
+	  v.Debug("Need to login to Vault")
+	  v.userLogin()
+	}
 
 	return nil
 }
