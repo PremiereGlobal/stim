@@ -1,8 +1,10 @@
 #!/bin/sh
 
+set -e
+
 VERSION=v0.0.2
 SHA_LINUX=b39c570c3a6e2e5a114fcf89f061ff9fb912527242f2a80f2b9248a567ebf2b6
-SHA_DARWIN=0dbae3a2c61d93f69c4f9274ee5227d1969d19a4f9672d07d39fe738e280e085a
+SHA_DARWIN=0dbae3a2c61d93f69c4f9274ee5227d1969d19a4f9672d07d39fe738e280e085
 CACHE_DIR=${HOME}/.stim/cache
 
 # Verify Signature of file
@@ -18,6 +20,7 @@ verify() {
   echo 0
 }
 
+# Change working directory to
 mkdir -p ${CACHE_DIR}
 cd ${CACHE_DIR}
 
