@@ -47,9 +47,8 @@ download() {
     return 0
   fi
 
-  which wget 2>&1 > /dev/null
+  which curl 2>&1 > /dev/null
   if [ $? -eq 0 ]; then
-    ARCHIVE=stim-darwin-${VERSION}.zip
     curl -L -s -o ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
     return 0
   fi
