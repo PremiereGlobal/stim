@@ -6,6 +6,14 @@ VERSION=v0.0.2
 SHA_LINUX=b39c570c3a6e2e5a114fcf89f061ff9fb912527242f2a80f2b9248a567ebf2b6
 SHA_DARWIN=0dbae3a2c61d93f69c4f9274ee5227d1969d19a4f9672d07d39fe738e280e085
 CACHE_DIR=${HOME}/.stim/cache
+BIN_DIR=${HOME}/.stim/bin
+
+# Extracted file already exists
+# Assume it's fine (for now)
+# TODO: Verify file somehow?
+if [[ -f ${BIN_DIR}"/stim-${VERSION}" ]]; then
+  exit 0
+fi
 
 # Verify Signature of file
 verify() {
@@ -21,6 +29,7 @@ verify() {
 }
 
 # Change working directory to
+mkdir -p ${BIN_DIR}
 mkdir -p ${CACHE_DIR}
 cd ${CACHE_DIR}
 
@@ -32,7 +41,7 @@ elif [[ "${OSTYPE}" == "darwin"* ]]; then
   OS=darwin
   SHA=${SHA_DARWIN}
 else
-  echo "Could not detect OS - failing"
+  >&2 echo "Could not detect OS - failing"
   exit 1
 fi
 
@@ -40,7 +49,7 @@ ARCHIVE=stim-${OS}-${VERSION}.zip
 
 if [[ -f ${ARCHIVE} && $(verify ${ARCHIVE} ${SHA}) == 0 ]]; then
   # Existing valid archive found in cache, use it
-  unzip -q -o ${ARCHIVE}
+  unzip -q -p ${ARCHIVE} > ${BIN_DIR}"/stim-${VERSION}"
   exit 0
 fi
 
@@ -54,7 +63,7 @@ fi
 
 # Verify the downloaded file is valid
 if [[ $(verify ${ARCHIVE} ${SHA}) == 0 ]]; then
-  unzip -q -o ${ARCHIVE}
+  unzip -q -p ${ARCHIVE} > ${BIN_DIR}"/stim-${VERSION}"
 else
   >&2 echo "Signature of downloaded file '"${ARCHIVE}"' is invalid"
 fi
