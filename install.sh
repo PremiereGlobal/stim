@@ -11,7 +11,7 @@ BIN_DIR=${HOME}/.stim/bin
 # Extracted file already exists
 # Assume it's fine (for now)
 # TODO: Verify file somehow?
-if [[ -f ${BIN_DIR}"/stim-${VERSION}" ]]; then
+if [ -f ${BIN_DIR}"/stim-${VERSION}" ]; then
   exit 0
 fi
 
@@ -21,11 +21,42 @@ verify() {
   FILE=${1}
   SHA=${2}
 
-  if [[ "$(shasum -a 256 ${FILE} | cut -d' ' -f 1)" != "${SHA}" ]]; then
-    echo 1
+  which shasum 2>&1 > /dev/null
+  if [ $? -eq 0 ]; then
+    if [ "$(shasum -a 256 ${FILE} | cut -d' ' -f 1)" != "${SHA}" ]; then
+      echo 1
+    fi
+  fi
+
+  which sha256sum 2>&1 > /dev/null
+  if [ $? -eq 0 ]; then
+    if [ "$(sha256sum ${FILE} | cut -d' ' -f 1)" != "${SHA}" ]; then
+      echo 1
+    fi
   fi
 
   echo 0
+}
+
+# Download binary
+download() {
+
+  which wget 2>&1 > /dev/null
+  if [ $? -eq 0 ]; then
+    wget --quiet -O ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
+    return 0
+  fi
+
+  which wget 2>&1 > /dev/null
+  if [ $? -eq 0 ]; then
+    ARCHIVE=stim-darwin-${VERSION}.zip
+    curl -L -s -o ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
+    return 0
+  fi
+
+  >&2 echo "'wget' or 'curl' not found, cannot download binary"
+  exit 1
+
 }
 
 # Change working directory to
@@ -34,10 +65,10 @@ mkdir -p ${CACHE_DIR}
 cd ${CACHE_DIR}
 
 # Determine OS
-if [[ "${OSTYPE}" == "linux-gnu" ]]; then
+if [ "${OSTYPE}" = "linux-gnu" -o "$(uname)" = "Linux" ]; then
   OS=linux
   SHA=${SHA_LINUX}
-elif [[ "${OSTYPE}" == "darwin"* ]]; then
+elif [ "$(uname)" = "Darwin" ]; then
   OS=darwin
   SHA=${SHA_DARWIN}
 else
@@ -47,23 +78,22 @@ fi
 
 ARCHIVE=stim-${OS}-${VERSION}.zip
 
-if [[ -f ${ARCHIVE} && $(verify ${ARCHIVE} ${SHA}) == 0 ]]; then
-  # Existing valid archive found in cache, use it
-  unzip -q -p ${ARCHIVE} > ${BIN_DIR}"/stim-${VERSION}"
-  exit 0
+if [ -f ${ARCHIVE} ]; then
+  if [ "$(verify ${ARCHIVE} ${SHA})" -eq 0 ]; then
+    # Existing valid archive found in cache, use it
+    unzip -q -p ${ARCHIVE} > ${BIN_DIR}"/stim-${VERSION}"
+    chmod +x ${BIN_DIR}"/stim-${VERSION}"
+    exit 0
+  fi
 fi
 
 # We don't have a valid archive in cache, download it
-if [[ "${OSTYPE}" == "linux-gnu" ]]; then
-  wget --quiet -O ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
-elif [[ "${OSTYPE}" == "darwin"* ]]; then
-  ARCHIVE=stim-darwin-${VERSION}.zip
-  curl -L -s -o ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
-fi
+download
 
 # Verify the downloaded file is valid
-if [[ $(verify ${ARCHIVE} ${SHA}) == 0 ]]; then
+if [ $(verify ${ARCHIVE} ${SHA}) -eq 0 ]; then
   unzip -q -p ${ARCHIVE} > ${BIN_DIR}"/stim-${VERSION}"
+  chmod +x ${BIN_DIR}"/stim-${VERSION}"
 else
   >&2 echo "Signature of downloaded file '"${ARCHIVE}"' is invalid"
 fi
