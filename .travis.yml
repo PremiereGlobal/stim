@@ -5,12 +5,15 @@ services:
 script:
 - scripts/build.sh ${TRAVIS_BRANCH} linux
 - scripts/build.sh ${TRAVIS_BRANCH} darwin
+- scripts/update_installer.sh ${TRAVIS_BRANCH}
 deploy:
 - provider: releases
   api_key:
     secure: aW4qydYdCKRGIxfnTovRXsK8GJr2hN23g1iZEGKR0+/iAQbhdrat5r1IDor3mY0fu0+94aEg/KUpB567QKkVR1pZNDs9UqjGLFOTXyJqzP9G8HKvh7LBLckXsenRJszTef3/lblt0c26CpXH0jg1Anpf2N1MlgE0cL9GSg6E7lXJXL7MJahBAzi1GN1Wd4vvjfeavp04G3BUG8/HgcaDFnhZu/0fYesU8r6nBjKBerg66bDJjLNXwqETCJFdp3A4vgLQypCHKl3tqNy44KF5IngT5t5wNMPHsvBPXBZZsr/8NPn9qq5pcZXqKS3YAZM2rzaJ5imw9ayd/j+tl8iKq+ULbeWV+FD3PkPwphRzUyb7Slrmppg0E82TZvqRP/B98HGgVID9vtkH6CI3HotYhtZz78Hf+NLvwzPkUwA/cxHiQQmjfx7+k9J/Sc9Kn98xQiGU+ZBg8kem46jMBGNlYJQ4wmBaS4hr3envz1ym85uwRwAIlFAXne3MwelLgt+BLEc3urzZhihWl54inw7HGYmA3rzHNK3KOTB3jO1GBDLn4O2wMLS5L+n5lErtxT+RTRxicvThevYRNAF7im3Mt56ijb6w1otZdOSti2F3fvoBQqJv3WZQL/sxbFixtj5PCyCiF4I8b2TuWf4TMN94vrrXnSKjQwvamZMQ+n94WfE=
   file_glob: true
-  file: bin/*.zip
+  file:
+  - bin/*.tar.gz
+  - bin/install.sh
   skip_cleanup: true
   on:
     tags: true
