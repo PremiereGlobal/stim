@@ -1,4 +1,4 @@
-# Stim [![Build Status](https://travis-ci.org/ReadyTalk/stim.svg?branch=master)](https://travis-ci.org/ReadyTalk/stim)
+# Stim [![Go Report Card](https://goreportcard.com/badge/github.com/readytalk/stim)](https://goreportcard.com/report/github.com/readytalk/stim) [![Build Status](https://travis-ci.org/ReadyTalk/stim.svg?branch=master)](https://travis-ci.org/ReadyTalk/stim)
 
 ## Running in Docker
 Stim is available in Docker.  To use, simply run
