@@ -56,7 +56,7 @@ func (stim *Stim) Execute() {
 func (stim *Stim) commandInit() {
 
 	// Load a config file (if present)
-	loadConfigErr := stim.LoadConfigFile()
+	loadConfigErr := stim.loadConfigFile()
 
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
