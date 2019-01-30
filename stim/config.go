@@ -26,6 +26,7 @@ func (stim *Stim) GetConfig(configKey string) string {
 	return ""
 }
 
+// GetConfigBool takes a config key and returns the boolean result
 func (stim *Stim) GetConfigBool(configKey string) bool {
 	configValue := stim.config.Get(configKey)
 	if configValue != nil {
@@ -66,7 +67,7 @@ func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
 	return nil
 }
 
-func (stim *Stim) LoadConfigFile() error {
+func (stim *Stim) loadConfigFile() error {
 
 	// Set the config file type
 	stim.config.SetConfigType("yaml")
@@ -81,8 +82,8 @@ func (stim *Stim) LoadConfigFile() error {
 			return err
 		}
 
-		stim.config.AddConfigPath(home)
-		stim.config.SetConfigName(".stim")
+		stim.config.AddConfigPath(home + "/.stim")
+		stim.config.SetConfigName("config")
 	}
 
 	err := stim.config.ReadInConfig()
