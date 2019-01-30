@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 )
 
-// Pulls a single key from a secret path and returns the value as a string
+// GetSecretKey takes a secret path and key and returns, if successful,
+// the secret string present in that key.
 func (v *Vault) GetSecretKey(path string, key string) (string, error) {
 
 	secret, err := v.client.Logical().Read(path)
@@ -27,7 +28,8 @@ func (v *Vault) GetSecretKey(path string, key string) (string, error) {
 	return secret.Data[key].(string), nil
 }
 
-// Pulls all keys from a secret path and returns the value as a map[string]string
+// GetSecretKeys takes a secret path and returns, if successful,
+// a map of all the keys at that path.
 func (v *Vault) GetSecretKeys(path string) (map[string]string, error) {
 
 	secret, err := v.client.Logical().Read(path)
@@ -50,7 +52,8 @@ func (v *Vault) GetSecretKeys(path string) (map[string]string, error) {
 	return secretList, nil
 }
 
-// Pulls all keys from a secret path and returns the value as a map[string]string
+// ListSecrets takes a secret path and returns, if successful,
+// a list of all child paths under that path.
 func (v *Vault) ListSecrets(path string) ([]string, error) {
 
 	secret, err := v.client.Logical().List(path)
