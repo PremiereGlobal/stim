@@ -5,10 +5,7 @@ import (
 	"strings"
 )
 
-// Prompt for yes/no type question
-// label: prompt label
-// override: if set to true, this function will return true
-// default: what will be used if nothing is entered
+// PromptBool asks the user a yes/no question
 func (stim *Stim) PromptBool(label string, override bool, defaultvalue bool) (bool, error) {
 
 	if override {
@@ -38,10 +35,7 @@ func (stim *Stim) PromptBool(label string, override bool, defaultvalue bool) (bo
 	return false, nil
 }
 
-// Prompt for string
-// label: prompt label
-// override: if set, will use this value instead of prompting
-// default: what will be used if nothing is entered
+// PromptString prompts the user to enter a string
 func (stim *Stim) PromptString(label string, override string, defaultvalue string) (string, error) {
 
 	if override != "" {
@@ -71,10 +65,8 @@ func (stim *Stim) PromptString(label string, override string, defaultvalue strin
 	return result, nil
 }
 
-// Prompt List
-// label: prompt label
-// override: if set, will use this value instead of prompting
-// default: what will be used if nothing is entered
+// PromptList prompts the user to select from the list of string provided
+// If override string is not empty it will be returned without
 func (stim *Stim) PromptList(label string, list []string, override string) (string, error) {
 
 	if override != "" {
@@ -96,10 +88,9 @@ func (stim *Stim) PromptList(label string, list []string, override string) (stri
 	return result, nil
 }
 
-// Prompt List
-// label: prompt label
-// override: if set, will use this value instead of prompting
-// default: what will be used if nothing is entered
+// PromptListVault uses a path from vault and prompts to select the list
+// of secrets within that list.  Returns the value selected.
+// If override string is not empty it will be returned without
 func (stim *Stim) PromptListVault(vaultPath string, label string, override string) (string, error) {
 
 	if override != "" {
@@ -114,6 +105,38 @@ func (stim *Stim) PromptListVault(vaultPath string, label string, override strin
 	}
 
 	result, err := stim.PromptList(label, list, "")
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+// PromptSearchList takes a label, list of selectable values and prompts the user
+// to select the results.  If override string is not empty it will be returned without
+// prompting
+func (stim *Stim) PromptSearchList(label string, list []string, override string) (string, error) {
+
+	if override != "" {
+		stim.Debug("PromptSearchList: Using override value of `" + override + "`")
+		return override, nil
+	}
+
+	searcher := func(input string, index int) bool {
+		name := strings.Replace(strings.ToLower(list[index]), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+		return strings.Contains(name, input)
+	}
+
+	prompt := promptui.Select{
+		Label:             label,
+		Items:             list,
+		Size:              10,
+		Searcher:          searcher,
+		StartInSearchMode: true,
+	}
+
+	_, result, err := prompt.Run()
 	if err != nil {
 		return "", err
 	}

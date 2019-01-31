@@ -43,7 +43,7 @@ The project is broken down into 4 major componenets: `api`, `command`, `packages
 * `stimpacks/` Stimpacks are pluggable extensions of the main Stim application.  They interface directly with the Stim api and can add commands and configuration to the cli.  They generally contain opionated functions for configuring developer workstations, building applications, testing, and deployments.
 
 ### Developing Stimpacks
-See comments in `stimpaks/vault` for details
+See comments in `stimpacks/vault` for details
 TODO: More docs here
 
 ### Developing Re-usable Packages

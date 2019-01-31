@@ -2,10 +2,10 @@ package vault
 
 import (
 	"bufio"
-	"errors"
-	"github.com/hashicorp/vault/command/token"
 	"context"
+	"errors"
 	"fmt"
+	"github.com/hashicorp/vault/command/token"
 	// 	VaultApi "github.com/hashicorp/vault/api"
 	// 	VaultToken "github.com/hashicorp/vault/command/token"
 	// 	"github.com/sirupsen/logrus"
@@ -49,18 +49,18 @@ func (v *Vault) Login() error {
 	defer cancelFunc()
 	resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
 	if err != nil {
-	  if resp.StatusCode == 403 {
-	    v.Debug("Got permission denied. Trying to login.")
-	    loginToVault = true
-	  } else {
-	    return err
-	  }
+		if resp.StatusCode == 403 {
+			v.Debug("Got permission denied. Trying to login.")
+			loginToVault = true
+		} else {
+			return err
+		}
 	}
 	defer resp.Body.Close()
 
 	if loginToVault == true {
-	  v.Debug("Need to login to Vault")
-	  v.userLogin()
+		v.Debug("Need to login to Vault")
+		v.userLogin()
 	}
 
 	return nil

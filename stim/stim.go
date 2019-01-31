@@ -14,12 +14,12 @@ import (
 var version string
 
 type Stim struct {
-	config   *viper.Viper
-	rootCmd  *cobra.Command
-	log      *logrus.Logger
-	stimpaks []*Stimpak
-	version  string
-	vault    *vault.Vault
+	config    *viper.Viper
+	rootCmd   *cobra.Command
+	log       *logrus.Logger
+	stimpacks []*Stimpack
+	version   string
+	vault     *vault.Vault
 }
 
 var stim *Stim

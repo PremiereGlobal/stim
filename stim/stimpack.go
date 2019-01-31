@@ -5,16 +5,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-// This is the interface for stimpaks
-type Stimpak interface {
+// This is the interface for stimpacks
+type Stimpack interface {
 	Command(*viper.Viper) *cobra.Command
 	Name() string
 	BindStim(*Stim)
 }
 
-func (stim *Stim) AddStimpak(s Stimpak) {
+func (stim *Stim) AddStimpack(s Stimpack) {
 
-	stim.log.Debug("Loading stimpak `", s.Name(), "`")
+	stim.log.Debug("Loading stimpack `", s.Name(), "`")
 	s.BindStim(stim)
 	cmd := s.Command(stim.config)
 	stim.rootCmd.AddCommand(cmd)

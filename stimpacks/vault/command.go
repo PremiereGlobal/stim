@@ -10,7 +10,7 @@ func (v *Vault) BindStim(s *stim.Stim) {
 	v.stim = s
 }
 
-// The Command function is required for every stimpak
+// Command is required for every stimpack
 // This function sets up the cli command parameters and returns the command
 func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 
