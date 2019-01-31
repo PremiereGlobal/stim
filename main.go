@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/readytalk/stim/stim"
-	// "github.com/readytalk/stim/stimpacks/discover"
 	"github.com/readytalk/stim/stimpacks/kubernetes"
 	"github.com/readytalk/stim/stimpacks/pagerduty"
 	"github.com/readytalk/stim/stimpacks/slack"

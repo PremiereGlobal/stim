@@ -36,12 +36,7 @@ func (stim *Stim) PromptBool(label string, override bool, defaultvalue bool) (bo
 }
 
 // PromptString prompts the user to enter a string
-func (stim *Stim) PromptString(label string, override string, defaultvalue string) (string, error) {
-
-	if override != "" {
-		stim.Debug("PromptString: Using override value of `" + override + "`")
-		return override, nil
-	}
+func (stim *Stim) PromptString(label string, defaultvalue string) (string, error) {
 
 	defaultstring := ""
 	if defaultvalue != "" {
@@ -115,12 +110,7 @@ func (stim *Stim) PromptListVault(vaultPath string, label string, override strin
 // PromptSearchList takes a label, list of selectable values and prompts the user
 // to select the results.  If override string is not empty it will be returned without
 // prompting
-func (stim *Stim) PromptSearchList(label string, list []string, override string) (string, error) {
-
-	if override != "" {
-		stim.Debug("PromptSearchList: Using override value of `" + override + "`")
-		return override, nil
-	}
+func (stim *Stim) PromptSearchList(label string, list []string) (string, error) {
 
 	searcher := func(input string, index int) bool {
 		name := strings.Replace(strings.ToLower(list[index]), " ", "", -1)

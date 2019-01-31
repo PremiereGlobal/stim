@@ -10,6 +10,8 @@ func (k *Kubernetes) configureContext() error {
 	// Create a Vault instance
 	k.vault = k.stim.Vault()
 
+	var err error
+
 	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.GetConfig("kube-config-cluster"))
 	if err != nil {
 		return err
@@ -26,14 +28,20 @@ func (k *Kubernetes) configureContext() error {
 		return err
 	}
 
-	namespace, err := k.stim.PromptString("Select Default Namespace", k.stim.GetConfig("kube-service-account"), secretValues["default-namespace"])
-	if err != nil {
-		return err
+	namespace := k.stim.GetConfig("namespace")
+	if namespace == "" {
+		namespace, err = k.stim.PromptString("Select Default Namespace", secretValues["default-namespace"])
+		if err != nil {
+			return err
+		}
 	}
 
-	context, err := k.stim.PromptString("Context Name", k.stim.GetConfig("kube-context"), cluster)
-	if err != nil {
-		return err
+	context := k.stim.GetConfig("kube-context")
+	if context == "" {
+		context, err = k.stim.PromptString("Context Name", cluster)
+		if err != nil {
+			return err
+		}
 	}
 
 	currentContext, err := k.stim.PromptBool("Set as current context?", k.stim.GetConfigBool("kube-current-context"), true)

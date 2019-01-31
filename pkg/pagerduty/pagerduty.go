@@ -3,15 +3,19 @@ package pagerduty
 import (
 	"errors"
 	pdApi "github.com/PagerDuty/go-pagerduty"
+	"github.com/readytalk/stim/pkg/common"
 	"github.com/readytalk/stim/pkg/utils"
 	"os"
 	"strings"
 )
 
+// Pagerduty is the main object
 type Pagerduty struct {
 	client *pdApi.Client
+	log    common.Logger
 }
 
+// Event contains the required and optional fields to sent an event
 type Event struct {
 	Action    string
 	Service   string
@@ -25,55 +29,58 @@ type Event struct {
 	DedupKey  string
 }
 
-func New(apiKey string) *Pagerduty {
+// New returns a new Pagerduty "instance"
+func New(apiKey string, log common.Logger) *Pagerduty {
 
 	// Initialize client
 	client := pdApi.NewClient(apiKey)
 	p := &Pagerduty{client: client}
+	p.log = log
 
 	return p
 }
 
-func (p *Pagerduty) GetServiceIntegrationId(servicename string) (string, error) {
+// GetServices returns a list of all services names within the Pagerduty account
+func (p *Pagerduty) GetServices() ([]string, error) {
 
-	var serviceid string
-	var integrationid string
+	// `limit` is how many items will be fetched per request
+	limit := uint(50)
 
-	opts := pdApi.ListServiceOptions{Query: servicename, Includes: []string{"integrations"}}
+	// `done` is set when the last page is fetched
+	done := false
 
-	if svcs, err := p.client.ListServices(opts); err != nil {
-		panic(err)
-	} else {
-		for _, s := range svcs.Services {
-			if s.Name == servicename {
-				serviceid = s.ID
-				for _, i := range s.Integrations {
-					if i.Type == "events_api_v2_inbound_integration" {
-						integrationid = i.IntegrationKey
-					}
-				}
-			}
-		}
-	}
+	// Options for the request
+	options := pdApi.ListServiceOptions{APIListObject: pdApi.APIListObject{Offset: 0, Limit: limit}}
 
-	if serviceid == "" {
-		return "", errors.New("Pagerduty service \"" + servicename + "\" not found")
-	}
+	// Initialize results string
+	var results []string
 
-	// Create integration if it doesn't exist
-	if integrationid == "" {
-		var integration pdApi.Integration
-		integration.Type = "events_api_v2_inbound_integration"
-		i, err := p.client.CreateIntegration(serviceid, integration)
+	// Loop through pages and get all services
+	for done == false {
+
+		services, err := p.client.ListServices(options)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		integrationid = i.IntegrationKey
+
+		for _, s := range services.Services {
+			results = append(results, s.Name)
+		}
+
+		// Bail if this is the last page
+		if !services.APIListObject.More {
+			done = true
+		}
+
+		// Bump the offset for the next run
+		options.APIListObject.Offset = options.APIListObject.Offset + limit
 	}
 
-	return integrationid, nil
+	return results, nil
 }
 
+// SendEvent sends the provided Event to Pagerduty.  It automatically detects
+// and sets the hostname as the `source`, if not set.
 func (p *Pagerduty) SendEvent(e *Event) error {
 
 	err := p.validateEventFields(e)
@@ -81,7 +88,7 @@ func (p *Pagerduty) SendEvent(e *Event) error {
 		return err
 	}
 
-	integrationid, err := p.GetServiceIntegrationId(e.Service)
+	integrationid, err := p.getServiceIntegrationID(e.Service)
 	if err != nil {
 		return err
 	}
@@ -147,4 +154,44 @@ func (p *Pagerduty) validateEventFields(e *Event) error {
 	}
 
 	return nil
+}
+
+func (p *Pagerduty) getServiceIntegrationID(servicename string) (string, error) {
+
+	var serviceid string
+	var integrationid string
+
+	opts := pdApi.ListServiceOptions{Query: servicename, Includes: []string{"integrations"}}
+
+	if svcs, err := p.client.ListServices(opts); err != nil {
+		panic(err)
+	} else {
+		for _, s := range svcs.Services {
+			if s.Name == servicename {
+				serviceid = s.ID
+				for _, i := range s.Integrations {
+					if i.Type == "events_api_v2_inbound_integration" {
+						integrationid = i.IntegrationKey
+					}
+				}
+			}
+		}
+	}
+
+	if serviceid == "" {
+		return "", errors.New("Pagerduty service \"" + servicename + "\" not found")
+	}
+
+	// Create integration if it doesn't exist
+	if integrationid == "" {
+		var integration pdApi.Integration
+		integration.Type = "events_api_v2_inbound_integration"
+		i, err := p.client.CreateIntegration(serviceid, integration)
+		if err != nil {
+			return "", err
+		}
+		integrationid = i.IntegrationKey
+	}
+
+	return integrationid, nil
 }
