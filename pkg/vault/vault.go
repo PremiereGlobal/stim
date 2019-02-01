@@ -110,15 +110,3 @@ func (v *Vault) GetUser() string {
 // func (v *Vault) Login() {
 //
 // }
-
-// func NewVault() *Client {
-// 	config := &Config{}
-//
-// 	c := &Client{Config: config}
-//
-// 	return c
-// }
-
-// func (v *Client) Setup() {
-//
-// }
