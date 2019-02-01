@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/vault/command/token"
 	"golang.org/x/crypto/ssh/terminal"
 
@@ -109,7 +108,7 @@ func (v *Vault) userLogin() error {
 	if err != nil {
 		return err
 	}
-	spew.Dump(secret)
+	// spew.Dump(secret)
 	// entityID := secret.Data["entity_id"].(string)
 	// Debug("Vault entity ID: ", entityID)
 
