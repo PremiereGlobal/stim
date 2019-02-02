@@ -6,6 +6,7 @@ import (
 
 	"io/ioutil"
 	"os"
+	"path"
 )
 
 func (stim *Stim) Get(configKey string) interface{} {
@@ -43,7 +44,17 @@ func (stim *Stim) Set(key string, value string) {
 func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
 	config := make(map[string]interface{})
 
-	f, err := ioutil.ReadFile(stim.config.ConfigFileUsed())
+	var err error
+	stimConfigFile := stim.config.ConfigFileUsed()
+	if stimConfigFile == "" { // Will happen if the config doesn't exist
+		stimConfigFile, err = stim.CreateConfigFile()
+		if err != nil {
+			return err
+		}
+	}
+
+	// var f []byte
+	f, err := ioutil.ReadFile(stimConfigFile)
 	if err != nil {
 		return err
 	}
@@ -59,9 +70,42 @@ func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(stim.config.ConfigFileUsed(), f, os.FileMode(0644))
+	err = ioutil.WriteFile(stimConfigFile, f, os.FileMode(0644))
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (stim *Stim) CreateConfigFile() (string, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+	stimConfigFile := home + "/.stim/config.yaml"
+
+	dir, _ := path.Split(stimConfigFile)
+	err = stim.CreateDirIfNotExist(dir)
+	if err != nil {
+		return "", err
+	}
+	newFile, err := os.Create(stimConfigFile)
+	if err != nil {
+		return "", err
+	}
+	newFile.Close()
+
+	return stimConfigFile, nil
+}
+
+func (stim *Stim) CreateDirIfNotExist(dir string) error {
+	stim.log.Debug("Creating config path: ", dir)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err := os.MkdirAll(dir, 0755)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

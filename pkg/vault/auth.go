@@ -1,19 +1,14 @@
 package vault
 
 import (
+	"github.com/hashicorp/vault/command/token"
+	"golang.org/x/crypto/ssh/terminal"
+
 	"bufio"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/vault/command/token"
-	// 	VaultApi "github.com/hashicorp/vault/api"
-	// 	VaultToken "github.com/hashicorp/vault/command/token"
-	// 	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/ssh/terminal"
 	"os"
-	// "os/user"
-	// 	"reflect"
-	// 	"regexp"
 	"strings"
 	"syscall"
 )
@@ -71,7 +66,7 @@ func (v *Vault) isCurrentTokenValid() {
 }
 
 func (v *Vault) userLogin() error {
-	// Sadly we will for now assume LDAP login
+	// Sadly we will assume LDAP login (for now)
 	// Maybe someday vault will allow anonymous access to "vault auth list"
 
 	if v.config.Noprompt == true {
@@ -82,8 +77,6 @@ func (v *Vault) userLogin() error {
 	if err != nil {
 		return err
 	}
-
-	// fmt.Printf("Username: %s, Password: %s\n", username, password)
 
 	// No hacking: Test username
 	// https://stackoverflow.com/questions/6949667/what-are-the-real-rules-for-linux-usernames-on-centos-6-and-rhel-6
@@ -99,23 +92,25 @@ func (v *Vault) userLogin() error {
 		"password": password,
 	})
 	if err != nil {
+		v.Debug("Do you have a bad username or password?")
 		return err
-		// log.Info("Do you have a bad username or password?")
-		// log.Fatal(err)
 	}
 	v.client.SetToken(secret.Auth.ClientToken)
 
+	// Write token to user's dot file
 	err = v.tokenHelper.Store(secret.Auth.ClientToken)
 	if err != nil {
 		return err
-		// log.Fatal(err)
 	}
 
 	// Lookup the token to get the entity ID
-	// secret, err = v.client.Auth().Token().Lookup(v.client.Token())
-	// check(err)
+	secret, err = v.client.Auth().Token().Lookup(v.client.Token())
+	if err != nil {
+		return err
+	}
+	// spew.Dump(secret)
 	// entityID := secret.Data["entity_id"].(string)
-	// log.Debug("Vault entity ID: ", entityID)
+	// Debug("Vault entity ID: ", entityID)
 
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/vault/command/token"
 
 	"fmt"
+	"time"
 )
 
 type Vault struct {
@@ -18,6 +19,7 @@ type Config struct {
 	Noprompt bool
 	Address  string
 	Username string
+	Timeout  time.Duration
 	Logger
 }
 
@@ -48,12 +50,14 @@ func New(config *Config) (*Vault, error) {
 
 	v := &Vault{config: config}
 
-	// v.Debug("Username: "+ v.config.username)
+	if v.config.Timeout == 0 {
+		v.config.Timeout = time.Second * 10 // No need to wait over a minite from default
+	}
 
 	// Configure new Vault Client
 	apiConfig := api.DefaultConfig()
 	apiConfig.Address = v.config.Address // Since we read the env we can override
-	// config.HttpClient.Timeout = 60    // No need to wait over a minite from default
+	// apiConfig.HttpClient.Timeout = v.config.Timeout
 
 	// Create our new API client
 	var err error
@@ -108,17 +112,5 @@ func (v *Vault) GetUser() string {
 // }
 //
 // func (v *Vault) Login() {
-//
-// }
-
-// func NewVault() *Client {
-// 	config := &Config{}
-//
-// 	c := &Client{Config: config}
-//
-// 	return c
-// }
-
-// func (v *Client) Setup() {
 //
 // }
