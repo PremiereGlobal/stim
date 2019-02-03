@@ -1,7 +1,6 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/pagerduty"
 	"github.com/readytalk/stim/pkg/vault"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -71,20 +70,6 @@ func (stim *Stim) commandInit() {
 		stim.log.Debug("No config file loaded")
 		stim.log.Debug(loadConfigErr)
 	}
-}
-
-func (stim *Stim) Pagerduty() *pagerduty.Pagerduty {
-	stim.log.Debug("Stim-Pagerduty: Creating")
-	vaultPath := stim.GetConfig("pagerduty.vault-apikey-path")
-	vaultKey := stim.GetConfig("pagerduty.vault-apikey-key")
-	stim.log.Debug("Stim-Pagerduty: Fetching Pagerduty API key from Vault `", vaultPath, "`")
-	vault := stim.Vault()
-	apikey, err := vault.GetSecretKey(vaultPath, vaultKey)
-	if err != nil {
-		stim.log.Fatal("Stim-Pagerduty: error getting API key from Vault: ", err)
-	}
-	pagerduty := pagerduty.New(apikey)
-	return pagerduty
 }
 
 // Vault is the interface for Hashicorp Vault wrapper methods

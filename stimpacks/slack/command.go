@@ -6,10 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type pepper struct {
-	Name string
-}
-
 func (s *Slack) BindStim(stim *stim.Stim) {
 	s.stim = stim
 }
@@ -33,11 +29,9 @@ func (s *Slack) Command(viper *viper.Viper) *cobra.Command {
 
 	cmd.Flags().StringP("username", "u", "", "Username for the message to appear as")
 	viper.BindPFlag("slack.username", cmd.Flags().Lookup("username"))
-	viper.SetDefault("slack.username", "stim")
 
 	cmd.Flags().StringP("icon-url", "i", "", "Url to use as the icon for the message")
 	viper.BindPFlag("slack.icon-url", cmd.Flags().Lookup("icon-url"))
-	viper.SetDefault("slack.icon-url", "https://vignette.wikia.nocookie.net/fallout/images/7/7e/FoS_stimpak.png/revision/latest")
 
 	return cmd
 }
