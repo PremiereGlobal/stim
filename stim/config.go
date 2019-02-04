@@ -3,7 +3,6 @@ package stim
 import (
 	"github.com/mitchellh/go-homedir"
 	yaml "gopkg.in/yaml.v2"
-
 	"io/ioutil"
 	"os"
 	"path"
@@ -114,25 +113,19 @@ func (stim *Stim) CreateDirIfNotExist(dir string) error {
 	return nil
 }
 
-func (stim *Stim) loadConfigFile() error {
+func (stim *Stim) loadConfigFile() {
 
 	// Set the config file type
 	stim.config.SetConfigType("yaml")
 
 	// Don't forget to read config either from CfgFile or from home directory!
 	if configFile := stim.GetConfig("config-file"); configFile != "" {
+    _, err := os.Stat(configFile)
+    if err != nil && !os.IsExist(err) {
+      stim.log.Warn("No config file exits at :\""+configFile+"\"")
+    }
 		stim.config.SetConfigFile(configFile)
 	} else {
-		// Find home directory
-		home, err := homedir.Dir()
-		if err != nil {
-			return err
-		}
-
-		stim.config.AddConfigPath(home + "/.stim")
-		stim.config.SetConfigName("config")
+    stim.log.Fatal("Error finding config file, no default was even found!!!")
 	}
-
-	err := stim.config.ReadInConfig()
-	return err
 }

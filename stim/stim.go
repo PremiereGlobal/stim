@@ -5,7 +5,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
 	"os"
 	"os/user"
 )
@@ -53,22 +52,14 @@ func (stim *Stim) Execute() {
 }
 
 func (stim *Stim) commandInit() {
-
 	// Load a config file (if present)
-	loadConfigErr := stim.loadConfigFile()
+	stim.loadConfigFile()
 
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
 		stim.log.SetLevel(logrus.DebugLevel)
 		stim.log.Debug("Stim version: ", stim.version)
 		stim.log.Debug("Debug log level set")
-	}
-
-	if loadConfigErr == nil {
-		stim.log.Debug("Using config file: ", stim.config.ConfigFileUsed())
-	} else {
-		stim.log.Debug("No config file loaded")
-		stim.log.Debug(loadConfigErr)
 	}
 }
 
