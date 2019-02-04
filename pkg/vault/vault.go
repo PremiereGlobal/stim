@@ -1,10 +1,10 @@
 package vault
 
 import (
-	"errors"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
 
+	"errors"
 	"fmt"
 	"time"
 )
@@ -84,33 +84,3 @@ func New(config *Config) (*Vault, error) {
 func (v *Vault) GetUser() string {
 	return v.config.Username
 }
-
-// )
-
-// type Client struct {
-// 	Config      *Config
-// 	client      *VaultApi.Client
-// 	tokenHelper VaultToken.InternalTokenHelper
-// }
-//
-
-// func (v *Vault) InitClient() error {
-// 	// Initialize client
-// 	client, err := api.NewClient(nil)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	tokenHelper := token.InternalTokenHelper{}
-// 	token, err := tokenHelper.Get()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	client.SetToken(token)
-// 	v.client = client
-//
-// 	return nil
-// }
-//
-// func (v *Vault) Login() {
-//
-// }

@@ -30,14 +30,23 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 
 	var loginCmd = &cobra.Command{
 		Use:   "login",
-		Short: "login",
-		Long:  "Stuff",
+		Short: "login to Vault",
+		Long:  "Login into Vault using LDAP",
 		Run: func(cmd *cobra.Command, args []string) {
 			v.Login()
 		},
 	}
+	v.stim.BindCommand(vaultCmd, loginCmd)
 
-	v.stim.BindCommand(loginCmd, vaultCmd)
+	// var awsCmd = &cobra.Command{
+	// 	Use:   "aws",
+	// 	Short: "aws login",
+	// 	Long:  "Create AWS credentials",
+	// 	Run: func(cmd *cobra.Command, args []string) {
+	// 		v.AWS()
+	// 	},
+	// }
+	// v.stim.BindCommand(vaultCmd, awsCmd)
 
 	return vaultCmd
 }

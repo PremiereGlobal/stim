@@ -78,6 +78,9 @@ func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
 	return nil
 }
 
+// CreateConfigFile will create the stim config file if it doesn't exist
+// Used the frist time this code is ran so sub functions do not get errors when
+// writting to the config.
 func (stim *Stim) CreateConfigFile() (string, error) {
 	home, err := homedir.Dir()
 	if err != nil {

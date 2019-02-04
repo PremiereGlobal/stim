@@ -2,7 +2,6 @@ package vault
 
 import (
 	"errors"
-	// "github.com/davecgh/go-spew/spew"
 	"path/filepath"
 )
 
