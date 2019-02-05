@@ -29,7 +29,6 @@ func New() *Stim {
 	stim := &Stim{}
 
 	// Initialize logger
-	// stim.log = common.New()
 	stim.log = logrus.New()
 
 	// Initialize viper (config)

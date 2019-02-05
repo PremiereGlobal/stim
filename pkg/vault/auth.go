@@ -26,7 +26,7 @@ func (v *Vault) Login() error {
 		}
 		if token != "" {
 			v.client.SetToken(token)
-			// v.config.Debug("Reading token from: " + v.tokenHelper.Path())
+			log.Debug("Reading token from: " + v.tokenHelper.Path())
 		} else { // If we still can not find the token
 			log.Debug("No token found. Trying to login.")
 			err = v.userLogin()
