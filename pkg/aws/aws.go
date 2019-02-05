@@ -1,7 +1,7 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/common"
+	"github.com/readytalk/stim/pkg/log"
 	// "github.com/aws/aws-sdk-go/aws"
 	// "github.com/aws/aws-sdk-go/aws/awserr"
 	// "github.com/aws/aws-sdk-go/aws/session"
@@ -13,12 +13,11 @@ import (
 type Aws struct {
 	// client *slack.Client
 	config *Config
-	log    common.Logger
+	log    log.Logger
 }
 
 type Config struct {
 	Token string
-	common.Logger
 }
 
 // New builds a client from the provided config
@@ -32,5 +31,5 @@ func New(config *Config) (*Aws, error) {
 }
 
 func (a *Aws) GetCredentials() {
-	a.log.Debug()
+	// a.log.Debug()
 }

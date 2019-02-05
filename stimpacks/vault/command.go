@@ -13,7 +13,6 @@ func (v *Vault) BindStim(s *stim.Stim) {
 // Command is required for every stimpack
 // This function sets up the cli command parameters and returns the command
 func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
-
 	var vaultCmd = &cobra.Command{
 		Use:   "vault",
 		Short: "Vault helper",
@@ -36,7 +35,7 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 			v.Login()
 		},
 	}
-	v.stim.BindCommand(vaultCmd, loginCmd)
+	v.stim.BindCommand(loginCmd, vaultCmd)
 
 	// var awsCmd = &cobra.Command{
 	// 	Use:   "aws",
@@ -46,7 +45,7 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 	// 		v.AWS()
 	// 	},
 	// }
-	// v.stim.BindCommand(vaultCmd, awsCmd)
+	// v.stim.BindCommand(awsCmd, vaultCmd)
 
 	return vaultCmd
 }
