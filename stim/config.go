@@ -3,7 +3,6 @@ package stim
 import (
 	"github.com/mitchellh/go-homedir"
 	yaml "gopkg.in/yaml.v2"
-
 	"io/ioutil"
 	"os"
 	"path"
@@ -120,19 +119,13 @@ func (stim *Stim) loadConfigFile() error {
 	stim.config.SetConfigType("yaml")
 
 	// Don't forget to read config either from CfgFile or from home directory!
-	if configFile := stim.GetConfig("config-file"); configFile != "" {
-		stim.config.SetConfigFile(configFile)
-	} else {
-		// Find home directory
-		home, err := homedir.Dir()
-		if err != nil {
-			return err
-		}
-
-		stim.config.AddConfigPath(home + "/.stim")
-		stim.config.SetConfigName("config")
-	}
-
-	err := stim.config.ReadInConfig()
-	return err
+	configFile := stim.GetConfig("config-file")
+  _, err := os.Stat(configFile)
+  if err != nil && !os.IsExist(err) {
+    stim.log.Warn("No config file exits at :\""+configFile+"\"")
+    //If they passed in a custom path we might want to exit here
+  }
+  stim.config.SetConfigFile(configFile)
+  confErr := stim.config.ReadInConfig()
+  return confErr
 }

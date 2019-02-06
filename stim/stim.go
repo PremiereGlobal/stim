@@ -5,7 +5,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
 	"os"
 	"os/user"
 )
@@ -53,7 +52,6 @@ func (stim *Stim) Execute() {
 }
 
 func (stim *Stim) commandInit() {
-
 	// Load a config file (if present)
 	loadConfigErr := stim.loadConfigFile()
 
@@ -67,8 +65,8 @@ func (stim *Stim) commandInit() {
 	if loadConfigErr == nil {
 		stim.log.Debug("Using config file: ", stim.config.ConfigFileUsed())
 	} else {
-		stim.log.Debug("No config file loaded")
-		stim.log.Debug(loadConfigErr)
+		stim.log.Warn("Issue loading config file use -verbose for more info")
+    stim.log.Debug(loadConfigErr)
 	}
 }
 
