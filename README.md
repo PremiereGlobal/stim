@@ -1,4 +1,5 @@
-# Stim [![Build][Build-Status-Image]][Build-Status-Url] [![ReportCard][reportcard-image]][reportcard-url] [![GoDoc][godoc-image]][godoc-url] [![License][license-image]][license-url]
+# Stim
+[![Build][Build-Status-Image]][Build-Status-Url] [![ReportCard][reportcard-image]][reportcard-url] [![GoDoc][godoc-image]][godoc-url] [![License][license-image]][license-url]
 
 ## Running in Docker
 Stim is available in Docker.  To use, simply run
@@ -51,7 +52,7 @@ Guidelines:
 
 
 [Build-Status-Url]: https://travis-ci.org/ReadyTalk/stim
-[Build-Status-Image]: https://travis-ci.org/ReadyTalk/stim.svg?branch=master)
+[Build-Status-Image]: https://travis-ci.org/ReadyTalk/stim.svg?branch=master
 [reportcard-url]: https://goreportcard.com/badge/github.com/readytalk/stim
 [reportcard-image]: https://goreportcard.com/badge/github.com/readytalk/stim
 [godoc-url]: https://godoc.org/github.com/ReadyTalk/stim
