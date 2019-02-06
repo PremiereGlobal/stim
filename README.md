@@ -23,7 +23,6 @@ docker run \
 The project is broken down into 4 major componenets: `api`, `command`, `packages`, and `stimpacks`. More explaination below.
 
 ```
-├── cmd/
 ├── pkg/
 │   ├── pagerduty/
 │   ├── utils/
@@ -34,12 +33,12 @@ The project is broken down into 4 major componenets: `api`, `command`, `packages
 │   ├── deploy/
 │   ├── vault/
 │   ├── ...
+├── scripts/
 ├── vendor/
 ```
 
 * `pkg/` The components in this directory should be developed as stand-alone packages that can be consumed not only by Stim but also externally.  They are generally wrappers around existing APIs (for example Vault) that simplify basic functionality.
 * `stim/` This component is the core of the Stim application.  It is what every `stimpack` interfaces with to talk with the core Stim application.  Stim initializes components as-needed by the stimpacks.  For instance, if a stimpack needs access to Pagerduy, Stim will call Vault, get the API key for Pagerduty and instantiate a new instance of Pagerduty for the stimpack to use. Stim also allows stimpacks to attach cli commands and add configuration parameters.
-* `cmd/` This component configures the root-level cli command and creates the API component.  It's also responsible for setting up logging and calling all the top-level stimpacks.
 * `stimpacks/` Stimpacks are pluggable extensions of the main Stim application.  They interface directly with the Stim api and can add commands and configuration to the cli.  They generally contain opionated functions for configuring developer workstations, building applications, testing, and deployments.
 
 ### Developing Stimpacks
