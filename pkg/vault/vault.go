@@ -3,9 +3,9 @@ package vault
 import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
+	"github.com/readytalk/stim/pkg/log"
 
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -20,26 +20,7 @@ type Config struct {
 	Address  string
 	Username string
 	Timeout  time.Duration
-	Logger
-}
-
-type Logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-}
-
-func (v *Vault) Debug(message string) {
-	if v.config.Logger != nil {
-		v.config.Debug(message)
-	}
-}
-
-func (v *Vault) Info(message string) {
-	if v.config.Logger != nil {
-		v.config.Info(message)
-	} else {
-		fmt.Println(message)
-	}
+	Log      log.Logger
 }
 
 func New(config *Config) (*Vault, error) {
@@ -49,6 +30,7 @@ func New(config *Config) (*Vault, error) {
 	}
 
 	v := &Vault{config: config}
+	log.SetLogger(config.Log)
 
 	if v.config.Timeout == 0 {
 		v.config.Timeout = time.Second * 10 // No need to wait over a minite from default

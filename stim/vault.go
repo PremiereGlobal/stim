@@ -9,7 +9,6 @@ import (
 // Will prompt the user for their LDAP username and password
 // Will update the user's ~/.vault-token file with a new token
 func (stim *Stim) Vault() *vault.Vault {
-
 	if stim.vault == nil {
 
 		stim.log.Debug("Stim-Vault: Creating")
@@ -26,7 +25,7 @@ func (stim *Stim) Vault() *vault.Vault {
 		vault, err := vault.New(&vault.Config{
 			Address:  stim.GetConfig("vault-address"), // Default is 127.0.0.1
 			Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-			Logger:   stim.log,
+			Log:      stim.log,
 			Username: username,
 		})
 		if err != nil {
@@ -44,9 +43,3 @@ func (stim *Stim) Vault() *vault.Vault {
 
 	return stim.vault
 }
-
-// func (stim *Stim) Vault() error {
-//
-//
-//   return nil
-// }

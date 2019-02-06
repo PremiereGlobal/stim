@@ -2,6 +2,7 @@ package vault
 
 import (
 	"github.com/hashicorp/vault/command/token"
+	"github.com/readytalk/stim/pkg/log"
 	"golang.org/x/crypto/ssh/terminal"
 
 	"bufio"
@@ -25,16 +26,16 @@ func (v *Vault) Login() error {
 		}
 		if token != "" {
 			v.client.SetToken(token)
-			v.Debug("Reading token from: " + v.tokenHelper.Path())
+			log.Debug("Reading token from: " + v.tokenHelper.Path())
 		} else { // If we still can not find the token
-			v.Debug("No token found. Trying to login.")
+			log.Debug("No token found. Trying to login.")
 			err = v.userLogin()
 			if err != nil {
 				return err
 			}
 		}
 	} else {
-		v.Debug("Reading token from environment 'VAULT_TOKEN'")
+		log.Debug("Reading token from environment 'VAULT_TOKEN'")
 	}
 
 	// Test token and see if a vault login is needed
@@ -45,7 +46,7 @@ func (v *Vault) Login() error {
 	resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
 	if err != nil {
 		if resp.StatusCode == 403 {
-			v.Debug("Got permission denied. Trying to login.")
+			log.Debug("Got permission denied. Trying to login.")
 			loginToVault = true
 		} else {
 			return err
@@ -54,7 +55,7 @@ func (v *Vault) Login() error {
 	defer resp.Body.Close()
 
 	if loginToVault == true {
-		v.Debug("Need to login to Vault")
+		log.Debug("Need to login to Vault")
 		v.userLogin()
 	}
 
@@ -92,7 +93,7 @@ func (v *Vault) userLogin() error {
 		"password": password,
 	})
 	if err != nil {
-		v.Debug("Do you have a bad username or password?")
+		log.Debug("Do you have a bad username or password?")
 		return err
 	}
 	v.client.SetToken(secret.Auth.ClientToken)

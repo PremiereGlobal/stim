@@ -1,4 +1,4 @@
-# Stim [![Go Report Card](https://goreportcard.com/badge/github.com/readytalk/stim)](https://goreportcard.com/report/github.com/readytalk/stim) [![Build Status](https://travis-ci.org/ReadyTalk/stim.svg?branch=master)](https://travis-ci.org/ReadyTalk/stim)
+# Stim [![Build][Build-Status-Image]][Build-Status-Url] [![ReportCard][reportcard-image]][reportcard-url] [![GoDoc][godoc-image]][godoc-url] [![License][license-image]][license-url]
 
 ## Running in Docker
 Stim is available in Docker.  To use, simply run
@@ -49,3 +49,13 @@ TODO: More docs here
 ### Developing Re-usable Packages
 Guidelines:
 * Don't log, just return errors and let the consumer deal with it
+
+
+[Build-Status-Url]: https://travis-ci.org/ReadyTalk/stim
+[Build-Status-Image]: https://travis-ci.org/ReadyTalk/stim.svg?branch=master)
+[reportcard-url]: https://goreportcard.com/badge/github.com/readytalk/stim
+[reportcard-image]: https://goreportcard.com/badge/github.com/readytalk/stim
+[godoc-url]: https://godoc.org/github.com/ReadyTalk/stim
+[godoc-image]: https://godoc.org/github.com/ReadyTalk/stim?status.svg
+[license-url]: http://opensource.org/licenses/MIT
+[license-image]: https://img.shields.io/npm/l/express.svg
