@@ -11,21 +11,21 @@ import (
 	"syscall"
 )
 
-// VaultError is the custom error type for this package
-type VaultError struct {
+// Error is the custom error type for this package
+type Error struct {
 	MessageParts  []string
 	OriginalError error
 }
 
 // Error returns the error string
-func (verr VaultError) Error() string {
+func (verr Error) Error() string {
 	return fmt.Sprintf("Vault Error: %s", strings.Join(verr.MessageParts, "; "))
 }
 
 // parseError parses known errors into more user-friendly messages
-func (v *Vault) parseError(err error) VaultError {
+func (v *Vault) parseError(err error) Error {
 
-	var verr VaultError
+	var verr Error
 	verr.OriginalError = err
 
 	// Catch some known HTTP errors
@@ -55,6 +55,6 @@ func (v *Vault) parseError(err error) VaultError {
 }
 
 // newError returns a new error based on a given string
-func (v *Vault) newError(msg string) VaultError {
+func (v *Vault) newError(msg string) Error {
 	return v.parseError(errors.New(msg))
 }

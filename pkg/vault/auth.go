@@ -13,7 +13,7 @@ import (
 	"syscall"
 )
 
-// This is the main Login function
+// Login gets a Vault token if there isn't one
 func (v *Vault) Login() error {
 	v.tokenHelper = token.InternalTokenHelper{}
 
@@ -59,6 +59,17 @@ func (v *Vault) Login() error {
 	}
 
 	return nil
+}
+
+// GetToken returns the raw token
+func (v *Vault) GetToken() (string, error) {
+	v.tokenHelper = token.InternalTokenHelper{}
+	token, err := v.tokenHelper.Get()
+	if err != nil {
+		return "", v.parseError(err)
+	}
+
+	return token, nil
 }
 
 func (v *Vault) isCurrentTokenValid() {
