@@ -48,7 +48,7 @@ func (v *Vault) Login() error {
 			v.Debug("Got permission denied. Trying to login.")
 			loginToVault = true
 		} else {
-			return err
+			return v.parseError(err)
 		}
 	}
 	defer resp.Body.Close()
@@ -93,20 +93,20 @@ func (v *Vault) userLogin() error {
 	})
 	if err != nil {
 		v.Debug("Do you have a bad username or password?")
-		return err
+		return v.parseError(err)
 	}
 	v.client.SetToken(secret.Auth.ClientToken)
 
 	// Write token to user's dot file
 	err = v.tokenHelper.Store(secret.Auth.ClientToken)
 	if err != nil {
-		return err
+		return v.parseError(err)
 	}
 
 	// Lookup the token to get the entity ID
 	secret, err = v.client.Auth().Token().Lookup(v.client.Token())
 	if err != nil {
-		return err
+		return v.parseError(err)
 	}
 	// spew.Dump(secret)
 	// entityID := secret.Data["entity_id"].(string)
@@ -130,7 +130,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 
 	if len(username) <= 0 { // If user just clicked enter
 		if v.config.Username == "" { // If there also isn't default
-			return "", "", errors.New("No username given")
+			return "", "", v.newError("No username given")
 		}
 		username = v.config.Username
 	} else {
@@ -140,7 +140,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Print("Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		return "", "", err
+		return "", "", v.parseError(err)
 	}
 	fmt.Println("")
 	password := string(bytePassword)

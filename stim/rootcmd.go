@@ -24,5 +24,8 @@ func (stim *Stim) rootCommand(viper *viper.Viper) *cobra.Command {
 	cmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")
 	viper.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
 
+	// Set some defaults
+	viper.SetDefault("vault-timeout", 15)
+
 	return cmd
 }

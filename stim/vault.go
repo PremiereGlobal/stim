@@ -28,9 +28,10 @@ func (stim *Stim) Vault() *vault.Vault {
 			Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
 			Logger:   stim.log,
 			Username: username,
+			Timeout:  stim.config.Get("vault-timeout").(int),
 		})
 		if err != nil {
-			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
+			stim.log.Fatal(err)
 		}
 
 		// Update the username set in local configs to make any new logins friendly
@@ -44,9 +45,3 @@ func (stim *Stim) Vault() *vault.Vault {
 
 	return stim.vault
 }
-
-// func (stim *Stim) Vault() error {
-//
-//
-//   return nil
-// }

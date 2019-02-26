@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"errors"
 	"path/filepath"
 )
 
@@ -11,17 +10,17 @@ func (v *Vault) GetSecretKey(path string, key string) (string, error) {
 
 	secret, err := v.client.Logical().Read(path)
 	if err != nil {
-		return "", err
+		return "", v.parseError(err)
 	}
 
 	// If we got back an empty response, fail
 	if secret == nil {
-		return "", errors.New("Could not find secret `" + path + "`")
+		return "", v.newError("Could not find secret `" + path + "`")
 	}
 
 	// If the provided key doesn't exist, fail
 	if secret.Data[key] == nil {
-		return "", errors.New("Vault: Could not find key `" + key + "` for secret `" + path + "`")
+		return "", v.newError("Vault: Could not find key `" + key + "` for secret `" + path + "`")
 	}
 
 	return secret.Data[key].(string), nil
@@ -33,12 +32,12 @@ func (v *Vault) GetSecretKeys(path string) (map[string]string, error) {
 
 	secret, err := v.client.Logical().Read(path)
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	// If we got back an empty response, fail
 	if secret == nil {
-		return nil, errors.New("Could not find secret `" + path + "`")
+		return nil, v.newError("Could not find secret `" + path + "`")
 	}
 
 	// Loop through and get all the keys
@@ -57,12 +56,12 @@ func (v *Vault) ListSecrets(path string) ([]string, error) {
 
 	secret, err := v.client.Logical().List(path)
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	// If we got back an empty response, fail
 	if secret == nil {
-		return nil, errors.New("Could not find secret `" + path + "`")
+		return nil, v.newError("Could not find secret `" + path + "`")
 	}
 
 	// Loop through and get all the keys
