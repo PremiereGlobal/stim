@@ -1,18 +1,21 @@
 package aws
 
 import (
+	// "github.com/readytalk/stim/pkg/log"
+
 	"errors"
-	"github.com/davecgh/go-spew/spew"
 )
 
-func (a *Aws) GetCredentials() {
-	vault := a.stim.Vault()
+// GetCredentials will get the aws mount and role from the user
+func (a *Aws) GetCredentials() (string, string, error) {
+	if a.vault == nil {
+		a.vault = a.stim.Vault()
+	}
 
-	mounts, err := vault.GetMounts("aws")
+	mounts, err := a.vault.GetMounts("aws")
 	a.stim.Fatal(err)
 
-	// k.stim.GetConfig("kube-service-account")
-	vaultAccount := a.stim.GetConfig("aws.vault-mount")
+	vaultAccount := a.stim.GetConfig("aws-mount")
 	if vaultAccount == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws mount not specified"))
 	} else if vaultAccount == "" {
@@ -20,14 +23,13 @@ func (a *Aws) GetCredentials() {
 		a.stim.Fatal(err)
 	}
 
-	//k.stim.GetConfig("kube-service-account")
-	vaultRole := a.stim.GetConfig("aws.vault-role")
+	vaultRole := a.stim.GetConfig("aws-role")
 	if vaultRole == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws role not specified"))
 	} else if vaultRole == "" {
-		vaultRole, err = a.stim.PromptListVault(vaultAccount+"roles", "Select Role", "")
+		vaultRole, err = a.stim.PromptListVault(vaultAccount+"/roles", "Select Role", "")
 		a.stim.Fatal(err)
 	}
 
-	spew.Dump(vaultRole)
+	return vaultAccount, vaultRole, nil
 }

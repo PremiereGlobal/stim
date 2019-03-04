@@ -1,9 +1,18 @@
 package vault
 
 import (
+	"github.com/hashicorp/vault/api"
+	// "github.com/readytalk/stim/pkg/log"
+	// "github.com/davecgh/go-spew/spew"
+
 	"errors"
 	"path/filepath"
+	// "contexßt"
+	// "strings"
 )
+
+// Using Vaults Logical client:
+// https://github.com/hashicorp/vault/blob/master/api/logical.go
 
 // GetSecretKey takes a secret path and key and returns, if successful,
 // the secret string present in that key.
@@ -72,4 +81,14 @@ func (v *Vault) ListSecrets(path string) ([]string, error) {
 	}
 
 	return secretList, nil
+}
+
+// getAWSsecret returns temporary AWS credentials
+func (v *Vault) GetSecret(path string) (*api.Secret, error) {
+	secret, err := v.client.Logical().Read(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return secret, nil
 }

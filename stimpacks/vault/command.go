@@ -37,15 +37,8 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 	}
 	v.stim.BindCommand(loginCmd, vaultCmd)
 
-	// var awsCmd = &cobra.Command{
-	// 	Use:   "aws",
-	// 	Short: "aws login",
-	// 	Long:  "Create AWS credentials",
-	// 	Run: func(cmd *cobra.Command, args []string) {
-	// 		v.AWS()
-	// 	},
-	// }
-	// v.stim.BindCommand(awsCmd, vaultCmd)
+	loginCmd.Flags().StringP("renew", "r", "", "Renew token for given time. Example '8h'")
+	viper.BindPFlag("vault-renew", loginCmd.Flags().Lookup("renew"))
 
 	return vaultCmd
 }

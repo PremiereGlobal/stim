@@ -22,23 +22,31 @@ func (stim *Stim) Vault() *vault.Vault {
 			}
 		}
 
+		// Create the Vault object and pass in the needed address
 		vault, err := vault.New(&vault.Config{
 			Address:  stim.GetConfig("vault-address"), // Default is 127.0.0.1
 			Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-			Log:      stim.log,
-			Username: username,
+			Log:      stim.log, // Pass in the global logger object
+			Username: username, // If set in the configs, pass in user
 		})
 		if err != nil {
 			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
 		}
+		stim.vault = vault
 
-		// Update the username set in local configs to make any new logins friendly
+		// Update the username set in local configs to make logins more friendly
 		err = stim.UpdateVaultUser(vault.GetUser())
 		if err != nil {
 			stim.log.Fatal("Stim-Vault: Error Updating username in configuration file: ", err)
 		}
 
-		stim.vault = vault
+		// If user wants, extend the token timeout
+		if stim.vault.IsNewLogin() {
+			renewTime := stim.GetConfig("vault-renew")
+			if renewTime != "" {
+				stim.vault.RenewToken(renewTime)
+			}
+		}
 	}
 
 	return stim.vault

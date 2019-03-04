@@ -3,6 +3,7 @@ package vault
 import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
+	// "github.com/hashicorp/vault/helper/parseutil"
 	"github.com/readytalk/stim/pkg/log"
 
 	"errors"
@@ -11,8 +12,9 @@ import (
 
 type Vault struct {
 	client      *api.Client
-	tokenHelper token.InternalTokenHelper
 	config      *Config
+	tokenHelper token.InternalTokenHelper
+	newLogin    bool
 }
 
 type Config struct {
@@ -32,9 +34,17 @@ func New(config *Config) (*Vault, error) {
 	v := &Vault{config: config}
 	log.SetLogger(config.Log)
 
-	if v.config.Timeout == 0 {
-		v.config.Timeout = time.Second * 10 // No need to wait over a minite from default
-	}
+	// if v.config.Timeout == 0 {
+	// 	v.config.Timeout = time.Second * 10 // No need to wait over a minite from default
+	// }
+	var err error
+	// var clientTimeout time.Duration
+	// clientTimeout, err = parseutil.ParseDurationSecond(10)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// v.config.Timeout = clientTimeout
+	log.Debug("Vault Timeout: ", v.config.Timeout)
 
 	// Configure new Vault Client
 	apiConfig := api.DefaultConfig()
@@ -42,7 +52,6 @@ func New(config *Config) (*Vault, error) {
 	// apiConfig.HttpClient.Timeout = v.config.Timeout
 
 	// Create our new API client
-	var err error
 	v.client, err = api.NewClient(apiConfig)
 	if err != nil {
 		return nil, err

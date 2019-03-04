@@ -4,9 +4,9 @@ import (
 	"github.com/hashicorp/vault/command/token"
 	"github.com/readytalk/stim/pkg/log"
 	"golang.org/x/crypto/ssh/terminal"
+	// "github.com/davecgh/go-spew/spew"
 
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -14,11 +14,15 @@ import (
 	"syscall"
 )
 
-// This is the main Login function
+// Login will authenticate the user with Vault
+// Will detect if user needs to re-login
 func (v *Vault) Login() error {
-	v.tokenHelper = token.InternalTokenHelper{}
 
-	if v.client.Token() == "" { // If no environment token set
+	// get the token from the user's environment
+	v.tokenHelper = token.InternalTokenHelper{}
+	if v.client.Token() != "" {
+		log.Debug("Reading token from environment 'VAULT_TOKEN'")
+	} else { // If no environment token set
 		// Reading token from user's dot file
 		token, err := v.tokenHelper.Get()
 		if err != nil {
@@ -34,27 +38,10 @@ func (v *Vault) Login() error {
 				return err
 			}
 		}
-	} else {
-		log.Debug("Reading token from environment 'VAULT_TOKEN'")
 	}
 
-	// Test token and see if a vault login is needed
-	loginToVault := false
-	r := v.client.NewRequest("GET", "/v1/auth/token/lookup-self")
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	defer cancelFunc()
-	resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
-	if err != nil {
-		if resp.StatusCode == 403 {
-			log.Debug("Got permission denied. Trying to login.")
-			loginToVault = true
-		} else {
-			return err
-		}
-	}
-	defer resp.Body.Close()
-
-	if loginToVault == true {
+	isTokenValid := v.isCurrentTokenValid()
+	if isTokenValid == false {
 		log.Debug("Need to login to Vault")
 		v.userLogin()
 	}
@@ -62,8 +49,15 @@ func (v *Vault) Login() error {
 	return nil
 }
 
-func (v *Vault) isCurrentTokenValid() {
-
+// isCurrentTokenValid returns flase if user needs to relogin
+// I am not happy with this way of testing the token.
+// This function doesn't check for errors.
+func (v *Vault) isCurrentTokenValid() bool {
+	secret, _ := v.client.Auth().Token().LookupSelf()
+	if secret == nil {
+		return false
+	}
+	return true
 }
 
 func (v *Vault) userLogin() error {
@@ -110,10 +104,17 @@ func (v *Vault) userLogin() error {
 		return err
 	}
 	// spew.Dump(secret)
-	// entityID := secret.Data["entity_id"].(string)
-	// Debug("Vault entity ID: ", entityID)
+	entityID := secret.Data["entity_id"].(string)
+	log.Debug("Vault entity ID: ", entityID)
+
+	v.newLogin = true // Set if we had to prompt user for a login
 
 	return nil
+}
+
+// IsNewLogin will help high level funcs know if a login prompt was used
+func (v *Vault) IsNewLogin() bool {
+	return v.newLogin
 }
 
 // Gather username and password from the user
@@ -147,4 +148,17 @@ func (v *Vault) getCredentials() (string, string, error) {
 	password := string(bytePassword)
 
 	return strings.TrimSpace(username), strings.TrimSpace(password), nil
+}
+
+// RenewToken will increase the lease duration of users token
+func (v *Vault) RenewToken(time string) error {
+	log.Debug("Renewing token for '", time, "'")
+	_, err := v.client.Logical().Write("auth/token/renew-self", map[string]interface{}{
+		"increment": time,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
