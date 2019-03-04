@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/vault/command/token"
 	"github.com/readytalk/stim/pkg/log"
 	"golang.org/x/crypto/ssh/terminal"
-	// "github.com/davecgh/go-spew/spew"
 
 	"bufio"
 	"errors"
@@ -60,6 +59,7 @@ func (v *Vault) isCurrentTokenValid() bool {
 	return true
 }
 
+// userLogin asks user for LDAP login to Authenticate with Vault
 func (v *Vault) userLogin() error {
 	// Sadly we will assume LDAP login (for now)
 	// Maybe someday vault will allow anonymous access to "vault auth list"
@@ -117,7 +117,7 @@ func (v *Vault) IsNewLogin() bool {
 	return v.newLogin
 }
 
-// Gather username and password from the user
+// getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Println("Vault needs your LDAP Linux user/pass.")

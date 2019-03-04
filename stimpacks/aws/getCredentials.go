@@ -1,8 +1,6 @@
 package aws
 
 import (
-	// "github.com/readytalk/stim/pkg/log"
-
 	"errors"
 )
 

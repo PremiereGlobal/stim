@@ -17,7 +17,6 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 		Short: "Interact with AWS",
 		Long:  `Get credentials, etc.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// a.GetCredentials()
 			cmd.Help()
 		},
 	}

@@ -16,7 +16,8 @@ import (
 
 var stimURL = "https://github.com/ReadyTalk/stim"
 
-// Login will get IAM or STS credentials
+// Login gets IAM or STS credentials
+// TODO: Update ~/.aws/ config files for cross shell aws acess
 func (a *Aws) Login() error {
 	// Create a Vault instance
 	a.vault = a.stim.Vault()
@@ -43,7 +44,7 @@ func (a *Aws) Login() error {
 		if err != nil {
 			return err
 		}
-		// log.Debug("Login URL: ", loginURL)
+
 		err = open.Run(loginURL)
 		if err != nil {
 			return err
@@ -64,6 +65,7 @@ func (a *Aws) Login() error {
 // createAWSLoginURL returns a federation AWS URL used for wev console login
 // This uses AWS Security Token Service (AWS STS) AssumeRole
 // More info at: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
+// Thanks to Lachlan Donald for the following code: https://github.com/99designs/aws-vault
 func createAWSLoginURL(secret *api.Secret) (string, error) {
 	region := ""
 	path := ""
