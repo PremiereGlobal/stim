@@ -1,31 +1,31 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/log"
 	"github.com/hashicorp/vault/api"
+	"github.com/readytalk/stim/pkg/log"
 	"github.com/skratchdot/open-golang/open"
 
-	"io/ioutil"
-  "net/url"
-  "encoding/json"
-  "net/http"
-	"strings"
-  "fmt"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 var stimURL = "https://github.com/ReadyTalk/stim"
 
 // Login will get IAM or STS credentials
 func (a *Aws) Login() error {
-  // Create a Vault instance
+	// Create a Vault instance
 	a.vault = a.stim.Vault()
 
-  account, role, err := a.GetCredentials()
+	account, role, err := a.GetCredentials()
 	if err != nil {
 		return err
 	}
-  log.Debug("Account: ", account, " Role: ", role)
+	log.Debug("Account: ", account, " Role: ", role)
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")
@@ -44,72 +44,72 @@ func (a *Aws) Login() error {
 			return err
 		}
 		// log.Debug("Login URL: ", loginURL)
-	  err = open.Run(loginURL)
-	  if err != nil {
+		err = open.Run(loginURL)
+		if err != nil {
 			return err
 		}
 	} else {
 		if envSource { // Used for setting AWS credentials in the current environment
-			fmt.Println("export AWS_ACCESS_KEY_ID="+ secret.Data["access_key"].(string))
-			fmt.Println("export AWS_SECRET_ACCESS_KEY="+ secret.Data["secret_key"].(string))
+			fmt.Println("export AWS_ACCESS_KEY_ID=" + secret.Data["access_key"].(string))
+			fmt.Println("export AWS_SECRET_ACCESS_KEY=" + secret.Data["secret_key"].(string))
 		} else {
-			fmt.Println("AWS_ACCESS_KEY_ID="+ secret.Data["access_key"].(string))
-			fmt.Println("AWS_SECRET_ACCESS_KEY="+ secret.Data["secret_key"].(string))
+			fmt.Println("AWS_ACCESS_KEY_ID=" + secret.Data["access_key"].(string))
+			fmt.Println("AWS_SECRET_ACCESS_KEY=" + secret.Data["secret_key"].(string))
 		}
 	}
 
-  return nil
+	return nil
 }
 
 // createAWSLoginURL returns a federation AWS URL used for wev console login
 // This uses AWS Security Token Service (AWS STS) AssumeRole
 // More info at: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
 func createAWSLoginURL(secret *api.Secret) (string, error) {
-  region := ""
-  path := ""
-  loginURLPrefix, destination := createRegionalURL(region, path)
+	region := ""
+	path := ""
+	loginURLPrefix, destination := createRegionalURL(region, path)
 
-  req, err := http.NewRequest("GET", loginURLPrefix, nil)
-  if err != nil {
-    return "", err
-  }
+	req, err := http.NewRequest("GET", loginURLPrefix, nil)
+	if err != nil {
+		return "", err
+	}
 
 	// Note: This AWS API doesn't validate given info
-  jsonBytes, err := json.Marshal(map[string]string{
-    "sessionId":    secret.Data["access_key"].(string),
-    "sessionKey":   secret.Data["secret_key"].(string),
-    "sessionToken": secret.Data["security_token"].(string),
-  })
-  if err != nil {
-    return "", err
-  }
+	jsonBytes, err := json.Marshal(map[string]string{
+		"sessionId":    secret.Data["access_key"].(string),
+		"sessionKey":   secret.Data["secret_key"].(string),
+		"sessionToken": secret.Data["security_token"].(string),
+	})
+	if err != nil {
+		return "", err
+	}
 
-  q := req.URL.Query()
-  q.Add("Action", "getSigninToken")
-  q.Add("Session", string(jsonBytes))
+	q := req.URL.Query()
+	q.Add("Action", "getSigninToken")
+	q.Add("Session", string(jsonBytes))
 
-  req.URL.RawQuery = q.Encode()
+	req.URL.RawQuery = q.Encode()
 
 	// Note: You can still get a token if you have the wrong credentials
-  resp, err := http.DefaultClient.Do(req)
-  if err != nil {
-    return "", errors.New("Failed to create federated token: "+ err.Error())
-  }
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", errors.New("Failed to create federated token: " + err.Error())
+	}
 
-  defer resp.Body.Close()
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.New("Call to getSigninToken failed with "+ resp.Status)
+		return "", errors.New("Call to getSigninToken failed with " + resp.Status)
 	}
 
 	var respParsed map[string]string
 
 	if err = json.Unmarshal([]byte(body), &respParsed); err != nil {
-		return "", errors.New("Failed to parse response from getSigninToken: "+ err.Error())
+		return "", errors.New("Failed to parse response from getSigninToken: " + err.Error())
 	}
 
 	signinToken, ok := respParsed["SigninToken"]
@@ -123,9 +123,9 @@ func createAWSLoginURL(secret *api.Secret) (string, error) {
 		url.QueryEscape(stimURL),
 		url.QueryEscape(destination),
 		url.QueryEscape(signinToken),
-  )
+	)
 
-  return loginURL, nil
+	return loginURL, nil
 }
 
 // createRegionalURL create the needed regional AWS URL
