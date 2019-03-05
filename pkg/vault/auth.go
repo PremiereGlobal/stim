@@ -18,31 +18,31 @@ import (
 func (v *Vault) Login() error {
 
 	// get the token from the user's environment
-	v.tokenHelper = token.InternalTokenHelper{}
 	if v.client.Token() != "" {
 		log.Debug("Reading token from environment 'VAULT_TOKEN'")
 	} else { // If no environment token set
 		// Reading token from user's dot file
+		v.tokenHelper = token.InternalTokenHelper{}
 		token, err := v.tokenHelper.Get()
 		if err != nil {
 			return err
 		}
+
 		if token != "" {
-			v.client.SetToken(token)
 			log.Debug("Reading token from: " + v.tokenHelper.Path())
-		} else { // If we still can not find the token
-			log.Debug("No token found. Trying to login.")
-			err = v.userLogin()
-			if err != nil {
-				return err
-			}
+			v.client.SetToken(token)
 		}
 	}
 
+	// Check if any existing token is valid
+	// If not, prompt for login
 	isTokenValid := v.isCurrentTokenValid()
 	if isTokenValid == false {
-		log.Debug("Need to login to Vault")
-		v.userLogin()
+		log.Debug("No valid tokens found, need to login")
+		err := v.userLogin()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
