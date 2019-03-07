@@ -35,17 +35,10 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 			v.Login()
 		},
 	}
+
+	loginCmd.Flags().StringP("token-duration", "i", "", "Set token expiration for given duration. Example '8h'")
+	viper.BindPFlag("vault-initial-token-duration", loginCmd.Flags().Lookup("token-duration"))
+
 	v.stim.BindCommand(loginCmd, vaultCmd)
-
-	// var awsCmd = &cobra.Command{
-	// 	Use:   "aws",
-	// 	Short: "aws login",
-	// 	Long:  "Create AWS credentials",
-	// 	Run: func(cmd *cobra.Command, args []string) {
-	// 		v.AWS()
-	// 	},
-	// }
-	// v.stim.BindCommand(awsCmd, vaultCmd)
-
 	return vaultCmd
 }

@@ -2,6 +2,7 @@ package stim
 
 import (
 	"github.com/mitchellh/go-homedir"
+
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -18,12 +19,8 @@ func (stim *Stim) Get(configKey string) interface{} {
 }
 
 func (stim *Stim) GetConfig(configKey string) string {
-	configValue := stim.config.Get(configKey)
-	if configValue != nil {
-		return configValue.(string)
-	}
-
-	return ""
+	configValue := stim.config.GetString(configKey)
+	return configValue
 }
 
 // GetConfigBool takes a config key and returns the boolean result
@@ -120,12 +117,12 @@ func (stim *Stim) loadConfigFile() error {
 
 	// Don't forget to read config either from CfgFile or from home directory!
 	configFile := stim.GetConfig("config-file")
-  _, err := os.Stat(configFile)
-  if err != nil && !os.IsExist(err) {
-    stim.log.Warn("No config file exits at :\""+configFile+"\"")
-    //If they passed in a custom path we might want to exit here
-  }
-  stim.config.SetConfigFile(configFile)
-  confErr := stim.config.ReadInConfig()
-  return confErr
+	_, err := os.Stat(configFile)
+	if err != nil && !os.IsExist(err) {
+		stim.log.Warn("No config file exits at :\"" + configFile + "\"")
+		//If they passed in a custom path we might want to exit here
+	}
+	stim.config.SetConfigFile(configFile)
+	confErr := stim.config.ReadInConfig()
+	return confErr
 }

@@ -2,6 +2,8 @@ package stim
 
 import (
 	"github.com/readytalk/stim/pkg/vault"
+
+	"time"
 )
 
 // Vault is the interface for Hashicorp Vault wrapper methods
@@ -22,23 +24,31 @@ func (stim *Stim) Vault() *vault.Vault {
 			}
 		}
 
+		// Note with ParseDuration: If you value is 28800 you will need to add an "s" at the end
+		timeInDuration, err := time.ParseDuration(stim.GetConfig("vault-initial-token-duration"))
+		if err != nil {
+			stim.log.Warn("Stim-vault: ", err)
+			timeInDuration = time.Duration(0)
+		}
+
+		// Create the Vault object and pass in the needed address
 		vault, err := vault.New(&vault.Config{
-			Address:  stim.GetConfig("vault-address"), // Default is 127.0.0.1
-			Noprompt: stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-			Log:      stim.log,
-			Username: username,
+			Address:              stim.GetConfig("vault-address"), // Default is 127.0.0.1
+			Noprompt:             stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
+			Log:                  stim.log, // Pass in the global logger object
+			Username:             username, // If set in the configs, pass in user
+			InitialTokenDuration: timeInDuration,
 		})
 		if err != nil {
 			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
 		}
+		stim.vault = vault
 
-		// Update the username set in local configs to make any new logins friendly
+		// Update the username set in local configs to make logins more friendly
 		err = stim.UpdateVaultUser(vault.GetUser())
 		if err != nil {
 			stim.log.Fatal("Stim-Vault: Error Updating username in configuration file: ", err)
 		}
-
-		stim.vault = vault
 	}
 
 	return stim.vault
