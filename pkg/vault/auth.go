@@ -149,16 +149,3 @@ func (v *Vault) getCredentials() (string, string, error) {
 
 	return strings.TrimSpace(username), strings.TrimSpace(password), nil
 }
-
-// RenewToken will increase the lease duration of users token
-func (v *Vault) RenewToken(time string) error {
-	log.Debug("Renewing token for '", time, "'")
-	_, err := v.client.Logical().Write("auth/token/renew-self", map[string]interface{}{
-		"increment": time,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

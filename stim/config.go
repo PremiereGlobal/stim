@@ -2,6 +2,7 @@ package stim
 
 import (
 	"github.com/mitchellh/go-homedir"
+
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -18,12 +19,8 @@ func (stim *Stim) Get(configKey string) interface{} {
 }
 
 func (stim *Stim) GetConfig(configKey string) string {
-	configValue := stim.config.Get(configKey)
-	if configValue != nil {
-		return configValue.(string)
-	}
-
-	return ""
+	configValue := stim.config.GetString(configKey)
+	return configValue
 }
 
 // GetConfigBool takes a config key and returns the boolean result

@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// TODO: Move this to a global config
 var stimURL = "https://github.com/ReadyTalk/stim"
 
 // Login gets IAM or STS credentials

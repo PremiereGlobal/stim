@@ -35,10 +35,10 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 			v.Login()
 		},
 	}
+
+	loginCmd.Flags().StringP("token-duration", "i", "", "Set token expiration for given duration. Example '8h'")
+	viper.BindPFlag("vault-initial-token-duration", loginCmd.Flags().Lookup("token-duration"))
+
 	v.stim.BindCommand(loginCmd, vaultCmd)
-
-	loginCmd.Flags().StringP("renew", "r", "", "Renew token for given time. Example '8h'")
-	viper.BindPFlag("vault-renew", loginCmd.Flags().Lookup("renew"))
-
 	return vaultCmd
 }

@@ -3,7 +3,6 @@ package vault
 import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
-	// "github.com/hashicorp/vault/helper/parseutil"
 	"github.com/readytalk/stim/pkg/log"
 
 	"errors"
@@ -18,11 +17,12 @@ type Vault struct {
 }
 
 type Config struct {
-	Noprompt bool
-	Address  string
-	Username string
-	Timeout  time.Duration
-	Log      log.Logger
+	Noprompt             bool
+	Address              string
+	Username             string
+	Timeout              time.Duration
+	Log                  log.Logger
+	InitialTokenDuration time.Duration
 }
 
 func New(config *Config) (*Vault, error) {
@@ -60,6 +60,17 @@ func New(config *Config) (*Vault, error) {
 	err = v.Login()
 	if err != nil {
 		return nil, err
+	}
+
+	// If user wants, extend the token timeout
+	if v.IsNewLogin() {
+		if v.config.InitialTokenDuration > 0 {
+			log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
+			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration))
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return v, nil
