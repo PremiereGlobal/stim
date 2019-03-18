@@ -8,6 +8,7 @@ import (
 
 func (a *Aws) BindStim(stim *stim.Stim) {
 	a.stim = stim
+	a.log = stim.GetLogger()
 }
 
 func (a *Aws) Command(viper *viper.Viper) *cobra.Command {

@@ -1,8 +1,6 @@
 package vault
 
 import (
-	"github.com/readytalk/stim/pkg/log"
-
 	"strconv"
 	"time"
 )
@@ -13,14 +11,14 @@ func (v *Vault) isVaultHealthy() (bool, error) {
 		return false, err
 	}
 
-	log.Debug("Vault server info from (" + v.client.Address() + ")")
-	log.Debug("  Initialized: " + strconv.FormatBool(result.Initialized))
-	log.Debug("  Sealed: " + strconv.FormatBool(result.Sealed))
-	log.Debug("  Standby: " + strconv.FormatBool(result.Standby))
-	log.Debug("  Version: " + result.Version)
-	log.Debug("  ClusterName: " + result.ClusterName)
-	log.Debug("  ClusterID: " + result.ClusterID)
-	log.Debug("  ServerTime: (" + strconv.FormatInt(result.ServerTimeUTC, 10) + ") " + time.Unix(result.ServerTimeUTC, 0).UTC().String())
+	v.log.Debug("Vault server info from (" + v.client.Address() + ")")
+	v.log.Debug("  Initialized: " + strconv.FormatBool(result.Initialized))
+	v.log.Debug("  Sealed: " + strconv.FormatBool(result.Sealed))
+	v.log.Debug("  Standby: " + strconv.FormatBool(result.Standby))
+	v.log.Debug("  Version: " + result.Version)
+	v.log.Debug("  ClusterName: " + result.ClusterName)
+	v.log.Debug("  ClusterID: " + result.ClusterID)
+	v.log.Debug("  ServerTime: (" + strconv.FormatInt(result.ServerTimeUTC, 10) + ") " + time.Unix(result.ServerTimeUTC, 0).UTC().String())
 
 	return true, nil
 }

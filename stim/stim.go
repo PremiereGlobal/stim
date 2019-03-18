@@ -1,12 +1,13 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/vault"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"os/user"
+
+	"github.com/readytalk/stim/pkg/stimlog"
+	"github.com/readytalk/stim/pkg/vault"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var version string
@@ -14,22 +15,20 @@ var version string
 type Stim struct {
 	config    *viper.Viper
 	rootCmd   *cobra.Command
-	log       *logrus.Logger
+	log       *stimlog.StimLogger
 	stimpacks []*Stimpack
 	version   string
 	vault     *vault.Vault
 }
 
-var stim *Stim
+var stim *Stim = &Stim{}
 
 func New() *Stim {
 
-	// Create
-	stim := &Stim{}
-
 	// Initialize logger
-	stim.log = logrus.New()
+	stim.log = stimlog.GetLogger()
 
+	stim.log.Debug("test1")
 	// Initialize viper (config)
 	stim.config = viper.New()
 
@@ -45,6 +44,10 @@ func New() *Stim {
 	return stim
 }
 
+func (stim *Stim) GetLogger() *stimlog.StimLogger {
+	return stim.log
+}
+
 func (stim *Stim) Execute() {
 	cobra.OnInitialize(stim.commandInit)
 	err := stim.rootCmd.Execute()
@@ -57,7 +60,7 @@ func (stim *Stim) commandInit() {
 
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
-		stim.log.SetLevel(logrus.DebugLevel)
+		// stim.log.SetLevel(logrus.DebugLevel)
 		stim.log.Debug("Stim version: ", stim.version)
 		stim.log.Debug("Debug log level set")
 	}

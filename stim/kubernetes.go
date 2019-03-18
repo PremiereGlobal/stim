@@ -7,7 +7,7 @@ import (
 func (stim *Stim) Kubernetes() *kubernetes.Kubernetes {
 	stim.log.Debug("Stim-Kubernetes: Creating")
 
-	k, err := kubernetes.New(&kubernetes.Config{Logger: stim.log})
+	k, err := kubernetes.New(&kubernetes.Config{}, stim.log)
 	if err != nil {
 		stim.log.Fatal("Stim-Kubernetes: Error Initializaing: ", err)
 	}

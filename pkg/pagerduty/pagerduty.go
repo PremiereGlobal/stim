@@ -2,17 +2,18 @@ package pagerduty
 
 import (
 	"errors"
-	pdApi "github.com/PagerDuty/go-pagerduty"
-	"github.com/readytalk/stim/pkg/log"
-	"github.com/readytalk/stim/pkg/utils"
 	"os"
 	"strings"
+
+	pdApi "github.com/PagerDuty/go-pagerduty"
+	"github.com/readytalk/stim/pkg/stimlog"
+	"github.com/readytalk/stim/pkg/utils"
 )
 
 // Pagerduty is the main object
 type Pagerduty struct {
 	client *pdApi.Client
-	log    log.Logger
+	log    *stimlog.StimLogger
 }
 
 // Event contains the required and optional fields to sent an event
@@ -30,12 +31,11 @@ type Event struct {
 }
 
 // New returns a new Pagerduty "instance"
-func New(apiKey string, givenLog log.Logger) *Pagerduty {
+func New(apiKey string, givenLog *stimlog.StimLogger) *Pagerduty {
 
 	// Initialize client
 	client := pdApi.NewClient(apiKey)
-	p := &Pagerduty{client: client}
-	log.SetLogger(givenLog)
+	p := &Pagerduty{client: client, log: givenLog}
 
 	return p
 }

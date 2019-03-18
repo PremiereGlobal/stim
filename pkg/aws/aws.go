@@ -1,7 +1,7 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/log"
+	"github.com/readytalk/stim/pkg/stimlog"
 	// "github.com/aws/aws-sdk-go/aws"
 	// "github.com/aws/aws-sdk-go/aws/awserr"
 	// "github.com/aws/aws-sdk-go/aws/session"
@@ -13,7 +13,7 @@ import (
 type Aws struct {
 	// client *slack.Client
 	config *Config
-	log    log.Logger
+	log    *stimlog.StimLogger
 }
 
 type Config struct {
@@ -21,12 +21,16 @@ type Config struct {
 }
 
 // New builds a client from the provided config
-func New(config *Config) (*Aws, error) {
+func New(config *Config, sl *stimlog.StimLogger) (*Aws, error) {
 
 	// client := slack.New(config.Token)
 
 	s := &Aws{config: config}
-
+	if sl != nil {
+		s.log = sl
+	} else {
+		s.log = stimlog.GetLogger()
+	}
 	return s, nil
 }
 

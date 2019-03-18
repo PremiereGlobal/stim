@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
 	"github.com/readytalk/stim/pkg/log"
+	"github.com/readytalk/stim/pkg/stimlog"
 
 	"errors"
 	"time"
@@ -14,6 +15,7 @@ type Vault struct {
 	config      *Config
 	tokenHelper token.InternalTokenHelper
 	newLogin    bool
+	log         *stimlog.StimLogger
 }
 
 type Config struct {
@@ -21,18 +23,21 @@ type Config struct {
 	Address              string
 	Username             string
 	Timeout              time.Duration
-	Log                  log.Logger
 	InitialTokenDuration time.Duration
 }
 
-func New(config *Config) (*Vault, error) {
+func New(config *Config, givenLogger *stimlog.StimLogger) (*Vault, error) {
 	// Ensure that the Vault address is set
 	if config.Address == "" {
 		return nil, errors.New("Vault address not set")
 	}
 
 	v := &Vault{config: config}
-	log.SetLogger(config.Log)
+	if givenLogger != nil {
+		v.log = givenLogger
+	} else {
+		v.log = stimlog.GetLogger()
+	}
 
 	if v.config.Timeout == 0 {
 		v.config.Timeout = time.Second * 10 // No need to wait over a minite from default

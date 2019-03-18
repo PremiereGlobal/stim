@@ -35,10 +35,9 @@ func (stim *Stim) Vault() *vault.Vault {
 		vault, err := vault.New(&vault.Config{
 			Address:              stim.GetConfig("vault-address"), // Default is 127.0.0.1
 			Noprompt:             stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-			Log:                  stim.log, // Pass in the global logger object
 			Username:             username, // If set in the configs, pass in user
 			InitialTokenDuration: timeInDuration,
-		})
+		}, stim.log)
 		if err != nil {
 			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
 		}

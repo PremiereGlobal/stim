@@ -2,7 +2,6 @@ package vault
 
 import (
 	"github.com/hashicorp/vault/command/token"
-	"github.com/readytalk/stim/pkg/log"
 	"golang.org/x/crypto/ssh/terminal"
 
 	"bufio"
@@ -16,10 +15,9 @@ import (
 // Login will authenticate the user with Vault
 // Will detect if user needs to re-login
 func (v *Vault) Login() error {
-
 	// get the token from the user's environment
 	if v.client.Token() != "" {
-		log.Debug("Reading token from environment 'VAULT_TOKEN'")
+		v.log.Debug("Reading token from environment 'VAULT_TOKEN'")
 	} else { // If no environment token set
 		// Reading token from user's dot file
 		v.tokenHelper = token.InternalTokenHelper{}
@@ -29,7 +27,7 @@ func (v *Vault) Login() error {
 		}
 
 		if token != "" {
-			log.Debug("Reading token from: " + v.tokenHelper.Path())
+			v.log.Debug("Reading token from: " + v.tokenHelper.Path())
 			v.client.SetToken(token)
 		}
 	}
@@ -38,7 +36,7 @@ func (v *Vault) Login() error {
 	// If not, prompt for login
 	isTokenValid := v.isCurrentTokenValid()
 	if isTokenValid == false {
-		log.Debug("No valid tokens found, need to login")
+		v.log.Debug("No valid tokens found, need to login")
 		err := v.userLogin()
 		if err != nil {
 			return err
@@ -87,7 +85,7 @@ func (v *Vault) userLogin() error {
 		"password": password,
 	})
 	if err != nil {
-		log.Debug("Do you have a bad username or password?")
+		v.log.Debug("Do you have a bad username or password?")
 		return err
 	}
 	v.client.SetToken(secret.Auth.ClientToken)
@@ -105,7 +103,7 @@ func (v *Vault) userLogin() error {
 	}
 	// spew.Dump(secret)
 	entityID := secret.Data["entity_id"].(string)
-	log.Debug("Vault entity ID: ", entityID)
+	v.log.Debug("Vault entity ID: ", entityID)
 
 	v.newLogin = true // Set if we had to prompt user for a login
 

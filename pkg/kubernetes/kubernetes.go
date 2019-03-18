@@ -1,14 +1,14 @@
 package kubernetes
 
 import (
-	"fmt"
+	"github.com/readytalk/stim/pkg/stimlog"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type Kubernetes struct {
 	// client *api.Client
 	config *Config
-
+	log    *stimlog.StimLogger
 	// This allows us to read/write the kube config
 	// It takes into account KUBECONFIG env var for setting the location
 	configAccess clientcmd.ConfigAccess
@@ -16,31 +16,18 @@ type Kubernetes struct {
 
 type Config struct {
 	// Address string
-	Logger
+
 }
 
-type Logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-}
+func New(kconf *Config, sl *stimlog.StimLogger) (*Kubernetes, error) {
 
-func (k *Kubernetes) Debug(message string) {
-	if k.config.Logger != nil {
-		k.config.Debug(message)
-	}
-}
+	k := &Kubernetes{config: kconf}
 
-func (k *Kubernetes) Info(message string) {
-	if k.config.Logger != nil {
-		k.config.Info(message)
+	if sl != nil {
+		k.log = sl
 	} else {
-		fmt.Println(message)
+		k.log = stimlog.GetLogger()
 	}
-}
-
-func New(config *Config) (*Kubernetes, error) {
-
-	k := &Kubernetes{config: config}
 
 	return k, nil
 }
@@ -49,7 +36,7 @@ func (k *Kubernetes) SetKubeconfig(kubeConfigOptions *KubeConfigOptions) error {
 
 	// configAccess is used by subcommands and methods in this package to load and modify the appropriate config files
 	k.configAccess = clientcmd.NewDefaultPathOptions()
-	k.Debug("Using kubeconfig file: " + k.configAccess.GetDefaultFilename())
+	k.log.Debug("Using kubeconfig file: " + k.configAccess.GetDefaultFilename())
 
 	err := k.modifyKubeconfig(kubeConfigOptions)
 	if err != nil {

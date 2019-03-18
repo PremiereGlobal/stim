@@ -10,7 +10,7 @@ func (stim *Stim) Prometheus() *prometheus.Prometheus {
 	address := stim.GetConfig("prometheus.address")
 	stim.log.Debug("Stim-Prometheus: Using Address ", address)
 
-	p, err := prometheus.New(&prometheus.Config{Address: address})
+	p, err := prometheus.New(&prometheus.Config{Address: address}, stim.log)
 	if err != nil {
 		stim.log.Fatal("Stim-Prometheus: Error Initializaing: ", err)
 	}

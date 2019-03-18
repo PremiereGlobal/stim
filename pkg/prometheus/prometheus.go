@@ -2,10 +2,11 @@ package prometheus
 
 import (
 	"context"
-	"fmt"
+	"time"
+
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/client_golang/api/prometheus/v1"
-	"time"
+	"github.com/readytalk/stim/pkg/stimlog"
 )
 
 type Prometheus struct {
@@ -13,33 +14,14 @@ type Prometheus struct {
 	config  *Config
 	context context.Context
 	API     v1.API
+	log     *stimlog.StimLogger
 }
 
 type Config struct {
 	Address string
-	Logger
 }
 
-type Logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-}
-
-func (p *Prometheus) Debug(message string) {
-	if p.config.Logger != nil {
-		p.config.Debug(message)
-	}
-}
-
-func (p *Prometheus) Info(message string) {
-	if p.config.Logger != nil {
-		p.config.Info(message)
-	} else {
-		fmt.Println(message)
-	}
-}
-
-func New(config *Config) (*Prometheus, error) {
+func New(config *Config, sl *stimlog.StimLogger) (*Prometheus, error) {
 
 	apiConfig := api.Config{Address: config.Address}
 	client, err := api.NewClient(apiConfig)
@@ -50,7 +32,11 @@ func New(config *Config) (*Prometheus, error) {
 	api := v1.NewAPI(client)
 
 	p := &Prometheus{client: &client, API: api, context: context.Background()}
-
+	if sl != nil {
+		p.log = sl
+	} else {
+		p.log = stimlog.GetLogger()
+	}
 	return p, nil
 }
 
