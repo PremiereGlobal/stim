@@ -14,14 +14,6 @@ type Logger interface {
 	Fatal(...interface{})
 }
 
-type Level uint32
-
-const (
-	WarnLevel  Level = 10
-	FatalLevel Level = 20
-	DebugLevel Level = 50
-)
-
 func Debug(message ...interface{}) {
 	fmt.Println(message)
 }

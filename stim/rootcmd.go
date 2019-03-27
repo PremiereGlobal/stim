@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (stim *Stim) rootCommand(viper *viper.Viper) *cobra.Command {
+func initRootCommand(viper *viper.Viper) *cobra.Command {
 
 	homeDir, err := homedir.Dir()
 	var cmd = &cobra.Command{
@@ -32,8 +32,8 @@ func (stim *Stim) rootCommand(viper *viper.Viper) *cobra.Command {
 		}
 	} else {
 		//TODO: we need to fix this for windows
-		stim.config.SetDefault("config-file", homeDir+"/.stim/config.yaml")
-		stim.config.SetDefault("homedir", homeDir)
+		viper.SetDefault("config-file", homeDir+"/.stim/config.yaml")
+		viper.SetDefault("homedir", homeDir)
 	}
 
 	return cmd

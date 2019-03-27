@@ -3,14 +3,13 @@ package stim
 import (
 	"os"
 	"os/user"
+	"sync"
 
 	"github.com/readytalk/stim/pkg/stimlog"
 	"github.com/readytalk/stim/pkg/vault"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var version string
 
 type Stim struct {
 	config    *viper.Viper
@@ -21,29 +20,32 @@ type Stim struct {
 	vault     *vault.Vault
 }
 
-var stim *Stim = &Stim{}
+var version string
+var stim *Stim
 
+//New gets the Stim struct, which is treated like a singleton so you will get the same one
+//as everywhere when this is called
 func New() *Stim {
-
-	// Initialize logger
-	stim.log = stimlog.GetLogger()
-
-	stim.log.Debug("test1")
-	// Initialize viper (config)
-	stim.config = viper.New()
-
-	// Set version for local testing if not set by build system
-	if version == "" {
-		stim.version = "local"
-	} else {
-		stim.version = version
+	if stim == nil {
+		mu := sync.Mutex{}
+		mu.Lock()
+		if stim == nil {
+			// Set version for local testing if not set by build system
+			lv := "local"
+			if version != "" {
+				lv = version
+			}
+			log := stimlog.GetLogger()
+			config := viper.New()
+			root := initRootCommand(config)
+			stim = &Stim{log: log, config: config, rootCmd: root, version: lv}
+		}
+		mu.Unlock()
 	}
-
-	stim.rootCmd = stim.rootCommand(stim.config)
-
 	return stim
 }
 
+//GetLogger for Stim
 func (stim *Stim) GetLogger() *stimlog.StimLogger {
 	return stim.log
 }
@@ -61,6 +63,7 @@ func (stim *Stim) commandInit() {
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
 		// stim.log.SetLevel(logrus.DebugLevel)
+		stim.log.SetLevel(stimlog.DebugLevel)
 		stim.log.Debug("Stim version: ", stim.version)
 		stim.log.Debug("Debug log level set")
 	}
