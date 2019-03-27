@@ -38,14 +38,25 @@ func (v *Vault) Login() error {
 	// If not, prompt for login
 	isTokenValid := v.isCurrentTokenValid()
 	if isTokenValid == false {
-		log.Debug("No valid tokens found, need to login")
+		v.Debug("No valid tokens found, need to login")
 		err := v.userLogin()
 		if err != nil {
-			return err
+			return v.parseError(err)
 		}
 	}
 
 	return nil
+}
+
+// GetToken returns the raw token
+func (v *Vault) GetToken() (string, error) {
+	v.tokenHelper = token.InternalTokenHelper{}
+	token, err := v.tokenHelper.Get()
+	if err != nil {
+		return "", v.parseError(err)
+	}
+
+	return token, nil
 }
 
 // isCurrentTokenValid returns flase if user needs to relogin
@@ -87,21 +98,21 @@ func (v *Vault) userLogin() error {
 		"password": password,
 	})
 	if err != nil {
-		log.Debug("Do you have a bad username or password?")
-		return err
+		v.Debug("Do you have a bad username or password?")
+		return v.parseError(err)
 	}
 	v.client.SetToken(secret.Auth.ClientToken)
 
 	// Write token to user's dot file
 	err = v.tokenHelper.Store(secret.Auth.ClientToken)
 	if err != nil {
-		return err
+		return v.parseError(err)
 	}
 
 	// Lookup the token to get the entity ID
 	secret, err = v.client.Auth().Token().Lookup(v.client.Token())
 	if err != nil {
-		return err
+		return v.parseError(err)
 	}
 	// spew.Dump(secret)
 	entityID := secret.Data["entity_id"].(string)
@@ -132,7 +143,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 
 	if len(username) <= 0 { // If user just clicked enter
 		if v.config.Username == "" { // If there also isn't default
-			return "", "", errors.New("No username given")
+			return "", "", v.newError("No username given")
 		}
 		username = v.config.Username
 	} else {
@@ -142,7 +153,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Print("Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		return "", "", err
+		return "", "", v.parseError(err)
 	}
 	fmt.Println("")
 	password := string(bytePassword)

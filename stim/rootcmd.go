@@ -36,5 +36,8 @@ func (stim *Stim) rootCommand(viper *viper.Viper) *cobra.Command {
 		stim.config.SetDefault("homedir", homeDir)
 	}
 
+	// Set some defaults
+	viper.SetDefault("vault-timeout", 15)
+
 	return cmd
 }
