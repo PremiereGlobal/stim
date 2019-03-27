@@ -39,7 +39,7 @@ func (stim *Stim) Vault() *vault.Vault {
 			InitialTokenDuration: timeInDuration,
 		}, stim.log)
 		if err != nil {
-			stim.log.Fatal("Stim-Vault: Error Initializaing: ", err)
+			stim.log.Fatal(err)
 		}
 		stim.vault = vault
 

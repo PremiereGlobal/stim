@@ -5,8 +5,6 @@ import (
 	"github.com/hashicorp/vault/command/token"
 	"github.com/readytalk/stim/pkg/log"
 	"github.com/readytalk/stim/pkg/stimlog"
-
-	"errors"
 	"time"
 )
 
@@ -27,10 +25,6 @@ type Config struct {
 }
 
 func New(config *Config, givenLogger *stimlog.StimLogger) (*Vault, error) {
-	// Ensure that the Vault address is set
-	if config.Address == "" {
-		return nil, errors.New("Vault address not set")
-	}
 
 	v := &Vault{config: config}
 	if givenLogger != nil {
@@ -39,32 +33,33 @@ func New(config *Config, givenLogger *stimlog.StimLogger) (*Vault, error) {
 		v.log = stimlog.GetLogger()
 	}
 
-	if v.config.Timeout == 0 {
-		v.config.Timeout = time.Second * 10 // No need to wait over a minite from default
+	// Ensure that the Vault address is set
+	if config.Address == "" {
+		return nil, v.newError("Vault address not set")
 	}
 
 	// Configure new Vault Client
 	apiConfig := api.DefaultConfig()
 	apiConfig.Address = v.config.Address // Since we read the env we can override
-	// apiConfig.HttpClient.Timeout = v.config.Timeout
+	apiConfig.Timeout = time.Duration(v.config.Timeout) * time.Second
 
 	// Create our new API client
 	var err error
 	v.client, err = api.NewClient(apiConfig)
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	// Ensure Vault is up and Healthy
 	_, err = v.isVaultHealthy()
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	// Run Login logic
 	err = v.Login()
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	// If user wants, extend the token timeout

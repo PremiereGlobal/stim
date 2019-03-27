@@ -6,9 +6,10 @@ import (
 )
 
 func (v *Vault) isVaultHealthy() (bool, error) {
+
 	result, err := v.client.Sys().Health()
 	if err != nil {
-		return false, err
+		return false, v.parseError(err)
 	}
 
 	v.log.Debug("Vault server info from (" + v.client.Address() + ")")

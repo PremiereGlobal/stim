@@ -51,7 +51,7 @@ Guidelines:
 * Don't log, just return errors and let the consumer deal with it
 
 
-[Build-Status-Url]: https://travis-ci.org/ReadyTalk/stim
+[Build-Status-Url]: https://travis-ci.org/PremiereGlobal/stim
 [Build-Status-Image]: https://travis-ci.org/ReadyTalk/stim.svg?branch=master
 [reportcard-url]: https://goreportcard.com/badge/github.com/readytalk/stim
 [reportcard-image]: https://goreportcard.com/badge/github.com/readytalk/stim

@@ -36,5 +36,8 @@ func initRootCommand(viper *viper.Viper) *cobra.Command {
 		viper.SetDefault("homedir", homeDir)
 	}
 
+	// Set some defaults
+	viper.SetDefault("vault-timeout", 15)
+
 	return cmd
 }
