@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
 	"github.com/readytalk/stim/pkg/log"
-	"errors"
 	"time"
 )
 
@@ -21,7 +20,7 @@ type Config struct {
 	Address  string
 	Username string
 	Timeout  int
-  InitialTokenDuration time.Duration
+	InitialTokenDuration time.Duration
 	Logger
 }
 
@@ -47,7 +46,6 @@ func (v *Vault) Info(message string) {
 func New(config *Config) (*Vault, error) {
 
 	v := &Vault{config: config}
-	log.SetLogger(config.Log)
 
 	// Ensure that the Vault address is set
 	if config.Address == "" {

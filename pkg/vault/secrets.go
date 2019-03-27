@@ -2,7 +2,6 @@ package vault
 
 import (
 	"github.com/hashicorp/vault/api"
-	"errors"
 	"path/filepath"
 )
 
