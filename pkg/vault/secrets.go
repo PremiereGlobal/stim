@@ -1,8 +1,13 @@
 package vault
 
 import (
+	"github.com/hashicorp/vault/api"
+	"errors"
 	"path/filepath"
 )
+
+// Using Vaults Logical client:
+// https://github.com/hashicorp/vault/blob/master/api/logical.go
 
 // GetSecretKey takes a secret path and key and returns, if successful,
 // the secret string present in that key.
@@ -71,4 +76,14 @@ func (v *Vault) ListSecrets(path string) ([]string, error) {
 	}
 
 	return secretList, nil
+}
+
+// GetSecret takes a secret path and returns the secret(s) in a Vault object
+func (v *Vault) GetSecret(path string) (*api.Secret, error) {
+	secret, err := v.client.Logical().Read(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return secret, nil
 }

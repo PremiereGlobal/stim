@@ -2,10 +2,10 @@ package vault
 
 import (
 	"github.com/hashicorp/vault/command/token"
+	"github.com/readytalk/stim/pkg/log"
 	"golang.org/x/crypto/ssh/terminal"
 
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -13,49 +13,36 @@ import (
 	"syscall"
 )
 
-// Login gets a Vault token if there isn't one
+// Login will authenticate the user with Vault
+// Will detect if user needs to re-login
 func (v *Vault) Login() error {
-	v.tokenHelper = token.InternalTokenHelper{}
 
-	if v.client.Token() == "" { // If no environment token set
+	// get the token from the user's environment
+	if v.client.Token() != "" {
+		log.Debug("Reading token from environment 'VAULT_TOKEN'")
+	} else { // If no environment token set
 		// Reading token from user's dot file
+		v.tokenHelper = token.InternalTokenHelper{}
 		token, err := v.tokenHelper.Get()
 		if err != nil {
 			return err
 		}
+
 		if token != "" {
+			log.Debug("Reading token from: " + v.tokenHelper.Path())
 			v.client.SetToken(token)
-			v.Debug("Reading token from: " + v.tokenHelper.Path())
-		} else { // If we still can not find the token
-			v.Debug("No token found. Trying to login.")
-			err = v.userLogin()
-			if err != nil {
-				return err
-			}
 		}
-	} else {
-		v.Debug("Reading token from environment 'VAULT_TOKEN'")
 	}
 
-	// Test token and see if a vault login is needed
-	loginToVault := false
-	r := v.client.NewRequest("GET", "/v1/auth/token/lookup-self")
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	defer cancelFunc()
-	resp, err := v.client.RawRequestWithContext(ctx, r) // Access to resp is nice
-	if err != nil {
-		if resp.StatusCode == 403 {
-			v.Debug("Got permission denied. Trying to login.")
-			loginToVault = true
-		} else {
+	// Check if any existing token is valid
+	// If not, prompt for login
+	isTokenValid := v.isCurrentTokenValid()
+	if isTokenValid == false {
+		v.Debug("No valid tokens found, need to login")
+		err := v.userLogin()
+		if err != nil {
 			return v.parseError(err)
 		}
-	}
-	defer resp.Body.Close()
-
-	if loginToVault == true {
-		v.Debug("Need to login to Vault")
-		v.userLogin()
 	}
 
 	return nil
@@ -72,10 +59,18 @@ func (v *Vault) GetToken() (string, error) {
 	return token, nil
 }
 
-func (v *Vault) isCurrentTokenValid() {
-
+// isCurrentTokenValid returns flase if user needs to relogin
+// I am not happy with this way of testing the token.
+// This function doesn't check for errors.
+func (v *Vault) isCurrentTokenValid() bool {
+	secret, _ := v.client.Auth().Token().LookupSelf()
+	if secret == nil {
+		return false
+	}
+	return true
 }
 
+// userLogin asks user for LDAP login to Authenticate with Vault
 func (v *Vault) userLogin() error {
 	// Sadly we will assume LDAP login (for now)
 	// Maybe someday vault will allow anonymous access to "vault auth list"
@@ -120,13 +115,20 @@ func (v *Vault) userLogin() error {
 		return v.parseError(err)
 	}
 	// spew.Dump(secret)
-	// entityID := secret.Data["entity_id"].(string)
-	// Debug("Vault entity ID: ", entityID)
+	entityID := secret.Data["entity_id"].(string)
+	log.Debug("Vault entity ID: ", entityID)
+
+	v.newLogin = true // Set if we had to prompt user for a login
 
 	return nil
 }
 
-// Gather username and password from the user
+// IsNewLogin will help high level funcs know if a login prompt was used
+func (v *Vault) IsNewLogin() bool {
+	return v.newLogin
+}
+
+// getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Println("Vault needs your LDAP Linux user/pass.")
