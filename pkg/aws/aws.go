@@ -1,35 +1,47 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/log"
-	// "github.com/aws/aws-sdk-go/aws"
-	// "github.com/aws/aws-sdk-go/aws/awserr"
-	// "github.com/aws/aws-sdk-go/aws/session"
-	// "github.com/aws/aws-sdk-go/aws/credentials"
-	// "github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 // Aws is the main object
 type Aws struct {
-	// client *slack.Client
-	config *Config
-	log    log.Logger
+	config  *Config
+	session *session.Session
 }
 
 type Config struct {
-	Token string
+	AccessKey string
+	SecretKey string
+	Logger
+}
+
+type Logger interface {
+	Debug(args ...interface{})
+	Info(args ...interface{})
+	Fatal(args ...interface{})
 }
 
 // New builds a client from the provided config
 func New(config *Config) (*Aws, error) {
 
-	// client := slack.New(config.Token)
+	// Create a new instance of our class
+	a := &Aws{config: config}
 
-	s := &Aws{config: config}
+	// Create a new session based on static IAM credentials that were passed in
+	awsCreds := credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, "")
+	session, err := session.NewSession(&aws.Config{Credentials: awsCreds})
+	if err != nil {
+		a.config.Fatal("Error creating AWS session: ", err)
+	}
 
-	return s, nil
-}
+	a.session = session
 
-func (a *Aws) GetCredentials() {
-	// a.log.Debug()
+	// Ensure the credentials are active before we move on
+	// Not sure if this should stay here or be optional?
+	a.WaitForActiveCreds()
+
+	return a, nil
 }

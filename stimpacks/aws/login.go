@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"github.com/hashicorp/vault/api"
-	"github.com/readytalk/stim/pkg/log"
 	"github.com/skratchdot/open-golang/open"
 
 	"encoding/json"
@@ -12,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // TODO: Move this to a global config
@@ -27,7 +26,7 @@ func (a *Aws) Login() error {
 	if err != nil {
 		return err
 	}
-	log.Debug("Account: ", account, " Role: ", role)
+	a.stim.Debug("Account: " + account + " Role: " + role)
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")
@@ -35,13 +34,25 @@ func (a *Aws) Login() error {
 		a.stim.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
 	}
 
-	secret, err := a.vault.AWScredentials(account, role, stsLogin)
+	secret, err := a.vault.AWScredentials(account, role)
 	if err != nil {
 		return err
 	}
 
+	accessKey := secret.Data["access_key"].(string)
+	secretKey := secret.Data["secret_key"].(string)
+	leaseDuration := time.Duration(secret.LeaseDuration) * time.Second
+	a.stim.Debug("AWS IAM Access Key: " + accessKey)
+	a.stim.Debug("AWS IAM Access Expiration: " + leaseDuration.String() + " from now")
+	a.stim.Debug("AWS IAM Vault Lease Id: " + secret.LeaseID)
+
 	if stsLogin {
-		loginURL, err := createAWSLoginURL(secret)
+		aws := a.stim.Aws(accessKey, secretKey)
+		federationCreds := aws.GetFederationToken("stim-user")
+		a.stim.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
+		a.stim.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
+		loginURL, err := createAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken)
+		a.stim.Debug("AWS Console Login URL: " + loginURL)
 		if err != nil {
 			return err
 		}
@@ -52,11 +63,11 @@ func (a *Aws) Login() error {
 		}
 	} else {
 		if envSource { // Used for setting AWS credentials in the current environment
-			fmt.Println("export AWS_ACCESS_KEY_ID=" + secret.Data["access_key"].(string))
-			fmt.Println("export AWS_SECRET_ACCESS_KEY=" + secret.Data["secret_key"].(string))
+			fmt.Println("export AWS_ACCESS_KEY_ID=" + accessKey)
+			fmt.Println("export AWS_SECRET_ACCESS_KEY=" + secretKey)
 		} else {
-			fmt.Println("AWS_ACCESS_KEY_ID=" + secret.Data["access_key"].(string))
-			fmt.Println("AWS_SECRET_ACCESS_KEY=" + secret.Data["secret_key"].(string))
+			fmt.Println("AWS_ACCESS_KEY_ID=" + accessKey)
+			fmt.Println("AWS_SECRET_ACCESS_KEY=" + secretKey)
 		}
 	}
 
@@ -67,7 +78,7 @@ func (a *Aws) Login() error {
 // This uses AWS Security Token Service (AWS STS) AssumeRole
 // More info at: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
 // Thanks to Lachlan Donald for the following code: https://github.com/99designs/aws-vault
-func createAWSLoginURL(secret *api.Secret) (string, error) {
+func createAWSLoginURL(sessionId string, sessionKey string, sessionToken string) (string, error) {
 	region := ""
 	path := ""
 	loginURLPrefix, destination := createRegionalURL(region, path)
@@ -79,9 +90,9 @@ func createAWSLoginURL(secret *api.Secret) (string, error) {
 
 	// Note: This AWS API doesn't validate given info
 	jsonBytes, err := json.Marshal(map[string]string{
-		"sessionId":    secret.Data["access_key"].(string),
-		"sessionKey":   secret.Data["secret_key"].(string),
-		"sessionToken": secret.Data["security_token"].(string),
+		"sessionId":    sessionId,
+		"sessionKey":   sessionKey,
+		"sessionToken": sessionToken,
 	})
 	if err != nil {
 		return "", err
