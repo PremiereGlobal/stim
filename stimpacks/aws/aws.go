@@ -10,7 +10,7 @@ type Aws struct {
 	name  string
 	stim  *stim.Stim
 	vault *vault.Vault
-	log   *stimlog.StimLogger
+	log   stimlog.StimLogger
 }
 
 func New() *Aws {

@@ -1,11 +1,11 @@
 package vault
 
 import (
+	"time"
+
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
-	"github.com/readytalk/stim/pkg/log"
 	"github.com/readytalk/stim/pkg/stimlog"
-	"time"
 )
 
 type Vault struct {
@@ -13,7 +13,7 @@ type Vault struct {
 	config      *Config
 	tokenHelper token.InternalTokenHelper
 	newLogin    bool
-	log         *stimlog.StimLogger
+	log         stimlog.Logger
 }
 
 type Config struct {
@@ -24,7 +24,7 @@ type Config struct {
 	InitialTokenDuration time.Duration
 }
 
-func New(config *Config, givenLogger *stimlog.StimLogger) (*Vault, error) {
+func New(config *Config, givenLogger stimlog.Logger) (*Vault, error) {
 
 	v := &Vault{config: config}
 	if givenLogger != nil {
@@ -65,7 +65,7 @@ func New(config *Config, givenLogger *stimlog.StimLogger) (*Vault, error) {
 	// If user wants, extend the token timeout
 	if v.IsNewLogin() {
 		if v.config.InitialTokenDuration > 0 {
-			log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
+			v.log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
 			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration))
 			if err != nil {
 				return nil, err

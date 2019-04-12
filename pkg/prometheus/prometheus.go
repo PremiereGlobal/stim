@@ -14,14 +14,20 @@ type Prometheus struct {
 	config  *Config
 	context context.Context
 	API     v1.API
-	log     *stimlog.StimLogger
+	log     Logger
 }
 
 type Config struct {
 	Address string
 }
 
-func New(config *Config, sl *stimlog.StimLogger) (*Prometheus, error) {
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
+func New(config *Config, log Logger) (*Prometheus, error) {
 
 	apiConfig := api.Config{Address: config.Address}
 	client, err := api.NewClient(apiConfig)
@@ -32,8 +38,8 @@ func New(config *Config, sl *stimlog.StimLogger) (*Prometheus, error) {
 	api := v1.NewAPI(client)
 
 	p := &Prometheus{client: &client, API: api, context: context.Background()}
-	if sl != nil {
-		p.log = sl
+	if log != nil {
+		p.log = log
 	} else {
 		p.log = stimlog.GetLogger()
 	}

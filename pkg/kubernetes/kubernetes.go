@@ -8,7 +8,7 @@ import (
 type Kubernetes struct {
 	// client *api.Client
 	config *Config
-	log    *stimlog.StimLogger
+	log    Logger
 	// This allows us to read/write the kube config
 	// It takes into account KUBECONFIG env var for setting the location
 	configAccess clientcmd.ConfigAccess
@@ -16,15 +16,20 @@ type Kubernetes struct {
 
 type Config struct {
 	// Address string
-
 }
 
-func New(kconf *Config, sl *stimlog.StimLogger) (*Kubernetes, error) {
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
+func New(kconf *Config, log Logger) (*Kubernetes, error) {
 
 	k := &Kubernetes{config: kconf}
 
-	if sl != nil {
-		k.log = sl
+	if log != nil {
+		k.log = log
 	} else {
 		k.log = stimlog.GetLogger()
 	}

@@ -13,21 +13,27 @@ import (
 type Aws struct {
 	// client *slack.Client
 	config *Config
-	log    *stimlog.StimLogger
+	log    Logger
 }
 
 type Config struct {
 	Token string
 }
 
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
 // New builds a client from the provided config
-func New(config *Config, sl *stimlog.StimLogger) (*Aws, error) {
+func New(config *Config, log Logger) (*Aws, error) {
 
 	// client := slack.New(config.Token)
 
 	s := &Aws{config: config}
-	if sl != nil {
-		s.log = sl
+	if log != nil {
+		s.log = log
 	} else {
 		s.log = stimlog.GetLogger()
 	}

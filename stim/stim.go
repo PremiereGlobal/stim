@@ -14,7 +14,7 @@ import (
 type Stim struct {
 	config    *viper.Viper
 	rootCmd   *cobra.Command
-	log       *stimlog.StimLogger
+	log       stimlog.StimLogger
 	stimpacks []*Stimpack
 	version   string
 	vault     *vault.Vault
@@ -46,7 +46,7 @@ func New() *Stim {
 }
 
 //GetLogger for Stim
-func (stim *Stim) GetLogger() *stimlog.StimLogger {
+func (stim *Stim) GetLogger() stimlog.StimLogger {
 	return stim.log
 }
 

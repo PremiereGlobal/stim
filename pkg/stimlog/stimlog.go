@@ -3,13 +3,26 @@ package stimlog
 import (
 	"sync"
 
-	"github.com/readytalk/stim/pkg/log"
 	logurs "github.com/sirupsen/logrus"
 )
 
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
 // StimLogger this struct is a generic logger used by stim packages
-type StimLogger struct {
-	setLogger    log.Logger
+type StimLogger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+	SetLogger(Logger)
+	SetLevel(Level)
+}
+
+type stimLogger struct {
+	setLogger    Logger
 	currentLevel Level
 }
 
@@ -25,16 +38,16 @@ const (
 	DebugLevel Level = 50
 )
 
-var logger *StimLogger
+var logger *stimLogger
 
 //GetLogger gets a logger for logging in stim.
-func GetLogger() *StimLogger {
+func GetLogger() StimLogger {
 	if logger == nil {
 		mu := sync.Mutex{}
 		mu.Lock()
 		if logger == nil {
 			lg := logurs.New()
-			logger = &StimLogger{
+			logger = &stimLogger{
 				setLogger:    lg,
 				currentLevel: WarnLevel,
 			}
@@ -48,17 +61,17 @@ func GetLogger() *StimLogger {
 // SetLogger takes a structured logger to interface with.
 // After the logger is setup it will be available across your packages
 // If SetLogger is not used Debug will not create output
-func (stimLogger *StimLogger) SetLogger(givenLogger log.Logger) {
+func (stimLogger *stimLogger) SetLogger(givenLogger Logger) {
 	stimLogger.setLogger = givenLogger
 }
 
 // SetLevel sets the StimLogger log level.
-func (stimLogger *StimLogger) SetLevel(level Level) {
+func (stimLogger *stimLogger) SetLevel(level Level) {
 	stimLogger.currentLevel = level
 }
 
 // Debug logs a message at level Debug on the standard logger.
-func (stimLogger *StimLogger) Debug(message ...interface{}) {
+func (stimLogger *stimLogger) Debug(message ...interface{}) {
 	if stimLogger.currentLevel >= DebugLevel {
 		if stimLogger.setLogger != nil {
 			stimLogger.setLogger.Debug(message...)
@@ -67,7 +80,7 @@ func (stimLogger *StimLogger) Debug(message ...interface{}) {
 }
 
 // Warn logs a message at level Warn on the standard logger.
-func (stimLogger *StimLogger) Warn(message ...interface{}) {
+func (stimLogger *stimLogger) Warn(message ...interface{}) {
 	if stimLogger.currentLevel >= WarnLevel {
 		if stimLogger.setLogger != nil {
 			stimLogger.setLogger.Warn(message...)
@@ -76,7 +89,7 @@ func (stimLogger *StimLogger) Warn(message ...interface{}) {
 }
 
 // Fatal logs a message at level Fatal on the standard logger then the process will exit with status set to 1.
-func (stimLogger *StimLogger) Fatal(message ...interface{}) {
+func (stimLogger *stimLogger) Fatal(message ...interface{}) {
 	if stimLogger.currentLevel >= FatalLevel {
 		if stimLogger.setLogger != nil {
 			stimLogger.setLogger.Fatal(message...)

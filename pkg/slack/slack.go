@@ -10,7 +10,7 @@ import (
 // Slack is the main object
 type Slack struct {
 	client *slack.Client
-	log    *stimlog.StimLogger
+	log    Logger
 	config *Config
 }
 
@@ -27,14 +27,20 @@ type Message struct {
 	IconUrl  string
 }
 
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
 // New builds a slack client from the provided config
-func New(config *Config, sl *stimlog.StimLogger) (*Slack, error) {
+func New(config *Config, log Logger) (*Slack, error) {
 
 	client := slack.New(config.Token)
 
 	s := &Slack{config: config, client: client}
-	if sl != nil {
-		s.log = sl
+	if log != nil {
+		s.log = log
 	} else {
 		s.log = stimlog.GetLogger()
 	}

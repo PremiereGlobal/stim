@@ -6,14 +6,13 @@ import (
 	"strings"
 
 	pdApi "github.com/PagerDuty/go-pagerduty"
-	"github.com/readytalk/stim/pkg/stimlog"
 	"github.com/readytalk/stim/pkg/utils"
 )
 
 // Pagerduty is the main object
 type Pagerduty struct {
 	client *pdApi.Client
-	log    *stimlog.StimLogger
+	log    Logger
 }
 
 // Event contains the required and optional fields to sent an event
@@ -30,12 +29,18 @@ type Event struct {
 	DedupKey  string
 }
 
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
+
 // New returns a new Pagerduty "instance"
-func New(apiKey string, givenLog *stimlog.StimLogger) *Pagerduty {
+func New(apiKey string, log Logger) *Pagerduty {
 
 	// Initialize client
 	client := pdApi.NewClient(apiKey)
-	p := &Pagerduty{client: client, log: givenLog}
+	p := &Pagerduty{client: client, log: log}
 
 	return p
 }

@@ -2,7 +2,6 @@ package aws
 
 import (
 	"github.com/hashicorp/vault/api"
-	"github.com/readytalk/stim/pkg/log"
 	"github.com/skratchdot/open-golang/open"
 
 	"encoding/json"
@@ -27,7 +26,7 @@ func (a *Aws) Login() error {
 	if err != nil {
 		return err
 	}
-	log.Debug("Account: ", account, " Role: ", role)
+	a.log.Debug("Account: ", account, " Role: ", role)
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")
