@@ -15,7 +15,7 @@ type Kubernetes struct {
 }
 
 type Config struct {
-	// Address string
+	Log Logger
 }
 
 type Logger interface {
@@ -24,12 +24,12 @@ type Logger interface {
 	Fatal(...interface{})
 }
 
-func New(kconf *Config, log Logger) (*Kubernetes, error) {
+func New(kconf *Config) (*Kubernetes, error) {
 
 	k := &Kubernetes{config: kconf}
 
-	if log != nil {
-		k.log = log
+	if kconf.Log != nil {
+		k.log = kconf.Log
 	} else {
 		k.log = stimlog.GetLogger()
 	}

@@ -13,7 +13,7 @@ type Vault struct {
 	config      *Config
 	tokenHelper token.InternalTokenHelper
 	newLogin    bool
-	log         stimlog.Logger
+	log         Logger
 }
 
 type Config struct {
@@ -22,13 +22,19 @@ type Config struct {
 	Username             string
 	Timeout              time.Duration
 	InitialTokenDuration time.Duration
+	Log                  Logger
 }
 
-func New(config *Config, givenLogger stimlog.Logger) (*Vault, error) {
+type Logger interface {
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
+}
 
+func New(config *Config) (*Vault, error) {
 	v := &Vault{config: config}
-	if givenLogger != nil {
-		v.log = givenLogger
+	if config.Log != nil {
+		v.log = config.Log
 	} else {
 		v.log = stimlog.GetLogger()
 	}

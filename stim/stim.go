@@ -59,17 +59,30 @@ func (stim *Stim) Execute() {
 func (stim *Stim) commandInit() {
 	// Load a config file (if present)
 	loadConfigErr := stim.loadConfigFile()
-
+	if !stim.GetConfigBool("disableLogFile") {
+		lfp := stim.GetConfig("logFilePath")
+		if lfp == "" {
+			sh, err := stim.GetStimPath()
+			if err != nil {
+				stim.log.Warn("Could not find")
+			} else {
+				lfp = sh + "stim.log"
+			}
+		}
+		if lfp != "" {
+			stim.log.AddLogFile(lfp, stimlog.DebugLevel)
+		}
+	}
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
 		// stim.log.SetLevel(logrus.DebugLevel)
 		stim.log.SetLevel(stimlog.DebugLevel)
-		stim.log.Debug("Stim version: ", stim.version)
+		stim.log.Debug("Stim version: {}", stim.version)
 		stim.log.Debug("Debug log level set")
 	}
 
 	if loadConfigErr == nil {
-		stim.log.Debug("Using config file: ", stim.config.ConfigFileUsed())
+		stim.log.Debug("Using config file: {}", stim.config.ConfigFileUsed())
 	} else {
 		stim.log.Warn("Issue loading config file use -verbose for more info")
 		stim.log.Debug(loadConfigErr)

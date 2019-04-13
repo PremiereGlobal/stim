@@ -18,6 +18,7 @@ type Aws struct {
 
 type Config struct {
 	Token string
+	Log   Logger
 }
 
 type Logger interface {
@@ -27,13 +28,13 @@ type Logger interface {
 }
 
 // New builds a client from the provided config
-func New(config *Config, log Logger) (*Aws, error) {
+func New(config *Config) (*Aws, error) {
 
 	// client := slack.New(config.Token)
 
 	s := &Aws{config: config}
-	if log != nil {
-		s.log = log
+	if config.Log != nil {
+		s.log = config.Log
 	} else {
 		s.log = stimlog.GetLogger()
 	}

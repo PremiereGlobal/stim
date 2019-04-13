@@ -17,6 +17,7 @@ type Slack struct {
 // Config contains information about setting up a new slack client
 type Config struct {
 	Token string
+	Log   Logger
 }
 
 // Message contains information about a slack message
@@ -34,13 +35,13 @@ type Logger interface {
 }
 
 // New builds a slack client from the provided config
-func New(config *Config, log Logger) (*Slack, error) {
+func New(config *Config) (*Slack, error) {
 
 	client := slack.New(config.Token)
 
 	s := &Slack{config: config, client: client}
-	if log != nil {
-		s.log = log
+	if config.Log != nil {
+		s.log = config.Log
 	} else {
 		s.log = stimlog.GetLogger()
 	}

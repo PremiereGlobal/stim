@@ -13,7 +13,7 @@ func (stim *Stim) Slack() *slack.Slack {
 		stim.log.Fatal(err)
 	}
 
-	s, err := slack.New(&slack.Config{Token: token}, stim.log)
+	s, err := slack.New(&slack.Config{Token: token, Log: stim.log})
 	if err != nil {
 		stim.log.Fatal("Stim-Slack: Error Initializaing: ", err)
 	}

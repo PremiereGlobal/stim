@@ -37,7 +37,8 @@ func (stim *Stim) Vault() *vault.Vault {
 			Noprompt:             stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
 			Username:             username, // If set in the configs, pass in user
 			InitialTokenDuration: timeInDuration,
-		}, stim.log)
+			Log:                  stim.log,
+		})
 		if err != nil {
 			stim.log.Fatal(err)
 		}

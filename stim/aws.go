@@ -12,7 +12,7 @@ func (stim *Stim) Aws() *aws.Aws {
 	// 	stim.log.Fatal(err)
 	// }
 
-	a, err := aws.New(&aws.Config{}, stim.log)
+	a, err := aws.New(&aws.Config{Log: stim.log})
 	if err != nil {
 		stim.log.Fatal("Stim-Aws: Error Initializaing: ", err)
 	}

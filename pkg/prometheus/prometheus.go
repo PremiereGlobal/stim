@@ -19,6 +19,7 @@ type Prometheus struct {
 
 type Config struct {
 	Address string
+	Log     Logger
 }
 
 type Logger interface {
@@ -27,7 +28,7 @@ type Logger interface {
 	Fatal(...interface{})
 }
 
-func New(config *Config, log Logger) (*Prometheus, error) {
+func New(config *Config) (*Prometheus, error) {
 
 	apiConfig := api.Config{Address: config.Address}
 	client, err := api.NewClient(apiConfig)
@@ -38,8 +39,8 @@ func New(config *Config, log Logger) (*Prometheus, error) {
 	api := v1.NewAPI(client)
 
 	p := &Prometheus{client: &client, API: api, context: context.Background()}
-	if log != nil {
-		p.log = log
+	if config.Log != nil {
+		p.log = config.Log
 	} else {
 		p.log = stimlog.GetLogger()
 	}

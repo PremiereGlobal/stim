@@ -3,10 +3,11 @@ package stim
 import (
 	"github.com/mitchellh/go-homedir"
 
-	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 func (stim *Stim) Get(configKey string) interface{} {
@@ -74,15 +75,23 @@ func (stim *Stim) UpdateConfigFileKey(key string, value string) error {
 	return nil
 }
 
-// CreateConfigFile will create the stim config file if it doesn't exist
-// Used the frist time this code is ran so sub functions do not get errors when
-// writting to the config.
-func (stim *Stim) CreateConfigFile() (string, error) {
+func (stim *Stim) GetStimPath() (string, error) {
 	home, err := homedir.Dir()
 	if err != nil {
 		return "", err
 	}
-	stimConfigFile := home + "/.stim/config.yaml"
+	return home + "/.stim/", nil
+}
+
+// CreateConfigFile will create the stim config file if it doesn't exist
+// Used the frist time this code is ran so sub functions do not get errors when
+// writting to the config.
+func (stim *Stim) CreateConfigFile() (string, error) {
+	home, err := stim.GetStimPath()
+	if err != nil {
+		return "", err
+	}
+	stimConfigFile := home + "config.yaml"
 
 	dir, _ := path.Split(stimConfigFile)
 	err = stim.CreateDirIfNotExist(dir)
