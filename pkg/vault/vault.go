@@ -1,11 +1,11 @@
 package vault
 
 import (
-	"fmt"
+	"time"
+
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
-	"github.com/readytalk/stim/pkg/log"
-	"time"
+	"github.com/readytalk/stim/pkg/stimlog"
 )
 
 type Vault struct {
@@ -13,39 +13,31 @@ type Vault struct {
 	config      *Config
 	tokenHelper token.InternalTokenHelper
 	newLogin    bool
+	log         Logger
 }
 
 type Config struct {
-	Noprompt bool
-	Address  string
-	Username string
-	Timeout  int
+	Noprompt             bool
+	Address              string
+	Username             string
+	Timeout              time.Duration
 	InitialTokenDuration time.Duration
-	Logger
+	Log                  Logger
 }
 
 type Logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-}
-
-func (v *Vault) Debug(message string) {
-	if v.config.Logger != nil {
-		v.config.Debug(message)
-	}
-}
-
-func (v *Vault) Info(message string) {
-	if v.config.Logger != nil {
-		v.config.Info(message)
-	} else {
-		fmt.Println(message)
-	}
+	Debug(...interface{})
+	Warn(...interface{})
+	Fatal(...interface{})
 }
 
 func New(config *Config) (*Vault, error) {
-
 	v := &Vault{config: config}
+	if config.Log != nil {
+		v.log = config.Log
+	} else {
+		v.log = stimlog.GetLogger()
+	}
 
 	// Ensure that the Vault address is set
 	if config.Address == "" {
@@ -79,7 +71,7 @@ func New(config *Config) (*Vault, error) {
 	// If user wants, extend the token timeout
 	if v.IsNewLogin() {
 		if v.config.InitialTokenDuration > 0 {
-			log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
+			v.log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
 			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration))
 			if err != nil {
 				return nil, err

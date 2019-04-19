@@ -12,7 +12,7 @@ import (
 
 func main() {
 	stim := stim.New()
-	// stim.AddStimpack(discover.New())
+//	stim.AddStimpack(discover.New())
 	stim.AddStimpack(aws.New())
 	stim.AddStimpack(kubernetes.New())
 	stim.AddStimpack(pagerduty.New())
