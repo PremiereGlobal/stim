@@ -43,7 +43,7 @@ func (k *Kubernetes) modifyKubeconfig(o *KubeConfigOptions) error {
 		return err
 	}
 
-	k.Debug("Kubernetes config modified...")
+	k.log.Debug("Kubernetes config modified...")
 
 	return nil
 
@@ -53,10 +53,10 @@ func (k *Kubernetes) modifyKubeconfigCluster(kubeConfig *clientcmdapi.Config, o 
 
 	stanza, exists := kubeConfig.Clusters[o.ClusterName]
 	if !exists {
-		k.Debug("Kubernetes cluster `" + o.ClusterName + "` not found in config, creating...")
+		k.log.Debug("Kubernetes cluster `" + o.ClusterName + "` not found in config, creating...")
 		stanza = clientcmdapi.NewCluster()
 	} else {
-		k.Debug("Kubernetes cluster `" + o.ClusterName + "` found, modifying...")
+		k.log.Debug("Kubernetes cluster `" + o.ClusterName + "` found, modifying...")
 	}
 
 	stanza.Server = o.ClusterServer
@@ -71,10 +71,10 @@ func (k *Kubernetes) modifyKubeconfigAuth(kubeConfig *clientcmdapi.Config, o *Ku
 
 	stanza, exists := kubeConfig.AuthInfos[o.AuthName]
 	if !exists {
-		k.Debug("Kubernetes auth `" + o.AuthName + "` not found in config, creating...")
+		k.log.Debug("Kubernetes auth `" + o.AuthName + "` not found in config, creating...")
 		stanza = clientcmdapi.NewAuthInfo()
 	} else {
-		k.Debug("Kubernetes auth `" + o.AuthName + "` found, modifying...")
+		k.log.Debug("Kubernetes auth `" + o.AuthName + "` found, modifying...")
 	}
 
 	stanza.Token = o.AuthToken
@@ -86,10 +86,10 @@ func (k *Kubernetes) modifyKubeconfigContext(kubeConfig *clientcmdapi.Config, o 
 
 	stanza, exists := kubeConfig.Contexts[o.ContextName]
 	if !exists {
-		k.Debug("Kubernetes context `" + o.ContextName + "` not found in config, creating...")
+		k.log.Debug("Kubernetes context `" + o.ContextName + "` not found in config, creating...")
 		stanza = clientcmdapi.NewContext()
 	} else {
-		k.Debug("Kubernetes context `" + o.ContextName + "` found, modifying...")
+		k.log.Debug("Kubernetes context `" + o.ContextName + "` found, modifying...")
 	}
 
 	stanza.Cluster = o.ClusterName
@@ -99,7 +99,7 @@ func (k *Kubernetes) modifyKubeconfigContext(kubeConfig *clientcmdapi.Config, o 
 
 	if o.ContextSetCurrent {
 		kubeConfig.CurrentContext = o.ContextName
-		k.Debug("Kubernetes current-context set to `" + o.ContextName + "`")
+		k.log.Debug("Kubernetes current-context set to `" + o.ContextName + "`")
 	}
 
 }

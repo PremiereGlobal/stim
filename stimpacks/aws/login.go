@@ -26,7 +26,7 @@ func (a *Aws) Login() error {
 	if err != nil {
 		return err
 	}
-	a.stim.Debug("Account: " + account + " Role: " + role)
+	a.log.Debug("Account: ", account, " Role: ", role)
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")

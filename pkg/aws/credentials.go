@@ -1,10 +1,11 @@
 package aws
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/readytalk/stim/pkg/utils"
-	"time"
 )
 
 // GetFederationToken takes in a name and returns a set of STS Credentials
@@ -23,7 +24,7 @@ func (a *Aws) GetFederationToken(name string) *sts.Credentials {
 	// Get and the Federated credentials
 	output, err := s.GetFederationToken(&sts.GetFederationTokenInput{Name: &name, Policy: &stsUserPolicy})
 	if err != nil {
-		a.config.Fatal("Error getting Federation Token: ", err)
+		a.log.Fatal("Error getting Federation Token: ", err)
 	}
 	return output.Credentials
 }
@@ -45,20 +46,20 @@ func (a *Aws) WaitForActiveCreds() {
 		_, err := s.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 		if awserr, ok := err.(awserr.Error); ok {
 			if awserr.Code() == "InvalidClientTokenId" {
-				a.config.Info("AWS credentials not yet active, waiting...")
+				a.log.Info("AWS credentials not yet active, waiting...")
 				return err
 			} else {
-				a.config.Fatal("Error validating AWS credentials: ", err)
+				a.log.Fatal("Error validating AWS credentials: ", err)
 			}
 		}
 
-		a.config.Info("AWS credentials are active")
+		a.log.Info("AWS credentials are active")
 		return nil
 	})
 
 	// If we've reached this point, the credentials did not become active within
 	// the retry limit
 	if err != nil {
-		a.config.Fatal("Error validating AWS credentials (not active within "+string(retryLimit)+" seconds) ", err)
+		a.log.Fatal("Error validating AWS credentials (not active within "+string(retryLimit)+" seconds) ", err)
 	}
 }

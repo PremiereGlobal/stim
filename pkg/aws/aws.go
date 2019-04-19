@@ -10,12 +10,13 @@ import (
 type Aws struct {
 	config  *Config
 	session *session.Session
+	log     Logger
 }
 
 type Config struct {
 	AccessKey string
 	SecretKey string
-	Logger
+	Log       Logger
 }
 
 type Logger interface {
@@ -34,7 +35,7 @@ func New(config *Config) (*Aws, error) {
 	awsCreds := credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, "")
 	session, err := session.NewSession(&aws.Config{Credentials: awsCreds})
 	if err != nil {
-		a.config.Fatal("Error creating AWS session: ", err)
+		a.log.Fatal("Error creating AWS session: ", err)
 	}
 
 	a.session = session
