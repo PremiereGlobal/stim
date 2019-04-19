@@ -29,7 +29,7 @@ type Logger interface {
 func New(config *Config) (*Aws, error) {
 
 	// Create a new instance of our class
-	a := &Aws{config: config}
+	a := &Aws{config: config, log: config.Log}
 
 	// Create a new session based on static IAM credentials that were passed in
 	awsCreds := credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, "")
