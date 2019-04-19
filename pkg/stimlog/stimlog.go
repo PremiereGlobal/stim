@@ -156,7 +156,7 @@ func (stimLogger *stimLogger) formatString(ll Level, level string, args ...inter
 	case string:
 		msg = args[0].(string)
 	default:
-		return nil
+		msg = fmt.Sprintf("%v", args[0])
 	}
 	subs := strings.Split(msg, subSTR)
 	var sb strings.Builder
