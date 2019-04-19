@@ -35,6 +35,44 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:bb2f64178eccbb9867e8c42e3b8bb10f0f2de6e7af72e5aa02c7680680fe5607"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/sts",
+  ]
+  pruneopts = "UT"
+  revision = "56c1def75689cceec1fa6f14c2eedb4b798827f9"
+  version = "v1.19.11"
+
+[[projects]]
   digest = "1:1343a2963481a305ca4d051e84bc2abd16b601ee22ed324f8d605de1adb291b0"
   name = "github.com/bgentry/speakeasy"
   packages = ["."]
@@ -62,12 +100,20 @@
   version = "v0.3.4"
 
 [[projects]]
-  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
-  name = "github.com/davecgh/go-spew"
-  packages = ["spew"]
+  digest = "1:90a52b2e006c21d53b90e3e2df4cdd37de3ba7bed05feb037f9a5c218d0781b9"
+  name = "github.com/cornelk/hashmap"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
-  version = "v1.1.1"
+  revision = "b893f4923161d485d2151f427c378e09784ec1db"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:1e9a0ec4f7e852123fefad9aadd7647eed1e9fd3716118e99a4b3dc463705c82"
+  name = "github.com/dchest/siphash"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "34f201214d993633bb24f418ba11736ab8b55aa7"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
@@ -262,6 +308,13 @@
   pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2b33e84"
 
 [[projects]]
   digest = "1:3e551bbb3a7c0ab2a2bf4660e7fcad16db089fdcfbb44b0199e62838038623ea"
@@ -760,7 +813,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/PagerDuty/go-pagerduty",
-    "github.com/davecgh/go-spew/spew",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/awserr",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/sts",
+    "github.com/cornelk/hashmap",
     "github.com/hashicorp/vault/api",
     "github.com/hashicorp/vault/command/token",
     "github.com/manifoldco/promptui",

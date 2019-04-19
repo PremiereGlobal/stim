@@ -1,46 +1,48 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/stimlog"
-	// "github.com/aws/aws-sdk-go/aws"
-	// "github.com/aws/aws-sdk-go/aws/awserr"
-	// "github.com/aws/aws-sdk-go/aws/session"
-	// "github.com/aws/aws-sdk-go/aws/credentials"
-	// "github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 // Aws is the main object
 type Aws struct {
-	// client *slack.Client
-	config *Config
-	log    Logger
+	config  *Config
+	session *session.Session
+	log     Logger
 }
 
 type Config struct {
-	Token string
-	Log   Logger
+	AccessKey string
+	SecretKey string
+	Log       Logger
 }
 
 type Logger interface {
-	Debug(...interface{})
-	Warn(...interface{})
-	Fatal(...interface{})
+	Debug(args ...interface{})
+	Info(args ...interface{})
+	Fatal(args ...interface{})
 }
 
 // New builds a client from the provided config
 func New(config *Config) (*Aws, error) {
 
-	// client := slack.New(config.Token)
+	// Create a new instance of our class
+	a := &Aws{config: config, log: config.Log}
 
-	s := &Aws{config: config}
-	if config.Log != nil {
-		s.log = config.Log
-	} else {
-		s.log = stimlog.GetLogger()
+	// Create a new session based on static IAM credentials that were passed in
+	awsCreds := credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, "")
+	session, err := session.NewSession(&aws.Config{Credentials: awsCreds})
+	if err != nil {
+		a.log.Fatal("Error creating AWS session: ", err)
 	}
-	return s, nil
-}
 
-func (a *Aws) GetCredentials() {
-	// a.log.Debug()
+	a.session = session
+
+	// Ensure the credentials are active before we move on
+	// Not sure if this should stay here or be optional?
+	a.WaitForActiveCreds()
+
+	return a, nil
 }

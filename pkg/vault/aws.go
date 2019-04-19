@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func (v *Vault) AWScredentials(account string, role string, sts bool) (*api.Secret, error) {
+func (v *Vault) AWScredentials(account string, role string) (*api.Secret, error) {
 	if account == "" {
 		return nil, errors.New("Account not set")
 	}
@@ -14,11 +14,7 @@ func (v *Vault) AWScredentials(account string, role string, sts bool) (*api.Secr
 		return nil, errors.New("Role not set")
 	}
 
-	credType := "creds"
-	if sts {
-		credType = "sts"
-	}
-	path := "/" + account + "/" + credType + "/" + role
+	path := "/" + account + "/creds/" + role
 	v.log.Debug("Getting AWS credentials via path: ", path)
 
 	secret, err := v.GetSecret(path)
