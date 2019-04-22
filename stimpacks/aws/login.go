@@ -30,6 +30,7 @@ func (a *Aws) Login() error {
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")
+	onlyOutput := a.stim.GetConfigBool("aws-output")
 	if stsLogin && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
 	}
@@ -52,15 +53,20 @@ func (a *Aws) Login() error {
 		a.stim.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
 		a.stim.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
 		loginURL, err := createAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken)
-		a.stim.Debug("AWS Console Login URL: " + loginURL)
+		// a.stim.Debug("AWS Console Login URL: " + loginURL)
 		if err != nil {
 			return err
 		}
 
-		err = open.Run(loginURL)
-		if err != nil {
-			return err
-		}
+    if onlyOutput {
+      fmt.Print("AWS Console Login URL:\n")
+      fmt.Printf("%v\n", loginURL)
+    } else {
+		  err = open.Run(loginURL)
+		  if err != nil {
+        return err
+		  }
+    }
 	} else {
 		if envSource { // Used for setting AWS credentials in the current environment
 			fmt.Println("export AWS_ACCESS_KEY_ID=" + accessKey)

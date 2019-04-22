@@ -36,7 +36,7 @@ func New() *Stim {
 				lv = version
 			}
 			log := stimlog.GetLogger()
-      log.ForceFlush(true)
+			log.ForceFlush(true)
 			config := viper.New()
 			root := initRootCommand(config)
 			stim = &Stim{log: log, config: config, rootCmd: root, version: lv}
