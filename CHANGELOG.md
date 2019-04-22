@@ -1,7 +1,6 @@
 # Stim Changelog
 
-## 0.0.4 (In development)
-
+## 0.0.4
 ### BREAKING CHANGES
 * Changing parameter for `stim aws login`. Changed -m to -a to be clear about account name.
 
