@@ -41,7 +41,7 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 	loginCmd.Flags().BoolP("web", "w", false, "Generate AWS web login (Default: launch URL)")
 	viper.BindPFlag("aws-web", loginCmd.Flags().Lookup("web"))
 
-  loginCmd.Flags().BoolP("output", "o", false, "Output URLs to console (don't launch URL)")
+	loginCmd.Flags().BoolP("output", "o", false, "Output URLs to console (don't launch URL)")
 	viper.BindPFlag("aws-output", loginCmd.Flags().Lookup("output"))
 
 	loginCmd.Flags().StringP("account", "a", "", "AWS Account")
