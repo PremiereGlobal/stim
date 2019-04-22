@@ -13,7 +13,7 @@ func (a *Aws) GetCredentials() (string, string, error) {
 	mounts, err := a.vault.GetMounts("aws")
 	a.stim.Fatal(err)
 
-	vaultAccount := a.stim.GetConfig("aws-mount")
+	vaultAccount := a.stim.GetConfig("aws-account")
 	if vaultAccount == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws mount not specified"))
 	} else if vaultAccount == "" {

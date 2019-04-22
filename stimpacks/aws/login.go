@@ -30,8 +30,9 @@ func (a *Aws) Login() error {
 
 	envSource := a.stim.GetConfigBool("env-source")
 	stsLogin := a.stim.GetConfigBool("aws-web")
+	onlyOutput := a.stim.GetConfigBool("aws-output")
 	if stsLogin && a.stim.IsAutomated() {
-		a.stim.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
+		a.log.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
 	}
 
 	secret, err := a.vault.AWScredentials(account, role)
@@ -42,24 +43,29 @@ func (a *Aws) Login() error {
 	accessKey := secret.Data["access_key"].(string)
 	secretKey := secret.Data["secret_key"].(string)
 	leaseDuration := time.Duration(secret.LeaseDuration) * time.Second
-	a.stim.Debug("AWS IAM Access Key: " + accessKey)
-	a.stim.Debug("AWS IAM Access Expiration: " + leaseDuration.String() + " from now")
-	a.stim.Debug("AWS IAM Vault Lease Id: " + secret.LeaseID)
+	a.log.Debug("AWS IAM Access Key: " + accessKey)
+	a.log.Debug("AWS IAM Access Expiration: " + leaseDuration.String() + " from now")
+	a.log.Debug("AWS IAM Vault Lease Id: " + secret.LeaseID)
 
 	if stsLogin {
 		aws := a.stim.Aws(accessKey, secretKey)
 		federationCreds := aws.GetFederationToken("stim-user")
-		a.stim.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
-		a.stim.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
+		a.log.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
+		a.log.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
 		loginURL, err := createAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken)
-		a.stim.Debug("AWS Console Login URL: " + loginURL)
+		a.log.Trace("AWS Console Login URL: " + loginURL)
 		if err != nil {
 			return err
 		}
 
-		err = open.Run(loginURL)
-		if err != nil {
-			return err
+		if onlyOutput {
+			fmt.Print("AWS Console Login URL:\n")
+			fmt.Printf("%v\n", loginURL)
+		} else {
+			err = open.Run(loginURL)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		if envSource { // Used for setting AWS credentials in the current environment

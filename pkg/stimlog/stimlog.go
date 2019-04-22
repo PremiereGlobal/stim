@@ -19,6 +19,7 @@ type Logger interface {
 
 // StimLogger this struct is a generic logger used by stim packages
 type StimLogger interface {
+	Trace(...interface{})
 	Debug(...interface{})
 	Verbose(...interface{})
 	Info(...interface{})
@@ -44,6 +45,7 @@ const (
 	VerboseLevel Level = 40
 	//DebugLevel is used to debugging certain calls in Stim to see what is going on, usually only used for development
 	DebugLevel Level = 50
+	TraceLevel Level = 60
 )
 
 type logFile struct {
@@ -237,6 +239,21 @@ func (stimLogger *stimLogger) Warn(message ...interface{}) {
 			}
 		} else {
 			stimLogger.setLogger.Warn(message...)
+		}
+	}
+}
+
+// Trace logs a message at level Warn on the standard logger.
+func (stimLogger *stimLogger) Trace(message ...interface{}) {
+	if stimLogger.highestLevel >= TraceLevel {
+		if stimLogger.setLogger == nil {
+			if stimLogger.forceFlush {
+				stimLogger.writeLogs(stimLogger.formatString(TraceLevel, warnMsg, message...))
+			} else {
+				stimLogger.formatAndLog(TraceLevel, warnMsg, message...)
+			}
+		} else {
+			stimLogger.setLogger.Debug(message...)
 		}
 	}
 }
