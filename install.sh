@@ -25,6 +25,7 @@ verify() {
   if [ $? -eq 0 ]; then
     if [ "$(shasum -a 256 ${FILE} | cut -d' ' -f 1)" != "${SHA}" ]; then
       echo 1
+      return
     fi
   fi
 
@@ -32,6 +33,7 @@ verify() {
   if [ $? -eq 0 ]; then
     if [ "$(sha256sum ${FILE} | cut -d' ' -f 1)" != "${SHA}" ]; then
       echo 1
+      return
     fi
   fi
 
@@ -75,7 +77,7 @@ else
   exit 1
 fi
 
-ARCHIVE=stim-${OS}-${VERSION}.zip
+ARCHIVE=stim-${OS}-${VERSION}.gz
 
 if [ -f ${ARCHIVE} ]; then
   if [ "$(verify ${ARCHIVE} ${SHA})" -eq 0 ]; then

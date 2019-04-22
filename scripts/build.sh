@@ -18,7 +18,7 @@ docker stop stim-build
 
 # Zip up the binary
 cd bin
-tar -cvzf stim-${GOOS}-${VERSION}.tar.gz stim
+gzip -9 stim-${GOOS}-${VERSION}.gz stim
 
 # Get us back to the root
 cd ..
