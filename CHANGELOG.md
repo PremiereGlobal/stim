@@ -1,5 +1,8 @@
 # Stim Changelog
 
+## 0.0.5(IN DEVELOPMENT)
+* Fixed install.sh, moved archives to be only .gz files as there will only ever be just 1 file in each.
+
 ## 0.0.4
 ### BREAKING CHANGES
 * Changing parameter for `stim aws login`. Changed -m to -a to be clear about account name.
