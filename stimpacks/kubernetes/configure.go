@@ -28,7 +28,7 @@ func (k *Kubernetes) configureContext() error {
 		return err
 	}
 
-	namespace := k.stim.GetConfig("namespace")
+	namespace := k.stim.GetConfig("kube-config-namespace")
 	if namespace == "" {
 		namespace, err = k.stim.PromptString("Select Default Namespace", secretValues["default-namespace"])
 		if err != nil {
