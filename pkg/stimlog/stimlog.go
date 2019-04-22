@@ -19,8 +19,8 @@ type Logger interface {
 
 // StimLogger this struct is a generic logger used by stim packages
 type StimLogger interface {
-  Trace(...interface{})
-  Debug(...interface{})
+	Trace(...interface{})
+	Debug(...interface{})
 	Verbose(...interface{})
 	Info(...interface{})
 	Warn(...interface{})
@@ -257,7 +257,6 @@ func (stimLogger *stimLogger) Trace(message ...interface{}) {
 		}
 	}
 }
-
 
 // Warn logs a message at level Warn on the standard logger.
 func (stimLogger *stimLogger) Info(message ...interface{}) {
