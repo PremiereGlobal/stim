@@ -2,7 +2,7 @@
 
 VERSION=${1:-master}
 GOOS=${2:-linux}
-DOCKER_REPO="PremiereGlobal/stim"
+DOCKER_REPO="premiereglobal/stim"
 
 # Directory to house our binaries
 mkdir -p bin
