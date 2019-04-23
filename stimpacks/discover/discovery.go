@@ -1,7 +1,7 @@
 package discover
 
 import (
-	"github.com/readytalk/stim/stim"
+	"github.com/PremiereGlobal/stim/stim"
 )
 
 type Discover struct {

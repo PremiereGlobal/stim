@@ -43,13 +43,13 @@ download() {
 
   which wget 2>&1 > /dev/null
   if [ $? -eq 0 ]; then
-    wget --quiet -O ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
+    wget --quiet -O ${ARCHIVE} https://github.com/PremiereGlobal/stim/releases/download/${VERSION}/${ARCHIVE}
     return 0
   fi
 
   which curl 2>&1 > /dev/null
   if [ $? -eq 0 ]; then
-    curl -L -s -o ${ARCHIVE} https://github.com/ReadyTalk/stim/releases/download/${VERSION}/${ARCHIVE}
+    curl -L -s -o ${ARCHIVE} https://github.com/PremiereGlobal/stim/releases/download/${VERSION}/${ARCHIVE}
     return 0
   fi
 

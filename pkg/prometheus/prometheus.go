@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/client_golang/api/prometheus/v1"
-	"github.com/readytalk/stim/pkg/stimlog"
 )
 
 type Prometheus struct {

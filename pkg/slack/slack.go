@@ -3,8 +3,8 @@ package slack
 import (
 	"errors"
 
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/nlopes/slack"
-	"github.com/readytalk/stim/pkg/stimlog"
 )
 
 // Slack is the main object

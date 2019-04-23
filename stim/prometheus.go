@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/prometheus"
+	"github.com/PremiereGlobal/stim/pkg/prometheus"
 )
 
 func (stim *Stim) Prometheus() *prometheus.Prometheus {

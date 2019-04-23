@@ -5,8 +5,8 @@ import (
 	"os/user"
 	"sync"
 
-	"github.com/readytalk/stim/pkg/stimlog"
-	"github.com/readytalk/stim/pkg/vault"
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
+	"github.com/PremiereGlobal/stim/pkg/vault"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

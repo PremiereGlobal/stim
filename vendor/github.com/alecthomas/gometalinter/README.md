@@ -4,8 +4,6 @@
 <!-- MarkdownTOC -->
 
 - [Installing](#installing)
-    - [Binary Releases](#binary-releases)
-    - [Homebrew](#homebrew)
 - [Editor integration](#editor-integration)
 - [Supported linters](#supported-linters)
 - [Configuration file](#configuration-file)
@@ -47,20 +45,11 @@ It is intended for use with editor/IDE integration.
 
 ## Installing
 
-### Binary Releases
-
 To install the latest stable release:
 
-    curl -L https://git.io/vp6lP | sh
+    curl https://git.io/vp6lP | sh
 
 Alternatively you can install a specific version from the [releases](https://github.com/alecthomas/gometalinter/releases) list.
-
-### Homebrew
-
-```sh
-brew tap alecthomas/homebrew-tap
-brew install gometalinter
-```
 
 ## Editor integration
 
@@ -68,7 +57,6 @@ brew install gometalinter
 - [Atom go-plus package](https://atom.io/packages/go-plus).
 - [Emacs Flycheck checker](https://github.com/favadi/flycheck-gometalinter).
 - [Go for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=lukehoban.Go).
-- [GoLand File Watcher](https://blog.jetbrains.com/go/2017/10/18/gogland-eap-16-file-watcher-tons-of-new-inspections-smarter-navigate-to-test-and-more/).
 - Vim/Neovim
     - [Neomake](https://github.com/neomake/neomake).
     - [Syntastic](https://github.com/scrooloose/syntastic/wiki/Go:---gometalinter) `let g:syntastic_go_checkers = ['gometalinter']`.
@@ -234,6 +222,35 @@ message for a file, that file is parsed for directives.
 
 Install gometalinter (see above).
 
+Install all known linters:
+
+```
+$ gometalinter --install
+Installing:
+  structcheck
+  maligned
+  nakedret
+  deadcode
+  gocyclo
+  ineffassign
+  dupl
+  golint
+  gotype
+  goimports
+  errcheck
+  varcheck
+  interfacer
+  goconst
+  gosimple
+  staticcheck
+  unparam
+  unused
+  misspell
+  lll
+  gosec
+  safesql
+```
+
 Run it:
 
 ```
@@ -253,6 +270,7 @@ stutter.go:27:6:warning: error return value not checked (doit()           // tes
 stutter.go:29::error: unreachable code (vet)
 stutter.go:26::error: missing argument for Printf("%d"): format reads arg 1, have only 0 args (vet)
 ```
+
 
 Gometalinter also supports the commonly seen `<path>/...` recursive path
 format. Note that this can be *very* slow, and you may need to increase the linter `--deadline` to allow linters to complete.
@@ -314,7 +332,7 @@ are three things to try in that case:
 
 #### 1. Update to the latest build of gometalinter and all linters
 
-    curl -L https://git.io/vp6lP | sh
+    curl https://git.io/vp6lP | sh
 
 If you're lucky, this will fix the problem.
 

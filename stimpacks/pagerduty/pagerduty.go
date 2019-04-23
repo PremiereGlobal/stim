@@ -1,7 +1,7 @@
 package pagerduty
 
 import (
-	"github.com/readytalk/stim/stim"
+	"github.com/PremiereGlobal/stim/stim"
 )
 
 type Pagerduty struct {

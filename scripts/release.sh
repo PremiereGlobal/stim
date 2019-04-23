@@ -11,4 +11,4 @@ curl -vvv -s -X POST \
  -H "Travis-API-Version: 3" \
  -H "Authorization: token $(travis token --org)" \
  -d "$body" \
- https://api.travis-ci.org/repo/ReadyTalk%2Fstim/requests
+ https://api.travis-ci.org/repo/PremiereGlobal%2Fstim/requests

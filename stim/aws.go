@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/aws"
+	"github.com/PremiereGlobal/stim/pkg/aws"
 )
 
 func (stim *Stim) Aws(accessKey string, secretKey string) *aws.Aws {

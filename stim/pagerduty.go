@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/pagerduty"
+	"github.com/PremiereGlobal/stim/pkg/pagerduty"
 )
 
 // Pagerduty returns a Pagerduty instance that is already authenticated

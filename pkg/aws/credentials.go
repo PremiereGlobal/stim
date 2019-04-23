@@ -3,9 +3,9 @@ package aws
 import (
 	"time"
 
+	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/readytalk/stim/pkg/utils"
 )
 
 // GetFederationToken takes in a name and returns a set of STS Credentials

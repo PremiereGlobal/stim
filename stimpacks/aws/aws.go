@@ -1,9 +1,9 @@
 package aws
 
 import (
-	"github.com/readytalk/stim/pkg/stimlog"
-	vault "github.com/readytalk/stim/pkg/vault"
-	"github.com/readytalk/stim/stim"
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
+	vault "github.com/PremiereGlobal/stim/pkg/vault"
+	"github.com/PremiereGlobal/stim/stim"
 )
 
 type Aws struct {

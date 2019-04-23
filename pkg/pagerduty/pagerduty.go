@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	pdApi "github.com/PagerDuty/go-pagerduty"
-	"github.com/readytalk/stim/pkg/utils"
+	"github.com/PremiereGlobal/stim/pkg/utils"
 )
 
 // Pagerduty is the main object

@@ -3,9 +3,9 @@ package vault
 import (
 	"time"
 
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/command/token"
-	"github.com/readytalk/stim/pkg/stimlog"
 )
 
 type Vault struct {

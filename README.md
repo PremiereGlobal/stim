@@ -5,7 +5,7 @@
 Stim is available in Docker.  To use, simply run
 
 ```
-docker run readytalk/stim <stim-command>
+docker run PremiereGlobal/stim <stim-command>
 ```
 
 Stim natively supports configuration via environment variables. So, for example, to log into Vault and map the token to your home directory, run
@@ -15,7 +15,7 @@ docker run \
   -it \
   -e VAULT_ADDR=https://my-vault-domain:8200 \
   -v $HOME/.vault-token:/root/vault-token \
-  readytalk/stim vault login
+  PremiereGlobal/stim vault login
 ```
 
 ## Developing with Stim
@@ -52,10 +52,10 @@ Guidelines:
 
 
 [Build-Status-Url]: https://travis-ci.org/PremiereGlobal/stim
-[Build-Status-Image]: https://travis-ci.org/ReadyTalk/stim.svg?branch=master
-[reportcard-url]: https://goreportcard.com/badge/github.com/readytalk/stim
-[reportcard-image]: https://goreportcard.com/badge/github.com/readytalk/stim
-[godoc-url]: https://godoc.org/github.com/ReadyTalk/stim
-[godoc-image]: https://godoc.org/github.com/ReadyTalk/stim?status.svg
+[Build-Status-Image]: https://travis-ci.org/PremiereGlobal/stim.svg?branch=master
+[reportcard-url]: https://goreportcard.com/badge/github.com/PremiereGlobal/stim
+[reportcard-image]: https://goreportcard.com/badge/github.com/PremiereGlobal/stim
+[godoc-url]: https://godoc.org/github.com/PremiereGlobal/stim
+[godoc-image]: https://godoc.org/github.com/PremiereGlobal/stim?status.svg
 [license-url]: http://opensource.org/licenses/MIT
 [license-image]: https://img.shields.io/npm/l/express.svg

@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/kubernetes"
+	"github.com/PremiereGlobal/stim/pkg/kubernetes"
 )
 
 func (stim *Stim) Kubernetes() *kubernetes.Kubernetes {

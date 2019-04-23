@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/slack"
+	"github.com/PremiereGlobal/stim/pkg/slack"
 )
 
 func (stim *Stim) Slack() *slack.Slack {
