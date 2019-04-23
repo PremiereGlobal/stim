@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 body='{
 "request": {
 "branch":"master"

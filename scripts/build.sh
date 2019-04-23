@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 VERSION=${1:-master}
 GOOS=${2:-linux}
 DOCKER_REPO="readytalk/stim"

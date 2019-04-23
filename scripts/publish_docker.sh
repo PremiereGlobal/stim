@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 SOURCE_VERSION=${1:-master}
 PUBLISH_VERSION=${2:-$SOURCE_VERSION}
 DOCKER_REPO="readytalk/stim"
