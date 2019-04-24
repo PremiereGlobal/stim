@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 VERSION=${1:-master}
 
 mkdir -p bin

@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+set -eo pipefail
 
 VERSION=${1:-master}
 GOOS=${2:-linux}

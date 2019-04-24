@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 body='{
 "request": {
 "branch":"master"
