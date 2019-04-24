@@ -1,7 +1,7 @@
 package stim
 
 import (
-	"github.com/readytalk/stim/pkg/vault"
+	"github.com/PremiereGlobal/stim/pkg/vault"
 
 	"time"
 )

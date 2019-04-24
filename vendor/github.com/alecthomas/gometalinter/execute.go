@@ -155,14 +155,15 @@ func executeLinter(id int, state *linterState, args []string) error {
 		return fmt.Errorf("failed to execute linter %s: %s", command, err)
 	}
 
-	done := make(chan error)
+	done := make(chan bool)
 	go func() {
-		done <- cmd.Wait()
+		err = cmd.Wait()
+		done <- true
 	}()
 
 	// Wait for process to complete or deadline to expire.
 	select {
-	case err = <-done:
+	case <-done:
 
 	case <-state.deadline:
 		err = fmt.Errorf("deadline exceeded by linter %s (try increasing --deadline)",

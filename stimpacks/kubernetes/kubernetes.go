@@ -1,8 +1,8 @@
 package kubernetes
 
 import (
-	vault "github.com/readytalk/stim/pkg/vault"
-	"github.com/readytalk/stim/stim"
+	vault "github.com/PremiereGlobal/stim/pkg/vault"
+	"github.com/PremiereGlobal/stim/stim"
 )
 
 type Kubernetes struct {

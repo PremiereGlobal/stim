@@ -2,7 +2,7 @@ package pagerduty
 
 import (
 	"errors"
-	pd "github.com/readytalk/stim/pkg/pagerduty"
+	pd "github.com/PremiereGlobal/stim/pkg/pagerduty"
 )
 
 func (p *Pagerduty) SendEvent() {

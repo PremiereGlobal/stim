@@ -2,7 +2,7 @@ package discover
 
 import (
 	"fmt"
-	"github.com/readytalk/stim/stim"
+	"github.com/PremiereGlobal/stim/stim"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

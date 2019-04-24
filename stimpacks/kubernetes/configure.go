@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	kubepkg "github.com/readytalk/stim/pkg/kubernetes"
+	kubepkg "github.com/PremiereGlobal/stim/pkg/kubernetes"
 	// "github.com/davecgh/go-spew/spew"
 )
 

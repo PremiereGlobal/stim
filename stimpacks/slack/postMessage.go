@@ -2,7 +2,7 @@ package slack
 
 import (
 	"errors"
-	slackpkg "github.com/readytalk/stim/pkg/slack"
+	slackpkg "github.com/PremiereGlobal/stim/pkg/slack"
 )
 
 func (s *Slack) postMessage() {

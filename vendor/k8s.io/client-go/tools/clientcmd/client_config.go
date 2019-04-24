@@ -229,11 +229,12 @@ func (config *DirectClientConfig) getUserIdentificationPartialConfig(configAuthI
 	if len(configAuthInfo.Token) > 0 {
 		mergedConfig.BearerToken = configAuthInfo.Token
 	} else if len(configAuthInfo.TokenFile) > 0 {
-		ts := restclient.NewCachedFileTokenSource(configAuthInfo.TokenFile)
-		if _, err := ts.Token(); err != nil {
+		tokenBytes, err := ioutil.ReadFile(configAuthInfo.TokenFile)
+		if err != nil {
 			return nil, err
 		}
-		mergedConfig.WrapTransport = restclient.TokenSourceWrapTransport(ts)
+		mergedConfig.BearerToken = string(tokenBytes)
+		mergedConfig.BearerTokenFile = configAuthInfo.TokenFile
 	}
 	if len(configAuthInfo.Impersonate) > 0 {
 		mergedConfig.Impersonate = restclient.ImpersonationConfig{
@@ -292,16 +293,6 @@ func makeUserIdentificationConfig(info clientauth.Info) *restclient.Config {
 	config.CertFile = info.CertFile
 	config.KeyFile = info.KeyFile
 	config.BearerToken = info.BearerToken
-	return config
-}
-
-// makeUserIdentificationFieldsConfig returns a client.Config capable of being merged using mergo for only server identification information
-func makeServerIdentificationConfig(info clientauth.Info) restclient.Config {
-	config := restclient.Config{}
-	config.CAFile = info.CAFile
-	if info.Insecure != nil {
-		config.Insecure = *info.Insecure
-	}
 	return config
 }
 

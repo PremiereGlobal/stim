@@ -14,7 +14,7 @@ import (
 )
 
 // TODO: Move this to a global config
-var stimURL = "https://github.com/ReadyTalk/stim"
+var stimURL = "https://github.com/PremiereGlobal/stim"
 
 // Login gets IAM or STS credentials
 // TODO: Update ~/.aws/ config files for cross shell aws acess

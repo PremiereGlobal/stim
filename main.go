@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/readytalk/stim/stim"
-	"github.com/readytalk/stim/stimpacks/aws"
-	"github.com/readytalk/stim/stimpacks/kubernetes"
-	"github.com/readytalk/stim/stimpacks/pagerduty"
-	"github.com/readytalk/stim/stimpacks/slack"
-	"github.com/readytalk/stim/stimpacks/vault"
-	"github.com/readytalk/stim/stimpacks/version"
+	"github.com/PremiereGlobal/stim/stim"
+	"github.com/PremiereGlobal/stim/stimpacks/aws"
+	"github.com/PremiereGlobal/stim/stimpacks/kubernetes"
+	"github.com/PremiereGlobal/stim/stimpacks/pagerduty"
+	"github.com/PremiereGlobal/stim/stimpacks/slack"
+	"github.com/PremiereGlobal/stim/stimpacks/vault"
+	"github.com/PremiereGlobal/stim/stimpacks/version"
 )
 
 func main() {
 	stim := stim.New()
-//	stim.AddStimpack(discover.New())
+	//	stim.AddStimpack(discover.New())
 	stim.AddStimpack(aws.New())
 	stim.AddStimpack(kubernetes.New())
 	stim.AddStimpack(pagerduty.New())

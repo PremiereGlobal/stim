@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	"github.com/readytalk/stim/pkg/stimlog"
+	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
