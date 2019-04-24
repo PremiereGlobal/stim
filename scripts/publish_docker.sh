@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -eo pipefail
 
 SOURCE_VERSION=${1:-master}
 PUBLISH_VERSION=${2:-$SOURCE_VERSION}
