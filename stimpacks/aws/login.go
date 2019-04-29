@@ -119,7 +119,7 @@ func (a *Aws) Login() error {
 		if envSource { // Used for setting AWS credentials in the current environment
 			fmt.Println("export AWS_ACCESS_KEY_ID=" + accessKey)
 			fmt.Println("export AWS_SECRET_ACCESS_KEY=" + secretKey)
-		} else {
+		} else if !useProfiles {
 			fmt.Println("AWS_ACCESS_KEY_ID=" + accessKey)
 			fmt.Println("AWS_SECRET_ACCESS_KEY=" + secretKey)
 		}
