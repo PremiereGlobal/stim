@@ -9,6 +9,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/aws/aws-sdk-go v1.19.11
 	github.com/cornelk/hashmap v1.0.0
+	github.com/go-ini/ini v1.42.0
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect

@@ -50,5 +50,11 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 	loginCmd.Flags().StringP("role", "r", "", "AWS Vault role")
 	viper.BindPFlag("aws-role", loginCmd.Flags().Lookup("role"))
 
+	loginCmd.Flags().BoolP("use-profiles", "p", false, "Use profiles for storing credentials")
+	viper.BindPFlag("aws.use-profiles", loginCmd.Flags().Lookup("use-profiles"))
+
+	loginCmd.Flags().BoolP("default-profile", "d", false, "If --use-profiles is set, also set as [default] profile")
+	viper.BindPFlag("aws.default-profile", loginCmd.Flags().Lookup("default-profile"))
+
 	return cmd
 }
