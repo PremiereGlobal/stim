@@ -17,6 +17,7 @@ type Vault struct {
 }
 
 type Config struct {
+	AuthPath             string
 	Noprompt             bool
 	Address              string
 	Username             string
@@ -42,6 +43,12 @@ func New(config *Config) (*Vault, error) {
 	// Ensure that the Vault address is set
 	if config.Address == "" {
 		return nil, v.newError("Vault address not set")
+	}
+
+	// Set a default auth method to ldap if not set
+	// TODO: change this to token auth as it is more generic
+	if config.AuthPath == "" {
+		config.AuthPath = "ldap"
 	}
 
 	// Configure new Vault Client
