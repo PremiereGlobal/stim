@@ -1,8 +1,8 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	// 	"github.com/aws/aws-sdk-go/aws"
+	// 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
@@ -31,18 +31,10 @@ func New(config *Config) (*Aws, error) {
 	// Create a new instance of our class
 	a := &Aws{config: config, log: config.Log}
 
-	// Create a new session based on static IAM credentials that were passed in
-	awsCreds := credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, "")
-	session, err := session.NewSession(&aws.Config{Credentials: awsCreds})
-	if err != nil {
-		a.log.Fatal("Error creating AWS session: ", err)
+	// If credentials were provided, create a new session
+	if config.AccessKey != "" && config.SecretKey != "" {
+		a.CreateSession(config.AccessKey, config.SecretKey)
 	}
-
-	a.session = session
-
-	// Ensure the credentials are active before we move on
-	// Not sure if this should stay here or be optional?
-	a.WaitForActiveCreds()
 
 	return a, nil
 }
