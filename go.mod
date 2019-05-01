@@ -8,6 +8,7 @@ require (
 	github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/aws/aws-sdk-go v1.19.11
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
 	github.com/go-ini/ini v1.42.0
 	github.com/golang/snappy v0.0.1 // indirect
