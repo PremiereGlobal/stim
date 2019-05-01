@@ -26,6 +26,9 @@ func initRootCommand(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("verbose", cmd.PersistentFlags().Lookup("verbose"))
 	cmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")
 	viper.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
+	cmd.PersistentFlags().StringP("auth-method", "", "", "Default authentication method (ex: ldap, github, etc.)")
+	viper.BindPFlag("auth.method", cmd.PersistentFlags().Lookup("auth-method"))
+
 	if homeDir == "" {
 		if err != nil {
 			stim.log.Debug("Could not get the home dir:", err)

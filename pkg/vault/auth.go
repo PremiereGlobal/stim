@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"syscall"
 )
@@ -68,10 +69,8 @@ func (v *Vault) isCurrentTokenValid() bool {
 	return true
 }
 
-// userLogin asks user for LDAP login to Authenticate with Vault
+// userLogin authenticates with Vault and obtains a user token
 func (v *Vault) userLogin() error {
-	// Sadly we will assume LDAP login (for now)
-	// Maybe someday vault will allow anonymous access to "vault auth list"
 
 	if v.config.Noprompt == true {
 		return errors.New("No interactive prompt is set, but user input is required to continue")
@@ -91,8 +90,9 @@ func (v *Vault) userLogin() error {
 	// 	log.Fatal("Username does not match BSD 4.3 standards (32 character string 0f [a-z0-9_])")
 	// }
 
-	// Login with LDAP and create a token
-	secret, err := v.client.Logical().Write("auth/ldap/login/"+username, map[string]interface{}{
+	// Login and obtain a token
+	authPath := path.Join("auth/", v.config.AuthPath, "/login/", username)
+	secret, err := v.client.Logical().Write(authPath, map[string]interface{}{
 		"password": password,
 	})
 	if err != nil {
@@ -129,7 +129,7 @@ func (v *Vault) IsNewLogin() bool {
 // getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
-	fmt.Println("Vault needs your LDAP Linux user/pass.")
+	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
 	if v.config.Username != "" {
 		fmt.Printf("Username (%s): ", v.config.Username)
 	} else {

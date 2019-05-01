@@ -16,7 +16,7 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 	var vaultCmd = &cobra.Command{
 		Use:   "vault",
 		Short: "Vault helper",
-		Long:  "Vault LDAP login and AWS access",
+		Long:  "Vault login and access",
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
@@ -30,7 +30,7 @@ func (v *Vault) Command(viper *viper.Viper) *cobra.Command {
 	var loginCmd = &cobra.Command{
 		Use:   "login",
 		Short: "login to Vault",
-		Long:  "Login into Vault using LDAP",
+		Long:  "Login and obtain a token from Vault",
 		Run: func(cmd *cobra.Command, args []string) {
 			v.Login()
 		},

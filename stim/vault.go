@@ -8,7 +8,6 @@ import (
 
 // Vault is the interface for Hashicorp Vault wrapper methods
 // The main input is the vault-address
-// Will prompt the user for their LDAP username and password
 // Will update the user's ~/.vault-token file with a new token
 func (stim *Stim) Vault() *vault.Vault {
 	if stim.vault == nil {
@@ -35,6 +34,7 @@ func (stim *Stim) Vault() *vault.Vault {
 		vault, err := vault.New(&vault.Config{
 			Address:              stim.GetConfig("vault-address"), // Default is 127.0.0.1
 			Noprompt:             stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
+			AuthPath:             stim.GetConfig("auth.method"),
 			Username:             username, // If set in the configs, pass in user
 			InitialTokenDuration: timeInDuration,
 			Log:                  stim.log,

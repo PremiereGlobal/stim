@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.0.5 (in-development)
+
+### Improvements
+* Configurable auth methods.  A config entry of `auth.method` or command line parameter `--auth-method` can be used to specify the authentication method (ex: ldap, github, etc.).
+
 ## 0.0.4
 ### BREAKING CHANGES
 * Changing parameter for `stim aws login`. Changed -m to -a to be clear about account name.
