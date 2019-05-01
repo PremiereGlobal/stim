@@ -69,10 +69,8 @@ func (v *Vault) isCurrentTokenValid() bool {
 	return true
 }
 
-// userLogin asks user for LDAP login to Authenticate with Vault
+// userLogin authenticates with Vault and obtains a user token
 func (v *Vault) userLogin() error {
-	// Sadly we will assume LDAP login (for now)
-	// Maybe someday vault will allow anonymous access to "vault auth list"
 
 	if v.config.Noprompt == true {
 		return errors.New("No interactive prompt is set, but user input is required to continue")
@@ -92,7 +90,7 @@ func (v *Vault) userLogin() error {
 	// 	log.Fatal("Username does not match BSD 4.3 standards (32 character string 0f [a-z0-9_])")
 	// }
 
-	// Login with LDAP and create a token
+	// Login and obtain a token
 	authPath := path.Join("auth/", v.config.AuthPath, "/login/", username)
 	secret, err := v.client.Logical().Write(authPath, map[string]interface{}{
 		"password": password,

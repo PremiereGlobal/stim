@@ -8,7 +8,6 @@ import (
 
 // Vault is the interface for Hashicorp Vault wrapper methods
 // The main input is the vault-address
-// Will prompt the user for their LDAP username and password
 // Will update the user's ~/.vault-token file with a new token
 func (stim *Stim) Vault() *vault.Vault {
 	if stim.vault == nil {
