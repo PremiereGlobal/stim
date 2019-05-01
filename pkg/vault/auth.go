@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"syscall"
 )
@@ -92,7 +93,8 @@ func (v *Vault) userLogin() error {
 	// }
 
 	// Login with LDAP and create a token
-	secret, err := v.client.Logical().Write("auth/ldap/login/"+username, map[string]interface{}{
+	authPath := path.Join("auth/", v.config.AuthPath, "/login/", username)
+	secret, err := v.client.Logical().Write(authPath, map[string]interface{}{
 		"password": password,
 	})
 	if err != nil {
@@ -129,7 +131,7 @@ func (v *Vault) IsNewLogin() bool {
 // getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
-	fmt.Println("Vault needs your LDAP Linux user/pass.")
+	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
 	if v.config.Username != "" {
 		fmt.Printf("Username (%s): ", v.config.Username)
 	} else {
