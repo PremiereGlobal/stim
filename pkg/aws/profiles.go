@@ -6,9 +6,15 @@ import (
 	"path/filepath"
 )
 
+// Profile is the base struct for creating new profiles
+type Profile struct {
+	AccessKeyID     string `ini:"aws_access_key_id"`
+	SecretAccessKey string `ini:"aws_secret_access_key"`
+}
+
 // MapProfile gets an AWS profile from the user's credentials file and maps it,
-// if found, to the given interface
-func (a *Aws) MapProfile(name string, profile interface{}) error {
+// if found, to the given interface(s)
+func (a *Aws) MapProfile(name string, profiles ...interface{}) error {
 
 	// Get the profile configuration file path
 	credentialPath, err := a.GetCredentialPath()
@@ -29,18 +35,21 @@ func (a *Aws) MapProfile(name string, profile interface{}) error {
 		return nil
 	}
 
-	// Perform the map
-	err = section.MapTo(profile)
-	if err != nil {
-		return err
+	// Perform the map(s)
+	for _, profile := range profiles {
+		err = section.MapTo(profile)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-// SaveProfile saves the given profile/section to file, optionally also saving
-// it as the default profile
-func (a *Aws) SaveProfile(name string, profile interface{}, setAsDefault bool) error {
+// SaveProfile saves the given profile(s)/section(s) to file, optionally also saving
+// it as the default profile. The Profile type is requried and additional profile
+// fields can be added with the additionalProfiles parameter
+func (a *Aws) SaveProfile(name string, profile *Profile, setAsDefault bool, additionalProfiles ...interface{}) error {
 
 	// Get the profile configuration file
 	credentialPath, err := a.GetCredentialPath()
@@ -55,11 +64,11 @@ func (a *Aws) SaveProfile(name string, profile interface{}, setAsDefault bool) e
 	}
 
 	// Write the profile
-	writeSection(profileConfig, name, profile)
+	writeSection(profileConfig, name, profile, additionalProfiles)
 
 	// Overwrite the default profile, if set
 	if setAsDefault {
-		writeSection(profileConfig, "default", profile)
+		writeSection(profileConfig, "default", profile, additionalProfiles)
 	}
 
 	a.log.Debug("Saving profile " + name + " in " + credentialPath)
@@ -68,8 +77,8 @@ func (a *Aws) SaveProfile(name string, profile interface{}, setAsDefault bool) e
 	return nil
 }
 
-// writeSection writes the given profile/section to the profileConfig
-func writeSection(profileConfig *ini.File, name string, profile interface{}) error {
+// writeSection writes the given profile(s)/section(s) to the profileConfig
+func writeSection(profileConfig *ini.File, name string, profile *Profile, additionalProfiles []interface{}) error {
 
 	// Delete the section (if it exists)
 	profileConfig.DeleteSection(name)
@@ -80,10 +89,18 @@ func writeSection(profileConfig *ini.File, name string, profile interface{}) err
 		return err
 	}
 
-	// Reflect profile into the newly created section
+	// Reflect the main Profile into the newly created section
 	err = section.ReflectFrom(profile)
 	if err != nil {
 		return err
+	}
+
+	// Reflect any additional profiles into the section
+	for _, additionalProfile := range additionalProfiles {
+		err = section.ReflectFrom(additionalProfile)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

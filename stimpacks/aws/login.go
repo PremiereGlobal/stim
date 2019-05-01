@@ -5,19 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	stimaws "github.com/PremiereGlobal/stim/pkg/aws"
+	awspkg "github.com/PremiereGlobal/stim/pkg/aws"
 	"github.com/skratchdot/open-golang/open"
 )
 
 // TODO: Move this to a global config
 var stimURL = "https://github.com/PremiereGlobal/stim"
 
-// Profile This is our custom profile we'll use to keep track of things
-type Profile struct {
-	AccessKeyID     string `ini:"aws_access_key_id"`
-	SecretAccessKey string `ini:"aws_secret_access_key"`
-	SessionToken    string `ini:"aws_session_token"`
-	LeaseID         string `ini:"vault_lease_id"`
+// stimProfile This is our custom profile we'll use to keep track of additional
+// fields we put in the AWS profile config
+type stimProfile struct {
+	SessionToken string `ini:"aws_session_token"`
+	LeaseID      string `ini:"vault_lease_id"`
 }
 
 // Login gets IAM or STS credentials
@@ -43,18 +42,19 @@ func (a *Aws) Login() error {
 		a.log.Debug("Using AWS profiles")
 
 		// Check if we have a saved profile for the right account/role
-		profile := Profile{}
-		err := a.aws.MapProfile(profileName, &profile)
+		profile := awspkg.Profile{}
+		stimProfile := stimProfile{}
+		err := a.aws.MapProfile(profileName, &profile, &stimProfile)
 		if err != nil {
 			return err
 		}
 
 		// Validate we got back the expected fields.  If these are missing, the
 		// profile is missing or invalid so we'll just generate a new one
-		if profile.AccessKeyID != "" && profile.SecretAccessKey != "" && profile.LeaseID != "" {
-			a.log.Debug("Profile " + profileName + " found, validating...")
+		if profile.AccessKeyID != "" && profile.SecretAccessKey != "" && stimProfile.LeaseID != "" {
+			a.log.Debug("Profile " + profileName + " found")
 		} else {
-			a.log.Debug("Profile " + profileName + " not found or is not familiar...")
+			a.log.Debug("Profile " + profileName + " not found or is not familiar")
 		}
 	}
 
@@ -81,18 +81,22 @@ func (a *Aws) Login() error {
 
 	if useProfiles {
 
-		// Construct our profile
-		profile := Profile{
+		// Construct our new base profile
+		profile := awspkg.Profile{
 			AccessKeyID:     accessKey,
 			SecretAccessKey: secretKey,
-			LeaseID:         secret.LeaseID,
+		}
+
+		// Construct our new stim profile
+		stimProfile := stimProfile{
+			LeaseID: secret.LeaseID,
 		}
 
 		defaultProfile := a.stim.GetConfigBool("aws.default-profile")
 		if defaultProfile {
 			a.log.Debug("Setting " + profileName + " credentials as default")
 		}
-		a.aws.SaveProfile(profileName, &profile, defaultProfile)
+		a.aws.SaveProfile(profileName, &profile, defaultProfile, &stimProfile)
 	}
 
 	if stsLogin {
@@ -100,7 +104,7 @@ func (a *Aws) Login() error {
 		federationCreds := aws.GetFederationToken("stim-user")
 		a.log.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
 		a.log.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
-		loginURL, err := stimaws.CreateAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken, stimURL)
+		loginURL, err := awspkg.CreateAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken, stimURL)
 		a.log.Trace("AWS Console Login URL: " + loginURL)
 		if err != nil {
 			return err
