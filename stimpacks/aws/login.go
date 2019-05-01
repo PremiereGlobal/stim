@@ -100,8 +100,9 @@ func (a *Aws) Login() error {
 	}
 
 	if stsLogin {
-		aws := a.stim.Aws(accessKey, secretKey)
-		federationCreds := aws.GetFederationToken("stim-user")
+		a.aws.CreateSession(accessKey, secretKey)
+		a.aws.WaitForActiveCreds()
+		federationCreds := a.aws.GetFederationToken("stim-user")
 		a.log.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
 		a.log.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
 		loginURL, err := awspkg.CreateAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken, stimURL)

@@ -13,7 +13,7 @@ deploy:
   file_glob: true
   file:
   - bin/*.tar.gz
-  - bin/install.sh
+  # - bin/install.sh
   skip_cleanup: true
   on:
     tags: true
