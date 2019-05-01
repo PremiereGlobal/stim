@@ -1,9 +1,9 @@
 # Stim Changelog
 
-## 0.0.5
+## 0.0.5 (in-development)
 
 ### Improvements
-* Configurable auth methods.  A config entry of `auth.method` or command line parameter `--auth-method` can be used to specify the authenticate method (ex: ldap, github, etc.).
+* Configurable auth methods.  A config entry of `auth.method` or command line parameter `--auth-method` can be used to specify the authentication method (ex: ldap, github, etc.).
 
 ## 0.0.4
 ### BREAKING CHANGES
