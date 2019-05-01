@@ -33,7 +33,7 @@ func (a *Aws) Login() error {
 	if err != nil {
 		return err
 	}
-	a.log.Debug("Account: ", account, " Role: ", role)
+	a.log.Debug("Account: {} Role: {}", account, role)
 
 	// Looked for a saved profile if desired
 	useProfiles := a.stim.GetConfigBool("aws.use-profiles")
@@ -52,9 +52,9 @@ func (a *Aws) Login() error {
 		// Validate we got back the expected fields.  If these are missing, the
 		// profile is missing or invalid so we'll just generate a new one
 		if profile.AccessKeyID != "" && profile.SecretAccessKey != "" && stimProfile.LeaseID != "" {
-			a.log.Debug("Profile " + profileName + " found")
+			a.log.Debug("Profile {} found", profileName)
 		} else {
-			a.log.Debug("Profile " + profileName + " not found or is not familiar")
+			a.log.Debug("Profile {} not found or is not familiar", profileName)
 		}
 	}
 
@@ -94,7 +94,7 @@ func (a *Aws) Login() error {
 
 		defaultProfile := a.stim.GetConfigBool("aws.default-profile")
 		if defaultProfile {
-			a.log.Debug("Setting " + profileName + " credentials as default")
+			a.log.Debug("Setting {} credentials as default", profileName)
 		}
 		a.aws.SaveProfile(profileName, &profile, defaultProfile, &stimProfile)
 	}

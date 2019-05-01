@@ -22,7 +22,7 @@ func (a *Aws) MapProfile(name string, profiles ...interface{}) error {
 		return err
 	}
 
-	a.log.Debug("Mapping profile " + name + " in " + credentialPath)
+	a.log.Debug("Mapping profile {} in {}", name, credentialPath)
 	profileConfig, err := ini.Load(credentialPath)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (a *Aws) SaveProfile(name string, profile *Profile, setAsDefault bool, addi
 		writeSection(profileConfig, "default", profile, additionalProfiles)
 	}
 
-	a.log.Debug("Saving profile " + name + " in " + credentialPath)
+	a.log.Debug("Saving profile {} in {}", name, credentialPath)
 	profileConfig.SaveTo(credentialPath)
 
 	return nil
