@@ -1,9 +1,12 @@
 package aws
 
 import (
+	"os"
+
+	"path/filepath"
+
 	"github.com/go-ini/ini"
 	"github.com/mitchellh/go-homedir"
-	"path/filepath"
 )
 
 // Profile is the base struct for creating new profiles
@@ -114,7 +117,41 @@ func (a *Aws) GetCredentialPath() (string, error) {
 		return "", err
 	}
 
-	credentialPath := filepath.Join(home, ".aws/credentials")
+	awsFolder := filepath.FromSlash(home + "/.aws")
+	exists, err := Exists(awsFolder)
+	if err != nil {
+		return "", err
+	}
+	if !exists {
+		a.log.Debug("Creating '" + awsFolder + "' folder")
+		os.MkdirAll(awsFolder, os.ModePerm)
+	}
+
+	credentialPath := filepath.FromSlash(awsFolder + "/credentials")
+	exists, err = Exists(credentialPath)
+	if err != nil {
+		return "", err
+	}
+	if !exists {
+		a.log.Debug("Touching '" + credentialPath + "' file")
+		f, err := os.Create(credentialPath)
+		defer f.Close()
+		if err != nil {
+			return "", err
+		}
+	}
 
 	return credentialPath, nil
+}
+
+// Exists returns whether the given file or directory exists
+func Exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
