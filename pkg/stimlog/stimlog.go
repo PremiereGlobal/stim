@@ -70,6 +70,7 @@ type stimLogger struct {
 
 var logger *stimLogger
 
+const traceMsg = "[ TRACE ]"
 const debugMsg = "[ DEBUG ]"
 const warnMsg = "[ WARN  ]"
 const fatalMsg = "[ FATAL ]"
@@ -252,9 +253,9 @@ func (stimLogger *stimLogger) Trace(message ...interface{}) {
 	if stimLogger.highestLevel >= TraceLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
-				stimLogger.writeLogs(stimLogger.formatString(TraceLevel, warnMsg, message...))
+				stimLogger.writeLogs(stimLogger.formatString(TraceLevel, traceMsg, message...))
 			} else {
-				stimLogger.formatAndLog(TraceLevel, warnMsg, message...)
+				stimLogger.formatAndLog(TraceLevel, traceMsg, message...)
 			}
 		} else {
 			stimLogger.setLogger.Debug(message...)
