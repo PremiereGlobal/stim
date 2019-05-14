@@ -1,6 +1,6 @@
 # Stim Changelog
 
-## 0.0.5 (in-development)
+## 0.0.5
 
 ### Features
 * Added profile support for AWS logins. There are two new parameters for the `stim aws login` command:
