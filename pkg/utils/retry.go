@@ -5,7 +5,7 @@ import (
 )
 
 // Retry will make a given number of attempts to run the provided function
-// with exponential backoff
+// sleeping between each attempt
 func Retry(attempts int, sleep time.Duration, fn func() error) error {
 	if err := fn(); err != nil {
 		if s, ok := err.(stop); ok {
@@ -15,7 +15,7 @@ func Retry(attempts int, sleep time.Duration, fn func() error) error {
 
 		if attempts--; attempts > 0 {
 			time.Sleep(sleep)
-			return Retry(attempts, 2*sleep, fn)
+			return Retry(attempts, sleep, fn)
 		}
 		return err
 	}

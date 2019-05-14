@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"errors"
 	"time"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
@@ -34,23 +35,33 @@ func (a *Aws) GetFederationToken(name string) *sts.Credentials {
 // until they're active to take the next step.
 func (a *Aws) WaitForActiveCreds() {
 
+	retryInterval := time.Second * 2
 	retryLimit := 20
+	successesRequired := 3
+	successes := 0
 
 	// Start a new STS session
 	s := sts.New(a.session)
 
 	// Here we retry a call to GetCallerIdentity which will return an
 	// InvalidClientTokenId error code until the credentials become active
-	err := utils.Retry(retryLimit, time.Second, func() error {
+	err := utils.Retry(retryLimit, retryInterval, func() error {
 
 		_, err := s.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 		if awserr, ok := err.(awserr.Error); ok {
 			if awserr.Code() == "InvalidClientTokenId" {
 				a.log.Info("AWS credentials not yet active, waiting...")
+				successes = 0
 				return err
 			} else {
 				a.log.Fatal("Error validating AWS credentials: ", err)
 			}
+		}
+
+		successes += 1
+		a.log.Debug("Successful validation check {} of {} reached", successes, successesRequired)
+		if successes < successesRequired {
+			return errors.New("Haven't reached the required number of consecutive success yet")
 		}
 
 		a.log.Info("AWS credentials are active")

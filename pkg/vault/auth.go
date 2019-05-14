@@ -36,6 +36,7 @@ func (v *Vault) Login() error {
 	// Check if any existing token is valid
 	// If not, prompt for login
 	isTokenValid := v.isCurrentTokenValid()
+
 	if isTokenValid == false {
 		v.log.Debug("No valid tokens found, need to login")
 		err := v.userLogin()
@@ -60,12 +61,14 @@ func (v *Vault) GetToken() (string, error) {
 
 // isCurrentTokenValid returns flase if user needs to relogin
 // I am not happy with this way of testing the token.
-// This function doesn't check for errors.
 func (v *Vault) isCurrentTokenValid() bool {
-	secret, _ := v.client.Auth().Token().LookupSelf()
-	if secret == nil {
+	duration, err := v.GetCurrentTokenTTL()
+	if err != nil || duration <= 0 {
 		return false
 	}
+
+	v.log.Debug("Current token is valid for {}", duration.String())
+
 	return true
 }
 

@@ -78,10 +78,22 @@ func New(config *Config) (*Vault, error) {
 	// If user wants, extend the token timeout
 	if v.IsNewLogin() {
 		if v.config.InitialTokenDuration > 0 {
-			v.log.Debug("Token duration set to: ", v.config.InitialTokenDuration)
-			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration))
+			v.log.Debug("Attempting to set token duration to ", v.config.InitialTokenDuration)
+			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration.Seconds()))
 			if err != nil {
 				return nil, err
+			}
+
+			// Show the actual TTL and warn if different from requested
+			actualDuration, err := v.GetCurrentTokenTTL()
+			if err != nil {
+				return nil, v.parseError(err)
+			}
+			v.log.Debug("Current token is valid for {}", actualDuration.String())
+
+			// If duration is not within threshold of the requested duration, warn the user
+			if actualDuration.Seconds() <= (v.config.InitialTokenDuration.Seconds() - 15) {
+				v.log.Warn("Unable to set token duration to {}.  Actual value: {}", v.config.InitialTokenDuration.String(), actualDuration.String())
 			}
 		}
 	}
