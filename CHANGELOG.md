@@ -10,6 +10,7 @@
 ### Improvements
 * Configurable auth methods.  A config entry of `auth.method` or command line parameter `--auth-method` can be used to specify the authentication method (ex: ldap, github, etc.).
 * Prompt interface would trigger terminal bell when using arrow key to navigate the menu. This has been removed.
+* Changed AWS login wait login to be linear vs exponential
 
 ## 0.0.4
 ### BREAKING CHANGES
