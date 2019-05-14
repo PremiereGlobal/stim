@@ -13,6 +13,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0
 	github.com/aws/aws-sdk-go v1.19.11
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
 	github.com/go-ini/ini v1.42.0
 	github.com/gogo/protobuf v1.2.1 // indirect

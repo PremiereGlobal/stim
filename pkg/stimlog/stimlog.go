@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/cornelk/hashmap"
-	logurs "github.com/sirupsen/logrus"
 )
 
 type Logger interface {
@@ -71,6 +70,7 @@ type stimLogger struct {
 
 var logger *stimLogger
 
+const traceMsg = "[ TRACE ]"
 const debugMsg = "[ DEBUG ]"
 const warnMsg = "[ WARN  ]"
 const fatalMsg = "[ FATAL ]"
@@ -85,9 +85,7 @@ func GetLogger() StimLogger {
 		mu := sync.Mutex{}
 		mu.Lock()
 		if logger == nil {
-			lg := logurs.New()
 			logger = &stimLogger{
-				// setLogger:    lg,
 				currentLevel: WarnLevel,
 				highestLevel: WarnLevel,
 				dateFMT:      dateFMT,
@@ -95,7 +93,6 @@ func GetLogger() StimLogger {
 				logfiles:     hashmap.HashMap{},
 			}
 			//We set logurs to debug since we are handling the filtering
-			lg.SetLevel(logurs.DebugLevel)
 			logger.AddLogFile("STDOUT", defaultLevel)
 			go logger.writeLogQueue()
 			mu.Unlock()
@@ -196,6 +193,14 @@ func (stimLogger *stimLogger) SetLogger(givenLogger Logger) {
 // SetLevel sets the StimLogger log level.
 func (stimLogger *stimLogger) SetLevel(level Level) {
 	stimLogger.currentLevel = level
+	hl := level
+	for kv := range stimLogger.logfiles.Iter() {
+		lgr := kv.Value.(*logFile)
+		if lgr.logLevel > hl {
+			hl = lgr.logLevel
+		}
+	}
+	stimLogger.highestLevel = hl
 }
 
 // Debug logs a message at level Debug on the standard logger.
@@ -248,9 +253,9 @@ func (stimLogger *stimLogger) Trace(message ...interface{}) {
 	if stimLogger.highestLevel >= TraceLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
-				stimLogger.writeLogs(stimLogger.formatString(TraceLevel, warnMsg, message...))
+				stimLogger.writeLogs(stimLogger.formatString(TraceLevel, traceMsg, message...))
 			} else {
-				stimLogger.formatAndLog(TraceLevel, warnMsg, message...)
+				stimLogger.formatAndLog(TraceLevel, traceMsg, message...)
 			}
 		} else {
 			stimLogger.setLogger.Debug(message...)
