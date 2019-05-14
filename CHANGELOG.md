@@ -11,6 +11,11 @@
 * Configurable auth methods.  A config entry of `auth.method` or command line parameter `--auth-method` can be used to specify the authentication method (ex: ldap, github, etc.).
 * Prompt interface would trigger terminal bell when using arrow key to navigate the menu. This has been removed.
 * Changed AWS login wait login to be linear vs exponential
+* Vault token duration messages improved to show actual TTL vs requested when getting a new token
+* Improved build fail detection
+
+### Other
+* Removed `bash` installer for now until it can be fixed
 
 ## 0.0.4
 ### BREAKING CHANGES
