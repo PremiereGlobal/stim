@@ -1,9 +1,11 @@
 package aws
 
 import (
+	"path/filepath"
+
+	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/go-ini/ini"
 	"github.com/mitchellh/go-homedir"
-	"path/filepath"
 )
 
 // Profile is the base struct for creating new profiles
@@ -114,7 +116,11 @@ func (a *Aws) GetCredentialPath() (string, error) {
 		return "", err
 	}
 
-	credentialPath := filepath.Join(home, ".aws/credentials")
+	credentialPath := filepath.FromSlash(home + "/.aws/credentials")
+	err = utils.CreateFileIfNotExist(credentialPath)
+	if err != nil {
+		return "", err
+	}
 
 	return credentialPath, nil
 }
