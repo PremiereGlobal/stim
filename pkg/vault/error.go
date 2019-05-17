@@ -11,22 +11,39 @@ import (
 	"syscall"
 )
 
-// Error is the custom error type for this package
-type Error struct {
+// CustomVaultError is the custom error type for this package
+type CustomVaultError struct {
 	MessageParts  []string
 	OriginalError error
 }
 
+// Error is custom error interface with one method that will block other functions
+// from using this Error. This is not interchangeable with the standard error.
+type Error interface {
+	Error() string
+	blockInterface()
+}
+
 // Error returns the error string
-func (verr Error) Error() string {
-	return fmt.Sprintf("Vault Error: %s", strings.Join(verr.MessageParts, "; "))
+func (verr CustomVaultError) Error() string {
+	return fmt.Sprintf("Vault: %s", strings.Join(verr.MessageParts, "; "))
+}
+
+//
+func (verr CustomVaultError) blockInterface() {
 }
 
 // parseError parses known errors into more user-friendly messages
 func (v *Vault) parseError(err error) Error {
 
-	var verr Error
-	verr.OriginalError = err
+	// Provent parseError from calling parseError again
+	if serr, ok := err.(Error); ok {
+		return serr
+	}
+
+	// var verr CustomVaultError
+	verr := &CustomVaultError{OriginalError: err}
+	// verr.OriginalError = err
 
 	// Catch some known HTTP errors
 	if uerr, ok := err.(*url.Error); ok {

@@ -15,7 +15,7 @@ import (
 
 // Login will authenticate the user with Vault
 // Will detect if user needs to re-login
-func (v *Vault) Login() error {
+func (v *Vault) Login() Error {
 	// get the token from the user's environment
 	if v.client.Token() != "" {
 		v.log.Debug("Reading token from environment 'VAULT_TOKEN'")
@@ -24,7 +24,7 @@ func (v *Vault) Login() error {
 		v.tokenHelper = token.InternalTokenHelper{}
 		token, err := v.tokenHelper.Get()
 		if err != nil {
-			return err
+			return v.parseError(err)
 		}
 
 		if token != "" {

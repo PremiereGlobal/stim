@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-func (v *Vault) isVaultHealthy() (bool, error) {
+func (v *Vault) isVaultHealthy() (bool, Error) {
 
 	result, err := v.client.Sys().Health()
 	if err != nil {
-		return false, v.parseError(err)
+		return false, v.parseError(err).(Error)
 	}
 
 	v.log.Debug("Vault server info from (" + v.client.Address() + ")")

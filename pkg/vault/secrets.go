@@ -1,8 +1,9 @@
 package vault
 
 import (
-	"github.com/hashicorp/vault/api"
 	"path/filepath"
+
+	"github.com/hashicorp/vault/api"
 )
 
 // Using Vaults Logical client:
@@ -81,7 +82,7 @@ func (v *Vault) ListSecrets(path string) ([]string, error) {
 func (v *Vault) GetSecret(path string) (*api.Secret, error) {
 	secret, err := v.client.Logical().Read(path)
 	if err != nil {
-		return nil, err
+		return nil, v.parseError(err)
 	}
 
 	return secret, nil
