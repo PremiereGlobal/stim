@@ -17,9 +17,9 @@ type CustomVaultError struct {
 	OriginalError error
 }
 
-// Error is custom error interface with one method that will block other functions
+// customError is custom error interface with one method that will block other functions
 // from using this Error. This is not interchangeable with the standard error.
-type Error interface {
+type CustomError interface {
 	Error() string
 	blockInterface()
 }
@@ -34,16 +34,14 @@ func (verr CustomVaultError) blockInterface() {
 }
 
 // parseError parses known errors into more user-friendly messages
-func (v *Vault) parseError(err error) Error {
+func (v *Vault) parseError(err error) CustomError {
 
 	// Provent parseError from calling parseError again
-	if serr, ok := err.(Error); ok {
+	if serr, ok := err.(CustomError); ok {
 		return serr
 	}
 
-	// var verr CustomVaultError
 	verr := &CustomVaultError{OriginalError: err}
-	// verr.OriginalError = err
 
 	// Catch some known HTTP errors
 	if uerr, ok := err.(*url.Error); ok {
@@ -72,6 +70,6 @@ func (v *Vault) parseError(err error) Error {
 }
 
 // newError returns a new error based on a given string
-func (v *Vault) newError(msg string) Error {
+func (v *Vault) newError(msg string) CustomError {
 	return v.parseError(errors.New(msg))
 }

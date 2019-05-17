@@ -15,7 +15,7 @@ import (
 
 // Login will authenticate the user with Vault
 // Will detect if user needs to re-login
-func (v *Vault) Login() Error {
+func (v *Vault) Login() error {
 	// get the token from the user's environment
 	if v.client.Token() != "" {
 		v.log.Debug("Reading token from environment 'VAULT_TOKEN'")
@@ -24,7 +24,7 @@ func (v *Vault) Login() Error {
 		v.tokenHelper = token.InternalTokenHelper{}
 		token, err := v.tokenHelper.Get()
 		if err != nil {
-			return v.parseError(err)
+			return v.parseError(err).(error)
 		}
 
 		if token != "" {
@@ -53,7 +53,7 @@ func (v *Vault) GetToken() (string, error) {
 	v.tokenHelper = token.InternalTokenHelper{}
 	token, err := v.tokenHelper.Get()
 	if err != nil {
-		return "", v.parseError(err)
+		return "", v.parseError(err).(error)
 	}
 
 	return token, nil
@@ -144,7 +144,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 
 	if len(username) <= 0 { // If user just clicked enter
 		if v.config.Username == "" { // If there also isn't default
-			return "", "", v.newError("No username given")
+			return "", "", v.newError("No username given").(error)
 		}
 		username = v.config.Username
 	} else {
@@ -154,7 +154,7 @@ func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Print("Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		return "", "", v.parseError(err)
+		return "", "", v.parseError(err).(error)
 	}
 	fmt.Println("")
 	password := string(bytePassword)
