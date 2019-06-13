@@ -56,5 +56,11 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 	loginCmd.Flags().BoolP("default-profile", "d", false, "If --use-profiles is set, also set as [default] profile")
 	viper.BindPFlag("aws.default-profile", loginCmd.Flags().Lookup("default-profile"))
 
+	loginCmd.Flags().StringP("ttl", "t", "8h", "Time-to-live for AWS credentials")
+	viper.BindPFlag("aws.ttl", loginCmd.Flags().Lookup("ttl"))
+
+	loginCmd.Flags().StringP("web-ttl", "b", "1h", "Time-to-live for AWS web console access (min 15m, max 36h)")
+	viper.BindPFlag("aws.web-ttl", loginCmd.Flags().Lookup("web-ttl"))
+
 	return cmd
 }

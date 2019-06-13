@@ -74,10 +74,21 @@ func (a *Aws) Login() error {
 	accessKey := secret.Data["access_key"].(string)
 	secretKey := secret.Data["secret_key"].(string)
 	leaseID := secret.LeaseID
-	leaseDuration := time.Duration(secret.LeaseDuration) * time.Second
 	a.log.Debug("AWS IAM Access Key: " + accessKey)
-	a.log.Debug("AWS IAM Access Expiration: " + leaseDuration.String() + " from now")
 	a.log.Debug("AWS IAM Vault Lease Id: " + leaseID)
+
+	// Get the desired ttl
+	ttl, err := time.ParseDuration(a.stim.GetConfig("aws.ttl"))
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error parsing config value aws.ttl: %s", a.stim.GetConfig("aws.ttl")))
+	}
+
+	// Renew our lease for the requested time
+	leaseSecret, err := a.vault.RenewLease(leaseID, ttl)
+	if err != nil {
+		return err
+	}
+	a.log.Debug("AWS IAM Access Expiration: " + leaseSecret.String() + " from now")
 
 	if useProfiles {
 
@@ -100,9 +111,16 @@ func (a *Aws) Login() error {
 	}
 
 	if stsLogin {
+
+		// Get the desired web-ttl
+		webTtl, err := time.ParseDuration(a.stim.GetConfig("aws.web-ttl"))
+		if err != nil {
+			return errors.New(fmt.Sprintf("Error parsing config value aws.web-ttl: %s", a.stim.GetConfig("aws.web-ttl")))
+		}
+
 		a.aws.CreateSession(accessKey, secretKey)
 		a.aws.WaitForActiveCreds()
-		federationCreds := a.aws.GetFederationToken("stim-user")
+		federationCreds := a.aws.GetFederationToken("stim-user", webTtl)
 		a.log.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
 		a.log.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
 		loginURL, err := awspkg.CreateAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken, stimURL)
