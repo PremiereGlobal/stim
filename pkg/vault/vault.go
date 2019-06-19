@@ -66,13 +66,13 @@ func New(config *Config) (*Vault, error) {
 	// Ensure Vault is up and Healthy
 	_, err = v.isVaultHealthy()
 	if err != nil {
-		return nil, v.parseError(err)
+		return nil, err
 	}
 
 	// Run Login logic
 	err = v.Login()
 	if err != nil {
-		return nil, v.parseError(err)
+		return nil, err
 	}
 
 	// If user wants, extend the token timeout
@@ -81,13 +81,13 @@ func New(config *Config) (*Vault, error) {
 			v.log.Debug("Attempting to set token duration to ", v.config.InitialTokenDuration)
 			_, err = v.client.Auth().Token().RenewSelf(int(v.config.InitialTokenDuration.Seconds()))
 			if err != nil {
-				return nil, err
+				return nil, v.parseError(err)
 			}
 
 			// Show the actual TTL and warn if different from requested
 			actualDuration, err := v.GetCurrentTokenTTL()
 			if err != nil {
-				return nil, v.parseError(err)
+				return nil, err
 			}
 			v.log.Debug("Current token is valid for {}", actualDuration.String())
 

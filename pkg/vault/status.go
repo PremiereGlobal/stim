@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (v *Vault) isVaultHealthy() (bool, error) {
+func (v *Vault) isVaultHealthy() (bool, CustomError) {
 
 	result, err := v.client.Sys().Health()
 	if err != nil {

@@ -30,6 +30,8 @@ func (stim *Stim) Vault() *vault.Vault {
 			timeInDuration = time.Duration(0)
 		}
 
+		stim.log.Debug("Vault Address: ({})", stim.GetConfig("vault-address"))
+
 		// Create the Vault object and pass in the needed address
 		vault, err := vault.New(&vault.Config{
 			Address:              stim.GetConfig("vault-address"), // Default is 127.0.0.1

@@ -11,7 +11,7 @@ func (v *Vault) GetMounts(mountType string) ([]string, error) {
 
 	mounts, err := v.client.Sys().ListMounts()
 	if err != nil {
-		return nil, v.parseError(err)
+		return nil, v.parseError(err).(error)
 	}
 
 	var result []string
