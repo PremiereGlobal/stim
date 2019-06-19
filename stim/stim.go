@@ -85,7 +85,7 @@ func (stim *Stim) commandInit() {
 	if loadConfigErr == nil {
 		stim.log.Debug("Using config file: {}", stim.config.ConfigFileUsed())
 	} else {
-		stim.log.Warn("Issue loading config file use -verbose for more info")
+		stim.log.Warn("Issue loading config file use --verbose for more info")
 		stim.log.Debug(loadConfigErr)
 	}
 }
