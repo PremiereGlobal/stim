@@ -7,7 +7,8 @@ import (
 )
 
 func initRootCommand(viper *viper.Viper) *cobra.Command {
-
+	viper.SetEnvPrefix("stim")
+	viper.AutomaticEnv()
 	homeDir, err := homedir.Dir()
 	var cmd = &cobra.Command{
 		Use:     "stim",
@@ -28,6 +29,8 @@ func initRootCommand(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
 	cmd.PersistentFlags().StringP("auth-method", "", "", "Default authentication method (ex: ldap, github, etc.)")
 	viper.BindPFlag("auth.method", cmd.PersistentFlags().Lookup("auth-method"))
+	cmd.PersistentFlags().StringP("isautomated", "", "false", "Error on anything that needs to prompt and was not passed in as an ENV var or command flag")
+	viper.BindPFlag("isautomated", cmd.PersistentFlags().Lookup("isautomated"))
 
 	if homeDir == "" {
 		if err != nil {
