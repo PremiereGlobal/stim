@@ -123,7 +123,7 @@ func (stim *Stim) UpdateVaultUser(username string) error {
 
 // Used to disable user input prompts
 func (stim *Stim) IsAutomated() bool {
-	if strings.ToLower(stim.GetConfig("isautomated")) == "true" || os.Getenv("JENKINS_URL") != "" {
+	if strings.ToLower(stim.GetConfig("is-automated")) == "true" || os.Getenv("JENKINS_URL") != "" {
 		return true
 	}
 	return false

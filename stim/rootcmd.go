@@ -1,6 +1,8 @@
 package stim
 
 import (
+	"strings"
+
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -9,6 +11,7 @@ import (
 func initRootCommand(viper *viper.Viper) *cobra.Command {
 	viper.SetEnvPrefix("stim")
 	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	homeDir, err := homedir.Dir()
 	var cmd = &cobra.Command{
 		Use:     "stim",
@@ -29,8 +32,8 @@ func initRootCommand(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
 	cmd.PersistentFlags().StringP("auth-method", "", "", "Default authentication method (ex: ldap, github, etc.)")
 	viper.BindPFlag("auth.method", cmd.PersistentFlags().Lookup("auth-method"))
-	cmd.PersistentFlags().StringP("isautomated", "", "false", "Error on anything that needs to prompt and was not passed in as an ENV var or command flag")
-	viper.BindPFlag("isautomated", cmd.PersistentFlags().Lookup("isautomated"))
+	cmd.PersistentFlags().BoolP("is-automated", "", false, "Error on anything that needs to prompt and was not passed in as an ENV var or command flag")
+	viper.BindPFlag("is-automated", cmd.PersistentFlags().Lookup("is-automated"))
 
 	if homeDir == "" {
 		if err != nil {
