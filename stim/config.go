@@ -127,7 +127,7 @@ func (stim *Stim) loadConfigFile() error {
 	// Don't forget to read config either from CfgFile or from home directory!
 	configFile := stim.GetConfig("config-file")
 	_, err := os.Stat(configFile)
-	if err != nil && !os.IsExist(err) {
+	if err != nil && !os.IsExist(err) && !stim.IsAutomated() {
 		stim.log.Warn("No config file exits at :\"" + configFile + "\"")
 		//If they passed in a custom path we might want to exit here
 	}
