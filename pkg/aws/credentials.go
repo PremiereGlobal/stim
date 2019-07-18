@@ -11,7 +11,7 @@ import (
 
 // GetFederationToken takes in a name and returns a set of STS Credentials
 // based on the current session
-func (a *Aws) GetFederationToken(name string) *sts.Credentials {
+func (a *Aws) GetFederationToken(name string, duration time.Duration) *sts.Credentials {
 
 	// Start a new STS session
 	s := sts.New(a.session)
@@ -23,7 +23,8 @@ func (a *Aws) GetFederationToken(name string) *sts.Credentials {
 	stsUserPolicy := "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\"}]}"
 
 	// Get and the Federated credentials
-	output, err := s.GetFederationToken(&sts.GetFederationTokenInput{Name: &name, Policy: &stsUserPolicy})
+	durationSeconds := int64(duration.Seconds())
+	output, err := s.GetFederationToken(&sts.GetFederationTokenInput{Name: &name, Policy: &stsUserPolicy, DurationSeconds: &durationSeconds})
 	if err != nil {
 		a.log.Fatal("Error getting Federation Token: ", err)
 	}

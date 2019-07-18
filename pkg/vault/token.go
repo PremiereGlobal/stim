@@ -11,7 +11,7 @@ func (v *Vault) GetCurrentTokenTTL() (time.Duration, error) {
 	// Get the token info from Vault
 	secret, err := v.client.Auth().Token().LookupSelf()
 	if err != nil {
-		return 0, err
+		return 0, v.parseError(err).(error)
 	}
 
 	// Get our TTL from the Vault secret interface{}

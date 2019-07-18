@@ -3,6 +3,7 @@ package stim
 import (
 	"os"
 	"os/user"
+	"strings"
 	"sync"
 
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
@@ -81,11 +82,14 @@ func (stim *Stim) commandInit() {
 		stim.log.Debug("Stim version: {}", stim.version)
 		stim.log.Debug("Debug log level set")
 	}
+	if stim.IsAutomated() {
+		stim.log.Info("Running in automated way")
+	}
 
 	if loadConfigErr == nil {
 		stim.log.Debug("Using config file: {}", stim.config.ConfigFileUsed())
-	} else {
-		stim.log.Warn("Issue loading config file use -verbose for more info")
+	} else if !stim.IsAutomated() {
+		stim.log.Warn("Issue loading config file use --verbose for more info")
 		stim.log.Debug(loadConfigErr)
 	}
 }
@@ -117,11 +121,10 @@ func (stim *Stim) UpdateVaultUser(username string) error {
 	return nil
 }
 
-// IsAutomated simply guesses if a build is invoking this code
 // Used to disable user input prompts
 func (stim *Stim) IsAutomated() bool {
-	if os.Getenv("JENKINS_URL") == "" {
-		return false
+	if strings.ToLower(stim.GetConfig("is-automated")) == "true" || os.Getenv("JENKINS_URL") != "" {
+		return true
 	}
-	return true
+	return false
 }
