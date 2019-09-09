@@ -15,14 +15,12 @@ replace (
 
 require (
 	github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0
-	github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190905183812-dcd27a52234f
+	github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190908001744-dd472f3fd11e
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/distribution v2.6.0-rc.1.0.20180327202408-83389a148052+incompatible // indirect
 	github.com/docker/docker v0.0.0-00010101000000-000000000000
-	github.com/fatih/color v1.7.0
 	github.com/go-ini/ini v1.42.0
 	github.com/google/gofuzz v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect

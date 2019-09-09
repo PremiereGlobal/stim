@@ -5,12 +5,14 @@ import (
 	"fmt"
 )
 
-func (d *Deploy) makeSecretConfig(cluster *Cluster) (string, error) {
+// makeSecretConfig generates a secret config json string based on the instance configuration
+func (d *Deploy) makeSecretConfig(instance *Instance) (string, error) {
 
 	secretConfigString := ""
-	if len(cluster.EnvSpec.Secrets) > 0 {
 
-		b, err := json.Marshal(cluster.EnvSpec.Secrets)
+	if len(instance.EnvSpec.Secrets) > 0 {
+
+		b, err := json.Marshal(instance.EnvSpec.Secrets)
 		if err != nil {
 			fmt.Println("error:", err)
 		}

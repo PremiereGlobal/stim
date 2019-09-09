@@ -3,9 +3,9 @@ package deploy
 import (
 	"errors"
 	"fmt"
+
 	"github.com/PremiereGlobal/stim/stim"
-	// "github.com/davecgh/go-spew/spew"
-	"github.com/fatih/color"
+	// "github.com/fatih/color"
 )
 
 const (
@@ -27,60 +27,68 @@ func (d *Deploy) Name() string {
 	return d.name
 }
 
+// Run is the main entrypoint to the "deploy" command
 func (d *Deploy) Run() {
 
-	d.ParseConfig()
+	// Read in the config file and set up defaults
+	d.parseConfig()
 
-	environments := make([]string, 0, len(d.config.Environments))
-	environment := ""
+	// Determine the selected environment (via cli param) or prompt the user
+	selectedEnvironmentName := ""
 	environmentArg := d.stim.GetConfig("deploy.environment")
 	if environmentArg != "" {
-		if _, ok := d.config.Environments[environmentArg]; ok {
-			environment = environmentArg
+		if _, ok := d.config.environmentMap[environmentArg]; ok {
+			selectedEnvironmentName = environmentArg
 		} else {
 			d.stim.Fatal(errors.New(fmt.Sprintf("Provided environment value '%s' is not in config file", environmentArg)))
 		}
 	} else {
-		for e := range d.config.Environments {
-			environments = append(environments, e)
+		environmentList := make([]string, len(d.config.Environments))
+		for i, e := range d.config.Environments {
+			environmentList[i] = e.Name
 		}
-		environment, _ = d.stim.PromptList("Which environment?", environments, d.stim.GetConfig("deploy.environment"))
+		selectedEnvironmentName, _ = d.stim.PromptList("Which environment?", environmentList, d.stim.GetConfig("deploy.environment"))
 	}
+	selectedEnvironment := d.config.Environments[d.config.environmentMap[selectedEnvironmentName]]
 
-	clusters := make([]string, 0, len(d.config.Environments[environment].Clusters)+1)
-	cluster := ""
-	clusterArg := d.stim.GetConfig("deploy.cluster")
-	if clusterArg != "" {
-		if _, ok := d.config.Environments[environment].Clusters[clusterArg]; ok {
-			cluster = clusterArg
+	// Determine the selected instance (via cli param) or prompt the user
+	selectedInstanceName := ""
+	instanceArg := d.stim.GetConfig("deploy.instance")
+	if instanceArg != "" {
+		if _, ok := selectedEnvironment.instanceMap[instanceArg]; ok {
+			selectedInstanceName = instanceArg
 		} else {
-			d.stim.Fatal(errors.New(fmt.Sprintf("Provided cluster value '%s' is not in config file under environment '%s'", clusterArg, environment)))
+			d.stim.Fatal(errors.New(fmt.Sprintf("Provided instance value '%s' is not in config file under environment '%s'", instanceArg, selectedEnvironmentName)))
 		}
 	} else {
-		clusters := append(clusters, "--ALL--")
-		for c := range d.config.Environments[environment].Clusters {
-			clusters = append(clusters, c)
+		instanceList := make([]string, len(selectedEnvironment.Instances)+1)
+		instanceList[0] = ALL_OPTION_TEXT
+		for i, inst := range selectedEnvironment.Instances {
+			instanceList[i+1] = inst.Name
 		}
-		cluster, _ = d.stim.PromptList("Which cluster?", clusters, d.stim.GetConfig("deploy.cluster"))
+
+		selectedInstanceName, _ = d.stim.PromptList("Which instance?", instanceList, d.stim.GetConfig("deploy.instance"))
 	}
 
-	color.Set(color.FgGreen)
-	if cluster == ALL_OPTION_TEXT {
-		fmt.Println(fmt.Sprintf("Deploying to all clusters in environment: %s", environment))
-		for c := range d.config.Environments[environment].Clusters {
-			d.Deploy(environment, c)
+	// Run the deployment(s)
+	// color.Set(color.FgGreen)
+	if selectedInstanceName == ALL_OPTION_TEXT {
+		fmt.Println(fmt.Sprintf("Deploying to all clusters in environment: %s", selectedEnvironment.Name))
+		for _, inst := range selectedEnvironment.Instances {
+			d.Deploy(selectedEnvironment, inst)
 		}
 	} else {
-		d.Deploy(environment, d.config.Environments[environment].Clusters[cluster])
+		d.Deploy(selectedEnvironment, selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]])
 	}
 
 }
 
-func (d *Deploy) Deploy(environment string, cluster *Cluster) {
+// Run the deployment in the way that the user wants
+func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 
-	fmt.Println(fmt.Sprintf("Deploying to '%s' environment in cluster: %s", environment, cluster.Name))
+	fmt.Println(fmt.Sprintf("Deploying to '%s' environment in instance: %s", environment.Name, instance.Name))
 
 	// For now, only the kube-vault-deploy docker method is implemented but more could be added here...
-	d.startDeployContainer(cluster)
+	d.startDeployContainer(environment, instance)
 
 }

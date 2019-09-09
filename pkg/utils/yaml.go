@@ -4,7 +4,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func IsYaml(s []byte) bool {
+// IsYaml verifies that a byte string is value YAML syntax
+// On failure, returns an error with the reason
+func IsYaml(s []byte) (bool, error) {
 	var y map[string]interface{}
-	return yaml.Unmarshal(s, &y) == nil
+	err := yaml.Unmarshal(s, &y)
+	return err == nil, err
 }

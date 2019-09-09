@@ -2,7 +2,7 @@
 github.com/Microsoft/go-winio
 # github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0
 github.com/PagerDuty/go-pagerduty
-# github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190905183812-dcd27a52234f
+# github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190908001744-dd472f3fd11e
 github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs
 # github.com/alecthomas/gometalinter v2.0.11+incompatible
 github.com/alecthomas/gometalinter
@@ -50,8 +50,6 @@ github.com/client9/misspell/cmd/misspell
 github.com/client9/misspell
 # github.com/cornelk/hashmap v1.0.0
 github.com/cornelk/hashmap
-# github.com/davecgh/go-spew v1.1.1
-github.com/davecgh/go-spew/spew
 # github.com/dchest/siphash v1.1.0
 github.com/dchest/siphash
 # github.com/docker/distribution v2.6.0-rc.1.0.20180327202408-83389a148052+incompatible
