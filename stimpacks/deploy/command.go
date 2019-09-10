@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// BindStim creates the stim object within this stimpack
 func (d *Deploy) BindStim(s *stim.Stim) {
 	d.stim = s
 }

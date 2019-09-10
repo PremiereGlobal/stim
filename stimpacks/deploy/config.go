@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	DEFAULT_CONTAINER_REPO   = "premiereglobal/kube-vault-deploy"
-	DEFAULT_CONTAINER_TAG    = "0.3.1"
-	DEFAULT_DEPLOY_DIRECTORY = "./"
-	DEFAULT_DEPLOY_SCRIPT    = "deploy.sh"
-	DEFAULT_CONFIG_FILE      = "./stim.deploy.yaml"
+	defaultContainerRepo   = "premiereglobal/kube-vault-deploy"
+	defaultContainerTag    = "0.3.1"
+	defaultDeployDirectory = "./"
+	defaultDeployScript    = "deploy.sh"
+	defaultConfigFile      = "./stim.deploy.yaml"
 )
 
 // Config is the root structure for the deployment configuration
@@ -48,7 +48,7 @@ type Global struct {
 	Spec *Spec `yaml:"spec"`
 }
 
-// Spec
+// Spec contains the spec of a given environment/instance
 type Spec struct {
 	Kubernetes      Kubernetes        `yaml:"kubernetes"`
 	Secrets         []*v2e.SecretItem `yaml:"secrets"`
@@ -89,8 +89,8 @@ func (d *Deploy) parseConfig() {
 	configFile := d.stim.GetConfig("deploy.file")
 
 	if configFile == "" {
-		setConfigDefault(&configFile, DEFAULT_CONFIG_FILE)
-		d.log.Debug("Deployment file not specified, using {}", DEFAULT_CONFIG_FILE)
+		setConfigDefault(&configFile, defaultConfigFile)
+		d.log.Debug("Deployment file not specified, using {}", defaultConfigFile)
 	}
 
 	_, err := os.Stat(configFile)
@@ -122,10 +122,10 @@ func (d *Deploy) parseConfig() {
 func (d *Deploy) processConfig() {
 
 	// Set defaults
-	setConfigDefault(&d.config.Deployment.Container.Repo, DEFAULT_CONTAINER_REPO)
-	setConfigDefault(&d.config.Deployment.Container.Tag, DEFAULT_CONTAINER_TAG)
-	setConfigDefault(&d.config.Deployment.Directory, DEFAULT_DEPLOY_DIRECTORY)
-	setConfigDefault(&d.config.Deployment.Script, DEFAULT_DEPLOY_SCRIPT)
+	setConfigDefault(&d.config.Deployment.Container.Repo, defaultContainerRepo)
+	setConfigDefault(&d.config.Deployment.Container.Tag, defaultContainerTag)
+	setConfigDefault(&d.config.Deployment.Directory, defaultDeployDirectory)
+	setConfigDefault(&d.config.Deployment.Script, defaultDeployScript)
 
 	// Create our global spec if it doesn't exist so we don't have to keep checking if it exists
 	if d.config.Global.Spec == nil {
@@ -161,7 +161,7 @@ func (d *Deploy) processConfig() {
 			environment.instanceMap[instance.Name] = j
 
 			// Ensure the instance name does not conflict with the ALL option name.  This is a reserved name for designating a deployment to all instances in an environment via the manual prompt list
-			if strings.ToLower(instance.Name) == strings.ToLower(ALL_OPTION_PROMPT) || strings.ToLower(instance.Name) == strings.ToLower(ALL_OPTION_CLI) {
+			if strings.ToLower(instance.Name) == strings.ToLower(allOptionPrompt) || strings.ToLower(instance.Name) == strings.ToLower(allOptionCli) {
 				d.log.Fatal("Deployment config cannot have an instance named '{}'. It is a reserved name.", instance.Name)
 			}
 
@@ -254,7 +254,7 @@ func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, sti
 		reservedVarNames = append(reservedVarNames, s.Name)
 	}
 	for _, s := range stimSecrets {
-		for m, _ := range s.SecretMaps {
+		for m := range s.SecretMaps {
 			reservedVarNames = append(reservedVarNames, m)
 		}
 	}
@@ -266,7 +266,7 @@ func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, sti
 		}
 	}
 	for _, s := range instance.Spec.Secrets {
-		for m, _ := range s.SecretMaps {
+		for m := range s.SecretMaps {
 			if utils.Contains(reservedVarNames, m) {
 				d.log.Fatal("Reserved environment variable name '{}' found in config", m)
 			}

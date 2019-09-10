@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	ALL_OPTION_PROMPT = "--ALL--"
-	ALL_OPTION_CLI    = "all"
+	allOptionPrompt = "--ALL--"
+	allOptionCli    = "all"
 )
 
+// Deploy is the primary type for the stim deploy subcommand
 type Deploy struct {
 	name   string
 	stim   *stim.Stim
@@ -19,11 +20,13 @@ type Deploy struct {
 	log    log.StimLogger
 }
 
+// New creates a new 'Deploy' object
 func New() *Deploy {
 	deploy := &Deploy{}
 	return deploy
 }
 
+// Name is a required stim function that returns the name of the stimpack
 func (d *Deploy) Name() string {
 	return d.name
 }
@@ -57,8 +60,8 @@ func (d *Deploy) Run() {
 	// Determine the selected instance (via cli param) or prompt the user
 	selectedInstanceName := ""
 	instanceArg := d.stim.GetConfig("deploy.instance")
-	if strings.ToLower(instanceArg) == strings.ToLower(ALL_OPTION_CLI) {
-		selectedInstanceName = ALL_OPTION_CLI
+	if strings.ToLower(instanceArg) == strings.ToLower(allOptionCli) {
+		selectedInstanceName = allOptionCli
 	} else if instanceArg != "" {
 		if _, ok := selectedEnvironment.instanceMap[instanceArg]; ok {
 			selectedInstanceName = instanceArg
@@ -67,7 +70,7 @@ func (d *Deploy) Run() {
 		}
 	} else {
 		instanceList := make([]string, len(selectedEnvironment.Instances)+1)
-		instanceList[0] = ALL_OPTION_PROMPT
+		instanceList[0] = allOptionPrompt
 		for i, inst := range selectedEnvironment.Instances {
 			instanceList[i+1] = inst.Name
 		}
@@ -77,7 +80,7 @@ func (d *Deploy) Run() {
 
 	// Run the deployment(s)
 	// color.Set(color.FgGreen)
-	if selectedInstanceName == ALL_OPTION_PROMPT || selectedInstanceName == ALL_OPTION_CLI {
+	if selectedInstanceName == allOptionPrompt || selectedInstanceName == allOptionCli {
 		d.log.Info("Deploying to all clusters in environment: {}", selectedEnvironment.Name)
 		for _, inst := range selectedEnvironment.Instances {
 			d.Deploy(selectedEnvironment, inst)
@@ -88,7 +91,7 @@ func (d *Deploy) Run() {
 
 }
 
-// Run the deployment in the way that the user wants
+// Deploy runs the deployment in the way that the user wants
 func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 
 	d.log.Info("Deploying to '{}' environment in instance: {}", environment.Name, instance.Name)
