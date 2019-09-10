@@ -15,7 +15,7 @@ replace (
 
 require (
 	github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0
-	github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190908001744-dd472f3fd11e
+	github.com/PremiereGlobal/vault-to-envs v0.2.1
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0

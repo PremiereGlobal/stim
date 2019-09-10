@@ -18,6 +18,11 @@ docker run \
   premiereglobal/stim vault login
 ```
 
+## Common Subcommands
+`stim vault login` logs into Vault, prompting for required credentials
+
+`stim deploy` makes it easier to deploy with a simple config file.  See [docs/DEPLOY.md](docs/DEPLOY.md) for more details.
+
 ## Developing with Stim
 
 ### Project Structure

@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // makeSecretConfig generates a secret config json string based on the instance configuration
@@ -10,11 +9,11 @@ func (d *Deploy) makeSecretConfig(instance *Instance) (string, error) {
 
 	secretConfigString := ""
 
-	if len(instance.EnvSpec.Secrets) > 0 {
+	if len(instance.Spec.Secrets) > 0 {
 
-		b, err := json.Marshal(instance.EnvSpec.Secrets)
+		b, err := json.Marshal(instance.Spec.Secrets)
 		if err != nil {
-			fmt.Println("error:", err)
+			d.log.Fatal("Unable to create secret config: {}", err)
 		}
 
 		secretConfigString = string(b)

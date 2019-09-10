@@ -1,5 +1,9 @@
 # Stim Changelog
 
+## 0.0.7
+* Added the `stim deploy` subcommand.  See [docs/DEPLOY.md](docs/DEPLOY.md) for details.
+* Enabled `info` logging by default
+
 ## 0.0.6
 
 ### Features
