@@ -23,6 +23,9 @@ docker run \
 
 `stim deploy` makes it easier to deploy with a simple config file.  See [docs/DEPLOY.md](docs/DEPLOY.md) for more details.
 
+## Examples
+See the [examples directory](examples) for examples of certain subocommands.
+
 ## Developing with Stim
 
 ### Project Structure
