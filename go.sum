@@ -20,12 +20,6 @@ github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0 h1:okO94JirzbcMIAH5z1wtWySIXEA/Q48VzOB1fpN6Who=
 github.com/PagerDuty/go-pagerduty v0.0.0-20181104233218-fe8f9c4593d0/go.mod h1:6hH58nzwYc9mw+TPyM1anW0ivbI0ti4lYc+ZBaKmWts=
-github.com/PremiereGlobal/vault-to-envs v0.2.0 h1:oVCrNSGrp6POZszeARLlz5vXj6l2tjj7fA1beZxQ2ag=
-github.com/PremiereGlobal/vault-to-envs v0.2.0/go.mod h1:MmWZLZl09bbyXh+rtZsCvQG6Jamvrs/rr7N26fjhLHk=
-github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190905183812-dcd27a52234f h1:6/Kks9L3ha4+73YtZ6VsjUVBeL1oUrpyNZe6DI+M3y8=
-github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190905183812-dcd27a52234f/go.mod h1:MmWZLZl09bbyXh+rtZsCvQG6Jamvrs/rr7N26fjhLHk=
-github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190908001744-dd472f3fd11e h1:3XSMoA8Xx/TCmlrmyuW5sDXXrD2rlBh3+vkds7E3vnc=
-github.com/PremiereGlobal/vault-to-envs v0.2.1-0.20190908001744-dd472f3fd11e/go.mod h1:MmWZLZl09bbyXh+rtZsCvQG6Jamvrs/rr7N26fjhLHk=
 github.com/PremiereGlobal/vault-to-envs v0.2.1 h1:BAu5QiHwXy2SGBqbpq7fmE9f+eUy9n/IImUqEcxn/RU=
 github.com/PremiereGlobal/vault-to-envs v0.2.1/go.mod h1:MmWZLZl09bbyXh+rtZsCvQG6Jamvrs/rr7N26fjhLHk=
 github.com/SAP/go-hdb v0.14.1/go.mod h1:7fdQLVC2lER3urZLjZCm0AuMQfApof92n3aylBPEkMo=

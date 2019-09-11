@@ -175,27 +175,25 @@ func (d *Deploy) processConfig() {
 			if instance.Spec.Kubernetes.ServiceAccount == "" {
 				if environment.Spec.Kubernetes.ServiceAccount != "" {
 					instance.Spec.Kubernetes.ServiceAccount = environment.Spec.Kubernetes.ServiceAccount
-				} else {
+				} else if d.config.Global.Spec.Kubernetes.ServiceAccount != "" {
 					instance.Spec.Kubernetes.ServiceAccount = d.config.Global.Spec.Kubernetes.ServiceAccount
+				} else {
+					d.log.Fatal("Kubernetes service account is not set for instance '{}' in environment '{}'", instance.Name, environment.Name)
 				}
-
 			}
 			if instance.Spec.Kubernetes.Cluster == "" {
 				if environment.Spec.Kubernetes.Cluster != "" {
 					instance.Spec.Kubernetes.Cluster = environment.Spec.Kubernetes.Cluster
-				} else {
+				} else if d.config.Global.Spec.Kubernetes.Cluster != "" {
 					instance.Spec.Kubernetes.Cluster = d.config.Global.Spec.Kubernetes.Cluster
+				} else {
+					d.log.Fatal("Kubernetes cluster is not set for instance '{}' in environment '{}'", instance.Name, environment.Name)
 				}
 
 			}
 
 			instance.Spec.EnvironmentVars = mergeEnvVars(instance.Spec.EnvironmentVars, environment.Spec.EnvironmentVars, d.config.Global.Spec.EnvironmentVars)
 			instance.Spec.Secrets = mergeSecrets(instance.Spec.Secrets, environment.Spec.Secrets, d.config.Global.Spec.Secrets)
-
-			// Ensure a Kubernetes cluster is set
-			if instance.Spec.Kubernetes.Cluster == "" {
-				d.log.Fatal("Kubernetes cluster is not set for instance '{}' in environment '{}'", instance.Name, environment.Name)
-			}
 
 			// Get Vault details
 			vault := d.stim.Vault()
