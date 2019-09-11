@@ -2,6 +2,7 @@ package pagerduty
 
 import (
 	"errors"
+
 	pd "github.com/PremiereGlobal/stim/pkg/pagerduty"
 )
 
@@ -12,7 +13,7 @@ func (p *Pagerduty) SendEvent() {
 	pagerduty := p.stim.Pagerduty()
 
 	// Prompt for the service name (if not provided)
-	serviceName := p.stim.GetConfig("pagerduty-service")
+	serviceName := p.stim.ConfigGetString("pagerduty-service")
 	if serviceName == "" && p.stim.IsAutomated() {
 		p.stim.Fatal(errors.New("Pagerduty `service name` not specified"))
 	} else if serviceName == "" {
@@ -28,7 +29,7 @@ func (p *Pagerduty) SendEvent() {
 	}
 
 	// Prompt for the summary text (if not provided)
-	summary := p.stim.GetConfig("pagerduty-summary")
+	summary := p.stim.ConfigGetString("pagerduty-summary")
 	if summary == "" && p.stim.IsAutomated() {
 		p.stim.Fatal(errors.New("Pagerduty `summary` not specified"))
 	} else if summary == "" {
@@ -40,7 +41,7 @@ func (p *Pagerduty) SendEvent() {
 	}
 
 	// Prompt for the action (if not provided)
-	action := p.stim.GetConfig("pagerduty-action")
+	action := p.stim.ConfigGetString("pagerduty-action")
 	if action == "" && p.stim.IsAutomated() {
 		p.stim.Fatal(errors.New("Pagerduty `action` not specified"))
 	} else if action == "" {
@@ -52,7 +53,7 @@ func (p *Pagerduty) SendEvent() {
 	}
 
 	// Prompt for the severity (if not provided)
-	severity := p.stim.GetConfig("pagerduty-severity")
+	severity := p.stim.ConfigGetString("pagerduty-severity")
 	if severity == "" && p.stim.IsAutomated() {
 		p.stim.Fatal(errors.New("Pagerduty `severity` not specified"))
 	} else if severity == "" {

@@ -2,6 +2,7 @@ package slack
 
 import (
 	"errors"
+
 	slackpkg "github.com/PremiereGlobal/stim/pkg/slack"
 )
 
@@ -13,7 +14,7 @@ func (s *Slack) postMessage() {
 	slack := s.stim.Slack()
 
 	// Prompt for the channel name (if not provided)
-	channelName := s.stim.GetConfig("slack.channel")
+	channelName := s.stim.ConfigGetString("slack.channel")
 	if channelName == "" && s.stim.IsAutomated() {
 		s.stim.Fatal(errors.New("Slack channel not specified"))
 	} else if channelName == "" {
@@ -29,7 +30,7 @@ func (s *Slack) postMessage() {
 	}
 
 	// Prompt for the message (if not provided)
-	text := s.stim.GetConfig("slack.message")
+	text := s.stim.ConfigGetString("slack.message")
 	if text == "" && s.stim.IsAutomated() {
 		s.stim.Fatal(errors.New("Slack message not specified"))
 	} else if text == "" {
@@ -37,13 +38,13 @@ func (s *Slack) postMessage() {
 		s.stim.Fatal(err)
 	}
 
-	username := s.stim.GetConfig("slack.username")
+	username := s.stim.ConfigGetString("slack.username")
 	if username == "" && !s.stim.IsAutomated() {
 		username, err = s.stim.PromptString("Display Name", DEFAULT_MESSAGE_USERNAME)
 		s.stim.Fatal(err)
 	}
 
-	iconUrl := s.stim.GetConfig("slack.icon-url")
+	iconUrl := s.stim.ConfigGetString("slack.icon-url")
 	if iconUrl == "" && !s.stim.IsAutomated() {
 		iconUrl, err = s.stim.PromptString("Icon URL", DEFAULT_MESSAGE_ICON_URL)
 		s.stim.Fatal(err)

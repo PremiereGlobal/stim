@@ -14,7 +14,7 @@ func (stim *Stim) Vault() *vault.Vault {
 
 		stim.log.Debug("Stim-Vault: Creating")
 
-		username := stim.GetConfig("vault-username")
+		username := stim.ConfigGetString("vault-username")
 		if username == "" {
 			var err error
 			username, err = stim.User()
@@ -26,7 +26,7 @@ func (stim *Stim) Vault() *vault.Vault {
 		// Note with ParseDuration: If you value is 28800 you will need to add an "s" at the end
 		var timeInDuration time.Duration
 		var err error
-		vtd := stim.GetConfig("vault-initial-token-duration")
+		vtd := stim.ConfigGetString("vault-initial-token-duration")
 		if vtd != "" {
 			timeInDuration, err = time.ParseDuration(vtd)
 			if err != nil {
@@ -35,14 +35,14 @@ func (stim *Stim) Vault() *vault.Vault {
 			}
 		}
 
-		va := stim.GetConfig("vault-address")
+		va := stim.ConfigGetString("vault-address")
 		stim.log.Debug("Vault Address: ({})", va)
 
 		// Create the Vault object and pass in the needed address
 		vault, err := vault.New(&vault.Config{
 			Address:              va, // Default is 127.0.0.1
-			Noprompt:             stim.GetConfigBool("noprompt") == false && stim.IsAutomated(),
-			AuthPath:             stim.GetConfig("auth.method"),
+			Noprompt:             stim.ConfigGetBool("noprompt") == false && stim.IsAutomated(),
+			AuthPath:             stim.ConfigGetString("auth.method"),
 			Username:             username, // If set in the configs, pass in user
 			InitialTokenDuration: timeInDuration,
 			Log:                  stim.log,

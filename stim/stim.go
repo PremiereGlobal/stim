@@ -3,48 +3,48 @@ package stim
 import (
 	"os"
 	"os/user"
-	"strings"
-	"sync"
+	"path/filepath"
 
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/pkg/vault"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+var defaultStimConfigFilePath string
+var version string
+
+func init() {
+	home, err := homedir.Dir()
+	if err != nil {
+		defaultStimConfigFilePath = filepath.Join(os.TempDir(), ".stim", "config.yaml")
+	} else {
+		defaultStimConfigFilePath = filepath.Join(home, ".stim", "config.yaml")
+	}
+	// Set version for local testing if not set by build system
+	lv := "local"
+	if version == "" {
+		version = lv
+	}
+}
 
 type Stim struct {
 	config    *viper.Viper
 	rootCmd   *cobra.Command
 	log       stimlog.StimLogger
 	stimpacks []*Stimpack
-	version   string
 	vault     *vault.Vault
 }
-
-var version string
-var stim *Stim
 
 //New gets the Stim struct, which is treated like a singleton so you will get the same one
 //as everywhere when this is called
 func New() *Stim {
-	if stim == nil {
-		mu := sync.Mutex{}
-		mu.Lock()
-		if stim == nil {
-			// Set version for local testing if not set by build system
-			lv := "local"
-			if version != "" {
-				lv = version
-			}
-			log := stimlog.GetLogger()
-			log.ForceFlush(true)
-			config := viper.New()
-			root := initRootCommand(config)
-			stim = &Stim{log: log, config: config, rootCmd: root, version: lv}
-		}
-		mu.Unlock()
-	}
-	return stim
+	log := stimlog.GetLogger()
+	log.ForceFlush(true)
+	config := viper.New()
+	root := initRootCommand(config)
+	return &Stim{log: log, config: config, rootCmd: root}
 }
 
 //GetLogger for Stim
@@ -60,15 +60,17 @@ func (stim *Stim) Execute() {
 
 func (stim *Stim) commandInit() {
 	// Load a config file (if present)
-	loadConfigErr := stim.loadConfigFile()
-	if !stim.GetConfigBool("disableLogFile") {
-		lfp := stim.GetConfig("logFilePath")
+	loadConfigErr := stim.configLoadConfigFile()
+	stim.configInitDefaultValues()
+
+	if !stim.ConfigGetBool("logging.file.disable") {
+		lfp := stim.ConfigGetString("logging.file.path")
 		if lfp == "" {
-			sh, err := stim.GetStimPath()
+			sh, err := stim.ConfigGetStimConfigDir()
 			if err != nil {
-				stim.log.Warn("Could not find")
+				stim.log.Warn("Could not find stim config dir path, not creating log file")
 			} else {
-				lfp = sh + "stim.log"
+				lfp = filepath.Join(sh, "stim.log")
 			}
 		}
 		if lfp != "" {
@@ -76,10 +78,10 @@ func (stim *Stim) commandInit() {
 		}
 	}
 	// Set log level, this is done as early as possible so we can start using it
-	if stim.GetConfigBool("verbose") == true {
+	if stim.ConfigGetBool("verbose") == true {
 		// stim.log.SetLevel(logrus.DebugLevel)
 		stim.log.SetLevel(stimlog.DebugLevel)
-		stim.log.Debug("Stim version: {}", stim.version)
+		stim.log.Debug("Stim version: {}", version)
 		stim.log.Debug("Debug log level set")
 	}
 	if stim.IsAutomated() {
@@ -110,9 +112,9 @@ func (stim *Stim) User() (string, error) {
 // UpdateVaultUser updates the user's stim config file with given username
 // This username will be the default option when authenticating against Vault
 func (stim *Stim) UpdateVaultUser(username string) error {
-	if username != stim.GetConfig("vault-username") {
-		stim.Set("vault-username", username)
-		err := stim.UpdateConfigFileKey("vault-username", username)
+	if username != stim.ConfigGetString("vault-username") {
+		stim.ConfigSetString("vault-username", username)
+		err := stim.ConfigSetRaw("vault-username", username)
 		if err != nil {
 			return err
 		}
@@ -123,7 +125,7 @@ func (stim *Stim) UpdateVaultUser(username string) error {
 
 // Used to disable user input prompts
 func (stim *Stim) IsAutomated() bool {
-	if strings.ToLower(stim.GetConfig("is-automated")) == "true" || os.Getenv("JENKINS_URL") != "" {
+	if stim.ConfigGetBool("is-automated") || os.Getenv("JENKINS_URL") != "" {
 		return true
 	}
 	return false

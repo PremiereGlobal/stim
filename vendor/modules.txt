@@ -223,6 +223,8 @@ gopkg.in/alecthomas/kingpin.v3-unstable
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20190905181640-827449938966
+gopkg.in/yaml.v3
 # k8s.io/apimachinery v0.0.0-20190409092423-760d1845f48b => k8s.io/apimachinery v0.0.0-20190221213512-86fb29eff628
 k8s.io/apimachinery/pkg/runtime
 k8s.io/apimachinery/pkg/runtime/schema
