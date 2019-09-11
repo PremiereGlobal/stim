@@ -16,13 +16,13 @@ To use this functionality, the [Docker](https://docs.docker.com/install/) daemon
 | Argument | Description |
 | - | - |
 | `-f, --deploy-file` | Location of the deployment config file to use.  Defaults to `./stim.deploy.yaml` |
-| `-e, --environment` | Environment to deploy. If no value is provided, user will be prompted. |
-| `-i, --instance` | Instance to deploy to. Special value of "all" can be specified to deploy to all environments. If no value is provided, user will be prompted. |
+| `-e, --environment` | Environment to deploy. If no value is provided, the user will be prompted. |
+| `-i, --instance` | Instance to deploy to. The special value of "all" can be specified to deploy to all environments. If no value is provided, the user will be prompted. |
 
 ## Configuration
 `stim deploy` is configured with a YAML file (`./stim.deploy.yaml` by default) that provides an inventory of the deployment environments as well as the configuration of those environments.
 
-A basic config which is configured with one instance in one enviroment might look like:
+A basic config which is configured with one instance in one environment might look like:
 ```
 environments:
   - name: stage
@@ -37,7 +37,7 @@ environments:
               value: myapp
 ```
 
-The `spec` section is a special section that can be build in a hierarchical fashion.  There are three levels which it can be set:
+The `spec` section is a special section that can be built hierarchically.  There are three levels which can be set:
 
 1. [Global](#global) level.  This will apply to all environments and instances.
 2. [Environment](#environment) level.  This will apply to all instances within an environment.  This will override any conflicting global-level specs.
@@ -149,7 +149,7 @@ The *EnvVar* type represents a shell environment variable consisting of a name a
 
 ### SecretSpec
 
-The *SecretSpec* type represents a definition of a Vault secret to be pulled into an environment variable. See [vault-to-envs](https://github.com/PremiereGlobal/vault-to-envs) for more details.  Reserved names shown in the [Reserved Environment Variables](#reserved-environment-variables) section are reserved and cannot be used here.
+The *SecretSpec* type represents a definition of a Vault secret being pulled into an environment variable. See [vault-to-envs](https://github.com/PremiereGlobal/vault-to-envs) for more details.  Reserved names shown in the [Reserved Environment Variables](#reserved-environment-variables) section are reserved and cannot be used here.
 
 | Field | Description | Type | Required | Default |
 | ----- | ----------- | ------ | -------- | -------- |
