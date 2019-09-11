@@ -1,5 +1,5 @@
 global:
-  # Global spec (applies to all enviroments)
+  # Global spec (applies to all environments)
   spec:
     # All deployments will be deployed to the same Kubernetes cluster with the same service account
     kubernetes:
@@ -19,7 +19,7 @@ environments:
               set:
                 ADMIN_PASS: adminpass
           # Here we set up our stage environment variables
-          # We're deploying a newer verison of grafana here for testing
+          # We're deploying a newer version of Grafana here for testing
           env:
             - name: NAMESPACE
               value: grafana-stage
