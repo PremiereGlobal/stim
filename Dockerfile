@@ -1,4 +1,4 @@
-FROM golang:1.11-alpine as builder
+FROM golang:1.12.5-alpine as builder
 
 ARG VERSION=default
 ARG GOOS=linux
@@ -6,7 +6,7 @@ ARG GOOS=linux
 WORKDIR /go/src/github.com/PremiereGlobal/stim/
 COPY ./ .
 
-RUN CGO_ENABLED=0 GOOS=${GOOS} go build -ldflags "-X github.com/PremiereGlobal/stim/stim.version=${VERSION}" -v -a -o bin/stim .
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=${GOOS} go build -mod=vendor -ldflags "-X github.com/PremiereGlobal/stim/stim.version=${VERSION}" -v -a -o bin/stim .
 
 # Stage 2
 
