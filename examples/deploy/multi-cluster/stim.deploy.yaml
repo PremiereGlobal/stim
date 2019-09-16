@@ -5,7 +5,7 @@ deployment:
 
 global:
 
-  # Global spec (applies to all enviroments)
+  # Global spec (applies to all environments)
   spec:
 
     # All deployments will be deployed with the same chart version
