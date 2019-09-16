@@ -58,29 +58,20 @@ func (d *Deploy) Run() {
 	selectedEnvironment := d.config.Environments[d.config.environmentMap[selectedEnvironmentName]]
 
 	// Determine the selected instance (via cli param) or prompt the user
-	selectedInstanceName := ""
-	instanceArg := d.stim.GetConfig("deploy.instance")
-	if strings.ToLower(instanceArg) == strings.ToLower(allOptionCli) {
+	instanceList := make([]string, len(selectedEnvironment.Instances)+1)
+	instanceList[0] = allOptionPrompt
+	for i, inst := range selectedEnvironment.Instances {
+		instanceList[i+1] = inst.Name
+	}
+	selectedInstanceName, _ := d.stim.PromptList("Which instance?", instanceList, d.stim.GetConfig("deploy.instance"))
+	if strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionPrompt) || strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionCli) {
 		selectedInstanceName = allOptionCli
-	} else if instanceArg != "" {
-		if _, ok := selectedEnvironment.instanceMap[instanceArg]; ok {
-			selectedInstanceName = instanceArg
-		} else {
-			d.log.Fatal("Provided instance value '{}' is not in config file under environment '{}'", instanceArg, selectedEnvironmentName)
-		}
-	} else {
-		instanceList := make([]string, len(selectedEnvironment.Instances)+1)
-		instanceList[0] = allOptionPrompt
-		for i, inst := range selectedEnvironment.Instances {
-			instanceList[i+1] = inst.Name
-		}
-
-		selectedInstanceName, _ = d.stim.PromptList("Which instance?", instanceList, d.stim.GetConfig("deploy.instance"))
+	} else if _, ok := selectedEnvironment.instanceMap[selectedInstanceName]; !ok {
+		d.log.Fatal("Provided instance value '{}' is not in config file under environment '{}'", selectedInstanceName, selectedEnvironmentName)
 	}
 
 	// Run the deployment(s)
-	// color.Set(color.FgGreen)
-	if selectedInstanceName == allOptionPrompt || selectedInstanceName == allOptionCli {
+	if selectedInstanceName == allOptionCli {
 		d.log.Info("Deploying to all clusters in environment: {}", selectedEnvironment.Name)
 		for _, inst := range selectedEnvironment.Instances {
 			d.Deploy(selectedEnvironment, inst)
@@ -97,6 +88,6 @@ func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 	d.log.Info("Deploying to '{}' environment in instance: {}", environment.Name, instance.Name)
 
 	// For now, only the kube-vault-deploy docker method is implemented but more could be added here...
-	d.startDeployContainer(environment, instance)
+	d.startDeployContainer(instance)
 
 }

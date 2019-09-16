@@ -12,7 +12,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-func (d *Deploy) startDeployContainer(environment *Environment, instance *Instance) {
+func (d *Deploy) startDeployContainer(instance *Instance) {
 
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())

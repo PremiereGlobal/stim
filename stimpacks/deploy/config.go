@@ -139,12 +139,13 @@ func (d *Deploy) processConfig() {
 		if _, ok := d.config.environmentMap[environment.Name]; ok {
 			d.log.Fatal("Error parsing config, duplicate environment name `{}` found", environment.Name)
 		}
-		d.config.environmentMap[environment.Name] = i
 
 		// Ensure there are instances for this environment
 		if len(environment.Instances) <= 0 {
 			d.log.Fatal("No instances found for environment: `{}`", environment.Name)
 		}
+
+		d.config.environmentMap[environment.Name] = i
 
 		// Create our environment spec if it doesn't exist so we don't have to keep checking if it exists
 		if environment.Spec == nil {
@@ -158,12 +159,13 @@ func (d *Deploy) processConfig() {
 			if _, ok := environment.instanceMap[instance.Name]; ok {
 				d.log.Fatal("Error parsing config, duplicate instance name '{}' for environment '{}'", instance.Name, environment.Name)
 			}
-			environment.instanceMap[instance.Name] = j
 
 			// Ensure the instance name does not conflict with the ALL option name.  This is a reserved name for designating a deployment to all instances in an environment via the manual prompt list
 			if strings.ToLower(instance.Name) == strings.ToLower(allOptionPrompt) || strings.ToLower(instance.Name) == strings.ToLower(allOptionCli) {
 				d.log.Fatal("Deployment config cannot have an instance named '{}'. It is a reserved name.", instance.Name)
 			}
+
+			environment.instanceMap[instance.Name] = j
 
 			// Create our instance spec if it doesn't exist so we don't have to keep checking if it exists
 			if instance.Spec == nil {
@@ -220,18 +222,14 @@ func (d *Deploy) processConfig() {
 
 			// Generate the Kube config secret
 			var stimSecrets []*v2e.SecretItem
-			if instance.Spec.Kubernetes.ServiceAccount != "" {
-				secretMap := make(map[string]string)
-				secretMap["CLUSTER_SERVER"] = "cluster-server"
-				secretMap["CLUSTER_CA"] = "cluster-ca"
-				secretMap["USER_TOKEN"] = "user-token"
-				stimSecrets = append(stimSecrets, &v2e.SecretItem{
-					SecretPath: fmt.Sprintf("secret/kubernetes/%s/%s/kube-config", instance.Spec.Kubernetes.Cluster, instance.Spec.Kubernetes.ServiceAccount),
-					SecretMaps: secretMap,
-				})
-			} else {
-				d.log.Fatal("Kubernetes service account required but not provided")
-			}
+			secretMap := make(map[string]string)
+			secretMap["CLUSTER_SERVER"] = "cluster-server"
+			secretMap["CLUSTER_CA"] = "cluster-ca"
+			secretMap["USER_TOKEN"] = "user-token"
+			stimSecrets = append(stimSecrets, &v2e.SecretItem{
+				SecretPath: fmt.Sprintf("secret/kubernetes/%s/%s/kube-config", instance.Spec.Kubernetes.Cluster, instance.Spec.Kubernetes.ServiceAccount),
+				SecretMaps: secretMap,
+			})
 
 			// Add stim envs/secrets and ensure no reserved env vars have been set
 			d.finalizeEnv(instance, stimEnvs, stimSecrets)
