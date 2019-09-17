@@ -1,0 +1,46 @@
+global:
+  # Global spec (applies to all environments)
+  spec:
+    # All deployments will be deployed to the same Kubernetes cluster with the same service account
+    kubernetes:
+      cluster: blue.my-domain.com
+      serviceAccount: sre
+
+# List of environment definitions
+environments:
+  - name: stage
+    instances:
+      - name: stage1
+        spec:
+          secrets:
+            # Here we get the admin password for Grafana which we'll inject into our
+            # deployment.  This will be different from the production password.
+            - secretPath: "secret/grafana/stage"
+              set:
+                ADMIN_PASS: adminpass
+          # Here we set up our stage environment variables
+          # We're deploying a newer version of Grafana here for testing
+          env:
+            - name: NAMESPACE
+              value: grafana-stage
+            - name: HELM_CHART_VERSION
+              value: 3.8.5
+            - name: HELM_DEPLOYMENT_NAME
+              value: grafana-stage
+
+  - name: production
+    instances:
+      - name: prod1
+        spec:
+          # Production admin password
+          secrets:
+            - secretPath: "secret/grafana/prod"
+              set:
+                ADMIN_PASS: adminpass
+          env:
+            - name: NAMESPACE
+              value: grafana-prod
+            - name: HELM_CHART_VERSION
+              value: 3.8.0
+            - name: HELM_DEPLOYMENT_NAME
+              value: grafana-prod

@@ -82,6 +82,9 @@ func (stim *Stim) commandInit() {
 		stim.logConfig.SetLevel(stimlog.DebugLevel)
 		stim.log.Debug("Stim version: {}", stim.version)
 		stim.log.Debug("Debug log level set")
+	} else {
+		// Set the default log level
+		stim.logConfig.SetLevel(stimlog.InfoLevel)
 	}
 	if stim.IsAutomated() {
 		stim.log.Info("Running in automated way")
