@@ -7,7 +7,7 @@ ENV GO111MODULE=on
 WORKDIR /go/src/github.com/PremiereGlobal/stim/
 COPY ./ .
 
-RUN CGO_ENABLED=0 GOOS=${GOOS} go build -mod vendor -ldflags "-X github.com/PremiereGlobal/stim/stim.version=${VERSION}" -v -o bin/stim .
+RUN CGO_ENABLED=0 GOOS=${GOOS} go build -mod vendor -ldflags "-X github.com/PremiereGlobal/stim/stim.version=${VERSION}" -v -a -o bin/stim .
 
 # Stage 2
 

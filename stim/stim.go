@@ -16,6 +16,7 @@ type Stim struct {
 	config    *viper.Viper
 	rootCmd   *cobra.Command
 	log       stimlog.StimLogger
+	logConfig stimlog.StimLoggerConfig
 	stimpacks []*Stimpack
 	version   string
 	vault     *vault.Vault
@@ -37,10 +38,10 @@ func New() *Stim {
 				lv = version
 			}
 			log := stimlog.GetLogger()
-			log.ForceFlush(true)
+			logc := stimlog.GetLoggerConfig()
 			config := viper.New()
 			root := initRootCommand(config)
-			stim = &Stim{log: log, config: config, rootCmd: root, version: lv}
+			stim = &Stim{log: log, logConfig: logc, config: config, rootCmd: root, version: lv}
 		}
 		mu.Unlock()
 	}
@@ -72,18 +73,18 @@ func (stim *Stim) commandInit() {
 			}
 		}
 		if lfp != "" {
-			stim.log.AddLogFile(lfp, stimlog.DebugLevel)
+			stim.logConfig.AddLogFile(lfp, stimlog.DebugLevel)
 		}
 	}
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.GetConfigBool("verbose") == true {
 		// stim.log.SetLevel(logrus.DebugLevel)
-		stim.log.SetLevel(stimlog.DebugLevel)
+		stim.logConfig.SetLevel(stimlog.DebugLevel)
 		stim.log.Debug("Stim version: {}", stim.version)
 		stim.log.Debug("Debug log level set")
 	} else {
 		// Set the default log level
-		stim.log.SetLevel(stimlog.InfoLevel)
+		stim.logConfig.SetLevel(stimlog.InfoLevel)
 	}
 	if stim.IsAutomated() {
 		stim.log.Info("Running in automated way")
