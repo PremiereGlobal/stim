@@ -1,0 +1,87 @@
+# We're specifying a custom deploy directory and script
+deployment:
+  directory: deploy/
+  script: helm.sh
+
+global:
+
+  # Global spec (applies to all environments)
+  spec:
+
+    # All deployments will be deployed with the same chart version
+  - name: HELM_CHART_VERSION
+    value: 3.8.5
+
+# List of environment definitions
+environments:
+  - name: stage
+    spec:
+      # All stage environments will use the same namespace and deployment name
+      env:
+        - name: NAMESPACE
+          value: grafana-stage
+        - name: HELM_DEPLOYMENT_NAME
+          value: grafana-stage
+    instances:
+      - name: stage1
+        spec:
+          kubernetes:
+            cluster: devcluster.my-domain.com
+            serviceAccount: sre
+          secrets:
+            # Here we get the admin password for Grafana which we'll inject into our
+            # deployment.  This will be different from the production password.
+            - secretPath: "secret/grafana/stage"
+              set:
+                ADMIN_PASS: adminpass
+            # Get dynamic DB password from vault for our database (valid for 7 days)
+            - secretPath: "db-grafana-dev/creds/grafana"
+              ttl: 604800
+              set:
+                - GF_DATABASE_USER": username
+                - GF_DATABASE_PASSWORD": password
+
+  - name: production
+    # All stage environments will use the same namespace and deployment name
+    env:
+      - name: NAMESPACE
+        value: grafana-prod
+      - name: HELM_DEPLOYMENT_NAME
+        value: grafana-prod
+    instances:
+      # Configuration for our us-west-1 instance
+      - name: us-west-1
+        spec:
+          # Kubernetes cluster/service account to use for this instance
+          kubernetes:
+            cluster: us-west-1.my-domain.com
+            serviceAccount: sre
+          # Production admin password
+          secrets:
+            - secretPath: "secret/grafana/prod"
+              set:
+                ADMIN_PASS: adminpass
+          # Get dynamic DB password from vault for our database (valid for 7 days)
+          - secretPath: "db-grafana-prod/creds/grafana"
+            ttl: 604800
+            set:
+              - GF_DATABASE_USER": username
+              - GF_DATABASE_PASSWORD": password
+      # Configuration for our us-west-2 instance
+      - name: us-west-2
+        spec:
+          # Kubernetes cluster/service account to use for this instance
+          kubernetes:
+            cluster: us-west-2.my-domain.com
+            serviceAccount: sre
+          # Production admin password
+          secrets:
+            - secretPath: "secret/grafana/prod"
+              set:
+                ADMIN_PASS: adminpass
+          # Get dynamic DB password from vault for our database (valid for 7 days)
+          - secretPath: "db-grafana-prod/creds/grafana"
+            ttl: 7d
+            set:
+              - GF_DATABASE_USER": username
+              - GF_DATABASE_PASSWORD": password

@@ -24,11 +24,18 @@ type StimLogger interface {
 	Info(...interface{})
 	Warn(...interface{})
 	Fatal(...interface{})
+	GetLogLevel() Level
+}
+type StimLoggerConfig interface {
 	SetLogger(Logger)
 	SetLevel(Level)
 	SetDateFormat(string)
 	AddLogFile(string, Level) error
+	RemoveLogFile(string)
 	ForceFlush(bool)
+	Flush()
+	EnableLevelLogging(bool)
+	EnableTimeLogging(bool)
 }
 
 // Level is the Level of logging set in stim
@@ -58,17 +65,22 @@ type logMessage struct {
 	msg      string
 }
 
-type stimLogger struct {
+type FullStimLogger struct {
 	setLogger    Logger
 	currentLevel Level
 	highestLevel Level
 	dateFMT      string
 	logfiles     hashmap.HashMap
-	logQueue     chan *logMessage
+	logQueue     []*logMessage
 	forceFlush   bool
+	logLevel     bool
+	logTime      bool
+	wqc          *sync.Cond
 }
 
-var logger *stimLogger
+var logger *FullStimLogger
+
+var prefixLogger map[string]StimLogger
 
 const traceMsg = "[ TRACE ]"
 const debugMsg = "[ DEBUG ]"
@@ -79,29 +91,94 @@ const verboseMsg = "[VERBOSE]"
 const dateFMT = "2006-01-02 15:04:05.9999999"
 const subSTR = "{}"
 
+var stimLoggerCreateLock sync.Mutex = sync.Mutex{}
+
+func resetLogger() {
+	logger = nil
+}
+
+func GetLoggerConfig() StimLoggerConfig {
+	GetLogger()
+	return logger
+}
+
 //GetLogger gets a logger for logging in stim.
 func GetLogger() StimLogger {
 	if logger == nil {
-		mu := sync.Mutex{}
-		mu.Lock()
+		stimLoggerCreateLock.Lock()
+		defer stimLoggerCreateLock.Unlock()
 		if logger == nil {
-			logger = &stimLogger{
-				currentLevel: WarnLevel,
-				highestLevel: WarnLevel,
+			logger = &FullStimLogger{
+				currentLevel: InfoLevel,
+				highestLevel: InfoLevel,
 				dateFMT:      dateFMT,
-				logQueue:     make(chan *logMessage, 20),
+				logQueue:     make([]*logMessage, 0),
 				logfiles:     hashmap.HashMap{},
+				forceFlush:   true,
+				logLevel:     true,
+				logTime:      true,
+				// wql:          l,
+				wqc: sync.NewCond(&sync.Mutex{}),
 			}
 			//We set logurs to debug since we are handling the filtering
 			logger.AddLogFile("STDOUT", defaultLevel)
 			go logger.writeLogQueue()
-			mu.Unlock()
 		}
 	}
 	return logger
 }
 
-func (stimLogger *stimLogger) AddLogFile(file string, logLevel Level) error {
+//GetLogger gets a logger for logging in stim.
+func GetLoggerWithPrefix(prefix string) StimLogger {
+	if prefix == "" {
+		return GetLogger()
+	}
+	if prefixLogger == nil {
+		stimLoggerCreateLock.Lock()
+		if prefixLogger == nil {
+			prefixLogger = make(map[string]StimLogger)
+		}
+		stimLoggerCreateLock.Unlock()
+	}
+	stimLoggerCreateLock.Lock()
+	defer stimLoggerCreateLock.Unlock()
+	if sl, ok := prefixLogger[prefix]; ok {
+		return sl
+	}
+	prefixLogger[prefix] = &StimPrefixLogger{stimLogger: GetLogger(), prefix: prefix}
+	return prefixLogger[prefix]
+}
+
+func (stimLogger *FullStimLogger) GetLogLevel() Level {
+	return stimLogger.highestLevel
+}
+
+func (stimLogger *FullStimLogger) EnableLevelLogging(b bool) {
+	stimLogger.logLevel = b
+}
+
+func (stimLogger *FullStimLogger) EnableTimeLogging(b bool) {
+	stimLogger.logTime = b
+}
+
+func (stimLogger *FullStimLogger) RemoveLogFile(file string) {
+	_, ok := stimLogger.logfiles.Get(file)
+	if ok {
+		highestLL := defaultLevel
+		stimLogger.logfiles.Del(file)
+		for kv := range stimLogger.logfiles.Iter() {
+			lgr := kv.Value.(*logFile)
+			if lgr.logLevel > highestLL {
+				highestLL = lgr.logLevel
+			}
+		}
+		if highestLL > defaultLevel {
+			stimLogger.highestLevel = highestLL
+		}
+	}
+}
+
+func (stimLogger *FullStimLogger) AddLogFile(file string, logLevel Level) error {
 	var fp *os.File
 	var err error
 	if file == "STDOUT" {
@@ -126,14 +203,24 @@ func (stimLogger *stimLogger) AddLogFile(file string, logLevel Level) error {
 	return nil
 }
 
-func (stimLogger *stimLogger) writeLogQueue() {
+func (stimLogger *FullStimLogger) writeLogQueue() {
+	stimLogger.wqc.L.Lock()
+	defer stimLogger.wqc.L.Unlock()
 	for {
-		logmsg := <-stimLogger.logQueue
-		stimLogger.writeLogs(logmsg)
+		if len(stimLogger.logQueue) > 0 {
+			for len(stimLogger.logQueue) > 0 {
+				wl := stimLogger.logQueue[0]
+				stimLogger.writeLogs(wl)
+				stimLogger.logQueue = stimLogger.logQueue[1:]
+			}
+		} else {
+			stimLogger.wqc.Wait()
+		}
+
 	}
 }
 
-func (stimLogger *stimLogger) writeLogs(lm *logMessage) {
+func (stimLogger *FullStimLogger) writeLogs(lm *logMessage) {
 	for kv := range stimLogger.logfiles.Iter() {
 		lgr := kv.Value.(*logFile)
 		if lgr.logLevel >= lm.logLevel || (lgr.logLevel == defaultLevel && stimLogger.currentLevel >= lm.logLevel) {
@@ -145,11 +232,14 @@ func (stimLogger *stimLogger) writeLogs(lm *logMessage) {
 	}
 }
 
-func (stimLogger *stimLogger) formatAndLog(ll Level, level string, args ...interface{}) {
-	stimLogger.logQueue <- stimLogger.formatString(ll, level, args...)
+func (stimLogger *FullStimLogger) formatAndLog(ll Level, level string, args ...interface{}) {
+	stimLogger.wqc.L.Lock()
+	defer stimLogger.wqc.L.Unlock()
+	stimLogger.logQueue = append(stimLogger.logQueue, stimLogger.formatString(ll, level, args...))
+	stimLogger.wqc.Broadcast()
 }
 
-func (stimLogger *stimLogger) formatString(ll Level, level string, args ...interface{}) *logMessage {
+func (stimLogger *FullStimLogger) formatString(ll Level, level string, args ...interface{}) *logMessage {
 	var msg string
 	switch args[0].(type) {
 	case string:
@@ -159,13 +249,16 @@ func (stimLogger *stimLogger) formatString(ll Level, level string, args ...inter
 	}
 	subs := strings.Split(msg, subSTR)
 	var sb strings.Builder
-	sb.WriteString(time.Now().Format(dateFMT))
-	sb.WriteString("\t")
-	sb.WriteString(level)
-	sb.WriteString("\t")
+	if stimLogger.logTime {
+		sb.WriteString(time.Now().Format(dateFMT))
+		sb.WriteString("\t")
+	}
+	if stimLogger.logLevel {
+		sb.WriteString(level)
+		sb.WriteString("\t")
+	}
 	for i, v := range subs {
-		v = strings.Replace(v, "{{", "{", -1)
-		v = strings.Replace(v, "}}", "}", -1)
+		v = strings.Replace(strings.Replace(v, "{{", "{", -1), "}}", "}", -1)
 		sb.WriteString(v)
 		if i < len(args)-1 {
 			sb.WriteString(fmt.Sprintf("%v", args[i+1]))
@@ -175,23 +268,40 @@ func (stimLogger *stimLogger) formatString(ll Level, level string, args ...inter
 	return &logMessage{msg: sb.String(), logLevel: ll}
 }
 
-func (stimLogger *stimLogger) ForceFlush(ff bool) {
-	stimLogger.forceFlush = ff
+func (stimLogger *FullStimLogger) Flush() {
+	for {
+		stimLogger.wqc.L.Lock()
+		l := len(stimLogger.logQueue)
+		if l == 0 {
+			stimLogger.wqc.L.Unlock()
+			return
+		} else {
+			time.Sleep(time.Millisecond)
+		}
+		stimLogger.wqc.L.Unlock()
+	}
 }
 
-func (stimLogger *stimLogger) SetDateFormat(string) {
+func (stimLogger *FullStimLogger) ForceFlush(ff bool) {
+	stimLogger.forceFlush = ff
+	if ff {
+		stimLogger.Flush()
+	}
+}
 
+func (stimLogger *FullStimLogger) SetDateFormat(nf string) {
+	stimLogger.dateFMT = nf
 }
 
 // SetLogger takes a structured logger to interface with.
 // After the logger is setup it will be available across your packages
 // If SetLogger is not used Debug will not create output
-func (stimLogger *stimLogger) SetLogger(givenLogger Logger) {
+func (stimLogger *FullStimLogger) SetLogger(givenLogger Logger) {
 	stimLogger.setLogger = givenLogger
 }
 
 // SetLevel sets the StimLogger log level.
-func (stimLogger *stimLogger) SetLevel(level Level) {
+func (stimLogger *FullStimLogger) SetLevel(level Level) {
 	stimLogger.currentLevel = level
 	hl := level
 	for kv := range stimLogger.logfiles.Iter() {
@@ -204,7 +314,7 @@ func (stimLogger *stimLogger) SetLevel(level Level) {
 }
 
 // Debug logs a message at level Debug on the standard logger.
-func (stimLogger *stimLogger) Debug(message ...interface{}) {
+func (stimLogger *FullStimLogger) Debug(message ...interface{}) {
 	if stimLogger.highestLevel >= DebugLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
@@ -219,7 +329,7 @@ func (stimLogger *stimLogger) Debug(message ...interface{}) {
 }
 
 // Debug logs a message at level Debug on the standard logger.
-func (stimLogger *stimLogger) Verbose(message ...interface{}) {
+func (stimLogger *FullStimLogger) Verbose(message ...interface{}) {
 	if stimLogger.highestLevel >= VerboseLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
@@ -234,7 +344,7 @@ func (stimLogger *stimLogger) Verbose(message ...interface{}) {
 }
 
 // Warn logs a message at level Warn on the standard logger.
-func (stimLogger *stimLogger) Warn(message ...interface{}) {
+func (stimLogger *FullStimLogger) Warn(message ...interface{}) {
 	if stimLogger.highestLevel >= WarnLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
@@ -249,7 +359,7 @@ func (stimLogger *stimLogger) Warn(message ...interface{}) {
 }
 
 // Trace logs a message at level Warn on the standard logger.
-func (stimLogger *stimLogger) Trace(message ...interface{}) {
+func (stimLogger *FullStimLogger) Trace(message ...interface{}) {
 	if stimLogger.highestLevel >= TraceLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
@@ -264,7 +374,7 @@ func (stimLogger *stimLogger) Trace(message ...interface{}) {
 }
 
 // Warn logs a message at level Warn on the standard logger.
-func (stimLogger *stimLogger) Info(message ...interface{}) {
+func (stimLogger *FullStimLogger) Info(message ...interface{}) {
 	if stimLogger.highestLevel >= InfoLevel {
 		if stimLogger.setLogger == nil {
 			if stimLogger.forceFlush {
@@ -279,7 +389,7 @@ func (stimLogger *stimLogger) Info(message ...interface{}) {
 }
 
 // Fatal logs a message at level Fatal on the standard logger then the process will exit with status set to 1.
-func (stimLogger *stimLogger) Fatal(message ...interface{}) {
+func (stimLogger *FullStimLogger) Fatal(message ...interface{}) {
 	if stimLogger.highestLevel >= FatalLevel {
 		if stimLogger.setLogger == nil {
 			stimLogger.writeLogs(stimLogger.formatString(FatalLevel, fatalMsg, message...))
@@ -289,3 +399,39 @@ func (stimLogger *stimLogger) Fatal(message ...interface{}) {
 		os.Exit(5)
 	}
 }
+
+type StimPrefixLogger struct {
+	stimLogger StimLogger
+	prefix     string
+}
+
+func (spl *StimPrefixLogger) prefixLog(ll Level, i ...interface{}) []interface{} {
+	if spl.GetLogLevel() >= ll {
+		s := fmt.Sprintf("%v", i[0])
+		var sb strings.Builder
+		sb.WriteString(spl.prefix)
+		sb.WriteString(":")
+		sb.WriteString(s)
+		i[0] = sb.String()
+	}
+	return i
+}
+func (spl *StimPrefixLogger) Trace(i ...interface{}) {
+	spl.stimLogger.Trace(spl.prefixLog(TraceLevel, i...)...)
+}
+func (spl *StimPrefixLogger) Debug(i ...interface{}) {
+	spl.stimLogger.Debug(spl.prefixLog(DebugLevel, i...)...)
+}
+func (spl *StimPrefixLogger) Verbose(i ...interface{}) {
+	spl.stimLogger.Verbose(spl.prefixLog(VerboseLevel, i...)...)
+}
+func (spl *StimPrefixLogger) Info(i ...interface{}) {
+	spl.stimLogger.Info(spl.prefixLog(InfoLevel, i...)...)
+}
+func (spl *StimPrefixLogger) Warn(i ...interface{}) {
+	spl.stimLogger.Warn(spl.prefixLog(WarnLevel, i...)...)
+}
+func (spl *StimPrefixLogger) Fatal(i ...interface{}) {
+	spl.stimLogger.Fatal(spl.prefixLog(FatalLevel, i...)...)
+}
+func (spl *StimPrefixLogger) GetLogLevel() Level { return spl.stimLogger.GetLogLevel() }

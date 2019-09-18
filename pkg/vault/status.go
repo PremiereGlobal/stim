@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"errors"
 	"strconv"
 	"time"
 )
@@ -22,4 +23,14 @@ func (v *Vault) isVaultHealthy() (bool, CustomError) {
 	v.log.Debug("  ServerTime: (" + strconv.FormatInt(result.ServerTimeUTC, 10) + ") " + time.Unix(result.ServerTimeUTC, 0).UTC().String())
 
 	return true, nil
+}
+
+// GetAddress returns the currently configured Vault address
+func (v *Vault) GetAddress() (string, error) {
+
+	if v.config.Address == "" {
+		return "", errors.New("Vault address is not set")
+	}
+
+	return v.config.Address, nil
 }
