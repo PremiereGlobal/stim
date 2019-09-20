@@ -10,8 +10,8 @@ import (
 
 const (
 	UserOnlyMode  os.FileMode = 0700
-	UserGroupMode os.FileMode = 0700
-	WorldMode     os.FileMode = 0700
+	UserGroupMode os.FileMode = 0770
+	WorldMode     os.FileMode = 0777
 )
 
 // CreateFileIfNotExist returns whether the given file exists
@@ -37,7 +37,7 @@ func CreateFileIfNotExist(filePath string, perm os.FileMode) error {
 
 	_, err = os.Stat(filePath)
 	if os.IsNotExist(err) {
-		log.Debug("Creating file: '{}", filePath)
+		log.Debug("Creating file: '{}''", filePath)
 		f, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, perm)
 		f.Close()
 		if err != nil {
@@ -56,7 +56,7 @@ func CreateDirIfNotExist(path string, perm os.FileMode) error {
 	if err == nil && s.IsDir() {
 		return nil
 	} else if err == nil && !s.IsDir() {
-		return errors.New("Path is already a file!")
+		return errors.New("Path '" + path + "' is already a file!")
 	}
 	if !os.IsNotExist(err) {
 		return err
