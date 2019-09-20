@@ -13,7 +13,7 @@ func (a *Aws) GetCredentials() (string, string, error) {
 	mounts, err := a.vault.GetMounts("aws")
 	a.stim.Fatal(err)
 
-	vaultAccount := a.stim.GetConfig("aws-account")
+	vaultAccount := a.stim.ConfigGetString("aws-account")
 	if vaultAccount == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws mount not specified"))
 	} else if vaultAccount == "" {
@@ -21,7 +21,7 @@ func (a *Aws) GetCredentials() (string, string, error) {
 		a.stim.Fatal(err)
 	}
 
-	vaultRole := a.stim.GetConfig("aws-role")
+	vaultRole := a.stim.ConfigGetString("aws-role")
 	if vaultRole == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws role not specified"))
 	} else if vaultRole == "" {

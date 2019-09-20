@@ -2,11 +2,12 @@ package deploy
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
@@ -86,7 +87,7 @@ func (d *Deploy) parseConfig() {
 
 	d.config = Config{}
 
-	configFile := d.stim.GetConfig("deploy.file")
+	configFile := d.stim.ConfigGetString("deploy.file")
 
 	if configFile == "" {
 		setConfigDefault(&configFile, defaultConfigFile)

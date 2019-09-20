@@ -36,7 +36,7 @@ func (a *Aws) Login() error {
 	a.log.Debug("Account: {} Role: {}", account, role)
 
 	// Looked for a saved profile if desired
-	useProfiles := a.stim.GetConfigBool("aws.use-profiles")
+	useProfiles := a.stim.ConfigGetBool("aws.use-profiles")
 	profileName := account + "/" + role
 	if useProfiles {
 		a.log.Debug("Using AWS profiles")
@@ -58,9 +58,9 @@ func (a *Aws) Login() error {
 		}
 	}
 
-	envSource := a.stim.GetConfigBool("env-source")
-	stsLogin := a.stim.GetConfigBool("aws-web")
-	onlyOutput := a.stim.GetConfigBool("aws-output")
+	envSource := a.stim.ConfigGetBool("env-source")
+	stsLogin := a.stim.ConfigGetBool("aws-web")
+	onlyOutput := a.stim.ConfigGetBool("aws-output")
 
 	if stsLogin && a.stim.IsAutomated() {
 		a.log.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
@@ -78,9 +78,9 @@ func (a *Aws) Login() error {
 	a.log.Debug("AWS IAM Vault Lease Id: " + leaseID)
 
 	// Get the desired ttl
-	ttl, err := time.ParseDuration(a.stim.GetConfig("aws.ttl"))
+	ttl, err := time.ParseDuration(a.stim.ConfigGetString("aws.ttl"))
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error parsing config value aws.ttl: %s", a.stim.GetConfig("aws.ttl")))
+		return errors.New(fmt.Sprintf("Error parsing config value aws.ttl: %s", a.stim.ConfigGetString("aws.ttl")))
 	}
 
 	// Renew our lease for the requested time
@@ -103,7 +103,7 @@ func (a *Aws) Login() error {
 			LeaseID: secret.LeaseID,
 		}
 
-		defaultProfile := a.stim.GetConfigBool("aws.default-profile")
+		defaultProfile := a.stim.ConfigGetBool("aws.default-profile")
 		if defaultProfile {
 			a.log.Debug("Setting {} credentials as default", profileName)
 		}
@@ -113,9 +113,9 @@ func (a *Aws) Login() error {
 	if stsLogin {
 
 		// Get the desired web-ttl
-		webTtl, err := time.ParseDuration(a.stim.GetConfig("aws.web-ttl"))
+		webTtl, err := time.ParseDuration(a.stim.ConfigGetString("aws.web-ttl"))
 		if err != nil {
-			return errors.New(fmt.Sprintf("Error parsing config value aws.web-ttl: %s", a.stim.GetConfig("aws.web-ttl")))
+			return errors.New(fmt.Sprintf("Error parsing config value aws.web-ttl: %s", a.stim.ConfigGetString("aws.web-ttl")))
 		}
 
 		a.aws.CreateSession(accessKey, secretKey)

@@ -12,12 +12,12 @@ func (k *Kubernetes) configureContext() error {
 
 	var err error
 
-	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.GetConfig("kube-config-cluster"))
+	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.ConfigGetString("kube-config-cluster"))
 	if err != nil {
 		return err
 	}
 
-	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.GetConfig("kube-service-account"))
+	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.ConfigGetString("kube-service-account"))
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (k *Kubernetes) configureContext() error {
 		return err
 	}
 
-	namespace := k.stim.GetConfig("kube-config-namespace")
+	namespace := k.stim.ConfigGetString("kube-config-namespace")
 	if namespace == "" {
 		namespace, err = k.stim.PromptString("Select Default Namespace", secretValues["default-namespace"])
 		if err != nil {
@@ -36,7 +36,7 @@ func (k *Kubernetes) configureContext() error {
 		}
 	}
 
-	context := k.stim.GetConfig("kube-context")
+	context := k.stim.ConfigGetString("kube-context")
 	if context == "" {
 		context, err = k.stim.PromptString("Context Name", cluster)
 		if err != nil {
@@ -44,7 +44,7 @@ func (k *Kubernetes) configureContext() error {
 		}
 	}
 
-	currentContext, err := k.stim.PromptBool("Set as current context?", k.stim.GetConfigBool("kube-current-context"), true)
+	currentContext, err := k.stim.PromptBool("Set as current context?", k.stim.ConfigGetBool("kube-current-context"), true)
 	if err != nil {
 		return err
 	}

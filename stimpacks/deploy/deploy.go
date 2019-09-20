@@ -41,7 +41,7 @@ func (d *Deploy) Run() {
 
 	// Determine the selected environment (via cli param) or prompt the user
 	selectedEnvironmentName := ""
-	environmentArg := d.stim.GetConfig("deploy.environment")
+	environmentArg := d.stim.ConfigGetString("deploy.environment")
 	if environmentArg != "" {
 		if _, ok := d.config.environmentMap[environmentArg]; ok {
 			selectedEnvironmentName = environmentArg
@@ -53,7 +53,7 @@ func (d *Deploy) Run() {
 		for i, e := range d.config.Environments {
 			environmentList[i] = e.Name
 		}
-		selectedEnvironmentName, _ = d.stim.PromptList("Which environment?", environmentList, d.stim.GetConfig("deploy.environment"))
+		selectedEnvironmentName, _ = d.stim.PromptList("Which environment?", environmentList, d.stim.ConfigGetString("deploy.environment"))
 	}
 	selectedEnvironment := d.config.Environments[d.config.environmentMap[selectedEnvironmentName]]
 
@@ -63,7 +63,7 @@ func (d *Deploy) Run() {
 	for i, inst := range selectedEnvironment.Instances {
 		instanceList[i+1] = inst.Name
 	}
-	selectedInstanceName, _ := d.stim.PromptList("Which instance?", instanceList, d.stim.GetConfig("deploy.instance"))
+	selectedInstanceName, _ := d.stim.PromptList("Which instance?", instanceList, d.stim.ConfigGetString("deploy.instance"))
 	if strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionPrompt) || strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionCli) {
 		selectedInstanceName = allOptionCli
 	} else if _, ok := selectedEnvironment.instanceMap[selectedInstanceName]; !ok {

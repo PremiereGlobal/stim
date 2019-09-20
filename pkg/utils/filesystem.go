@@ -8,56 +8,65 @@ import (
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 )
 
+const (
+	UserOnlyMode  os.FileMode = 0700
+	UserGroupMode os.FileMode = 0770
+	WorldMode     os.FileMode = 0777
+)
+
 // CreateFileIfNotExist returns whether the given file exists
 // Attempts to create the full path and file if it does not exist
-func CreateFileIfNotExist(filePath string) error {
+func CreateFileIfNotExist(filePath string, perm os.FileMode) error {
 	log := stimlog.GetLogger()
 
-	// Frist check to see if given filePath isn't a directory
-	isDir, _ := IsDirectory(filePath)
-	if isDir == true {
+	stat, err := os.Stat(filePath)
+	if err == nil && !stat.IsDir() {
+		return nil
+	} else if err == nil && stat.IsDir() {
 		return errors.New("given file path is a directory and not a path to a file")
 	}
 
 	// Check and create the base path if needed
 	dir, _ := filepath.Split(filePath)
 	if len(dir) > 0 {
-		err := CreateDirIfNotExist(dir)
+		err := CreateDirIfNotExist(dir, perm)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err := os.Stat(filePath)
+	_, err = os.Stat(filePath)
 	if os.IsNotExist(err) {
-		log.Debug("Creating file: '" + filePath + "'")
-		f, err := os.Create(filePath)
-		defer f.Close()
+		log.Debug("Creating file: '{}''", filePath)
+		f, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, perm)
+		f.Close()
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
 // CreateDirIfNotExist returns whether the given directory exists
 // Attempts to create the full path if it does not exist
-func CreateDirIfNotExist(path string) error {
+func CreateDirIfNotExist(path string, perm os.FileMode) error {
 	log := stimlog.GetLogger()
 
-	_, err := os.Stat(path)
+	s, err := os.Stat(path)
+	if err == nil && s.IsDir() {
+		return nil
+	} else if err == nil && !s.IsDir() {
+		return errors.New("Path '" + path + "' is already a file!")
+	}
+	if !os.IsNotExist(err) {
+		return err
+	}
+	log.Debug("Creating folder: '{}'", path)
+	err = os.MkdirAll(path, perm)
 	if err == nil {
 		return nil
 	}
-	if os.IsNotExist(err) {
-		log.Debug("Creating folder: '" + path + "'")
-		err := os.MkdirAll(path, os.ModePerm)
-		if err == nil {
-			return nil
-		}
-	}
-	return nil
+	return err
 }
 
 func IsDirectory(path string) (bool, error) {

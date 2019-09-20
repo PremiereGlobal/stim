@@ -117,7 +117,7 @@ func (a *Aws) GetCredentialPath() (string, error) {
 	}
 
 	credentialPath := filepath.FromSlash(home + "/.aws/credentials")
-	err = utils.CreateFileIfNotExist(credentialPath)
+	err = utils.CreateFileIfNotExist(credentialPath, utils.UserOnlyMode)
 	if err != nil {
 		return "", err
 	}
