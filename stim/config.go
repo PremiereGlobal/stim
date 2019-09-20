@@ -229,20 +229,23 @@ func (stim *Stim) configInitDefaultValues() {
 		return
 	}
 	//We can use this to upgrade configs in the future
-	if !stim.ConfigHasValue("stim.version") {
-		stim.ConfigSetString("stim.version", stim.GetVersion())
-	}
-	if !stim.ConfigHasValue("logging.file.disable") {
-		stim.ConfigSetBool("logging.file.disable", false)
-	}
-	if !stim.ConfigHasValue("logging.file.path") {
-		sh, err := stim.ConfigGetStimConfigDir()
-		if err == nil {
-			lfp := filepath.Join(sh, "stim.log")
-			stim.ConfigSetString("logging.file.path", lfp)
+	//Skipping this for now
+	if false {
+		if !stim.ConfigHasValue("stim.version") {
+			stim.ConfigSetString("stim.version", stim.GetVersion())
 		}
-	}
-	if !stim.ConfigHasValue("logging.file.level") {
-		stim.ConfigSetString("logging.file.level", "info")
+		if !stim.ConfigHasValue("logging.file.disable") {
+			stim.ConfigSetBool("logging.file.disable", false)
+		}
+		if !stim.ConfigHasValue("logging.file.path") {
+			sh, err := stim.ConfigGetStimConfigDir()
+			if err == nil {
+				lfp := filepath.Join(sh, "stim.log")
+				stim.ConfigSetString("logging.file.path", lfp)
+			}
+		}
+		if !stim.ConfigHasValue("logging.file.level") {
+			stim.ConfigSetString("logging.file.level", "info")
+		}
 	}
 }
