@@ -62,6 +62,8 @@ The following environment variables are created by `stim deploy` and can be used
 | `CLUSTER_SERVER` | API endpoint for the Kubernetes cluster |
 | `CLUSTER_CA` | Cluster CA for the Kubernetes cluster |
 | `USER_TOKEN` | Token used to authenticate against the Kubernetes cluster |
+| `STIM_DEPLOY` | Indicates that the process is running inside a stim deployment.  Is set to `true`. |
+
 
 ## Config Spec
 

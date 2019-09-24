@@ -25,6 +25,7 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/go-ini/ini v1.42.0
 	github.com/google/gofuzz v1.0.0 // indirect
+	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/hashicorp/vault v1.2.3
 	github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262
 	//	github.com/hashicorp/vault v1.0.2
@@ -33,6 +34,7 @@ require (
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nlopes/slack v0.5.0
 	github.com/prometheus/client_golang v0.9.3

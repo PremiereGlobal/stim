@@ -202,12 +202,12 @@ func (d *Deploy) processConfig() {
 			vault := d.stim.Vault()
 			vaultToken, err := vault.GetToken()
 			if err != nil {
-				panic(err)
+				d.log.Fatal("Error fetching Vault token for deploy '{}'", err)
 			}
 
 			vaultAddress, err := vault.GetAddress()
 			if err != nil {
-				panic(err)
+				d.log.Fatal("Error fetching Vault address for deploy '{}'", err)
 			}
 
 			// Generate stim env vars
@@ -238,15 +238,18 @@ func (d *Deploy) processConfig() {
 	}
 
 	// Determine the full directory path
-	d.config.Deployment.fullDirectoryPath = filepath.Join(filepath.Dir(d.config.configFilePath), d.config.Deployment.Directory)
-
+	configAbs, err := filepath.Abs(d.config.configFilePath)
+	if err != nil {
+		d.log.Fatal("Error fetching deploy filepath '{}'", err)
+	}
+	d.config.Deployment.fullDirectoryPath = filepath.Join(filepath.Dir(configAbs), d.config.Deployment.Directory)
 }
 
 // Generate the list of reserved env var names
 func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, stimSecrets []*v2e.SecretItem) {
 
 	// Generate the list of reserved env var names (additionally SECRET_CONFIG as we'll add that one at the end)
-	reservedVarNames := []string{"SECRET_CONFIG"}
+	reservedVarNames := []string{"SECRET_CONFIG", "STIM_DEPLOY"}
 	for _, s := range stimEnvs {
 		reservedVarNames = append(reservedVarNames, s.Name)
 	}
@@ -276,9 +279,10 @@ func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, sti
 	// Create the secret config
 	secretConfig, err := d.makeSecretConfig(instance)
 	if err != nil {
-		panic(err)
+		d.log.Fatal("Error making secret config '{}'", err)
 	}
 	stimEnvs = append(stimEnvs, &EnvironmentVar{Name: "SECRET_CONFIG", Value: secretConfig})
+	stimEnvs = append(stimEnvs, &EnvironmentVar{Name: "STIM_DEPLOY", Value: "true"})
 
 	// Combine our env vars
 	instance.Spec.EnvironmentVars = append(instance.Spec.EnvironmentVars, stimEnvs...)
