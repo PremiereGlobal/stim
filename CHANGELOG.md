@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.1.1
+
+### Bugfix
+* Fixed and issue that was causing environment-level env vars not to override global env vars in `stim deploy`
+
 ## 0.1.0
 * Changing release versions to proper notation
 * Fixed bug in `stim deploy` where it wasn't correctly resolving the full path for deployment volumes

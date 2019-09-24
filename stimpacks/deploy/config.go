@@ -297,7 +297,7 @@ func mergeEnvVars(instance []*EnvironmentVar, environment []*EnvironmentVar, glo
 	// Add environment envVars (if they don't already exist)
 	for _, e := range environment {
 		exists := false
-		for _, inst := range instance {
+		for _, inst := range result {
 			if inst.Name == e.Name {
 				exists = true
 			}
@@ -312,7 +312,7 @@ func mergeEnvVars(instance []*EnvironmentVar, environment []*EnvironmentVar, glo
 	// Add global envVars (if they don't already exist)
 	for _, g := range global {
 		exists := false
-		for _, inst := range instance {
+		for _, inst := range result {
 			if inst.Name == g.Name {
 				exists = true
 			}
