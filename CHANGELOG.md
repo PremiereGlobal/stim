@@ -1,5 +1,9 @@
 # Stim Changelog
 
+## 0.1.0
+* Changing release versions to proper notation
+* Fixed bug in `stim deploy` where it wasn't correctly resolving the full path for deployment volumes
+
 ## 0.0.7
 * Added the `stim deploy` subcommand.  See [docs/DEPLOY.md](docs/DEPLOY.md) for details.
 * Enabled `info` logging by default
