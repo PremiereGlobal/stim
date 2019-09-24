@@ -61,7 +61,7 @@ Guidelines:
 
 [Build-Status-Url]: https://travis-ci.org/PremiereGlobal/stim
 [Build-Status-Image]: https://travis-ci.org/PremiereGlobal/stim.svg?branch=master
-[reportcard-url]: https://goreportcard.com/badge/github.com/PremiereGlobal/stim
+[reportcard-url]: https://goreportcard.com/report/github.com/readytalk/stim
 [reportcard-image]: https://goreportcard.com/badge/github.com/PremiereGlobal/stim
 [godoc-url]: https://godoc.org/github.com/PremiereGlobal/stim
 [godoc-image]: https://godoc.org/github.com/PremiereGlobal/stim?status.svg
