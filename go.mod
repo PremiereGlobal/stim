@@ -30,6 +30,7 @@ require (
 	github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262
 	//	github.com/hashicorp/vault v1.0.2
 	github.com/imdario/mergo v0.3.7
+	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
 	github.com/manifoldco/promptui v0.3.2
@@ -38,6 +39,7 @@ require (
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nlopes/slack v0.5.0
 	github.com/prometheus/client_golang v0.9.3
+	github.com/prometheus/common v0.4.0
 	github.com/skratchdot/open-golang v0.0.0-20190104022628-a2dfa6d0dab6
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0

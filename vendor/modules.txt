@@ -164,6 +164,8 @@ github.com/juju/ansiterm
 github.com/juju/ansiterm/tabwriter
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
+# github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
+github.com/krolaw/zipstream
 # github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a
 github.com/lunixbochs/vtclean
 # github.com/magiconair/properties v1.8.0
