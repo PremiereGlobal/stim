@@ -3,7 +3,6 @@ package env // import "github.com/PremiereGlobal/stim/stimpacks/env"
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/PremiereGlobal/stim/stim"
 	"github.com/spf13/cobra"
@@ -64,19 +63,20 @@ func (v *Env) Command(viper *viper.Viper) *cobra.Command {
 				v.stim.GetLogger().Debug("Initializing Environment:  ", k)
 				for tk, tv := range t {
 					if tk == "kubectl" {
-						kd := &KubeDownloader{env: *v, version: tv.(string)}
+						v.stim.GetLogger().Info("kubectl:{}", tv.(string))
+						kd := NewKubeDownloader(tv.(string), v.GetEnvBinDir())
 						err := DownloadPackage(kd)
 						if err != nil {
-							v.stim.GetLogger().Fatal("Problem installing env:", k, "kubeversion:", tk, err)
+							v.stim.GetLogger().Fatal("Problem installing env:{} kubeversion:{}\n{}", k, tk, err)
 						} else {
 							v.stim.GetLogger().Debug("Installed env: ", k, "kubeversion:", tk)
 						}
 						MakeEnvLink(kd, v.GetEnvNameDir(k), k)
 					} else if tk == "vault" {
-						vd := &VaultDownloader{env: *v, version: tv.(string)}
+						vd := NewVaultDownloader(tv.(string), v.GetEnvBinDir())
 						err := DownloadPackage(vd)
 						if err != nil {
-							v.stim.GetLogger().Warn("Problem installing env:", k, "kubeversion:", tk, err)
+							v.stim.GetLogger().Fatal("Problem installing env:{} kubeversion:{}\n{}", k, tk, err)
 						} else {
 							v.stim.GetLogger().Debug("Installed env: ", k, "kubeversion:", tk)
 						}
@@ -96,21 +96,11 @@ func (v *Env) Command(viper *viper.Viper) *cobra.Command {
 			v.makeEnvDir()
 			kv := v.stim.ConfigGetString("kubectl")
 			if kv != "" {
-				if !strings.HasPrefix(kv, "v") {
-					nv := "v" + kv
-					v.stim.GetLogger().Info("Kube version set as:'{}', it MUST start with a 'v', changing to `{}`", kv, nv)
-					kv = nv
-				}
-				dlr = &KubeDownloader{env: *v, version: kv}
+				dlr = NewKubeDownloader(kv, v.GetEnvBinDir())
 			}
 			vv := v.stim.ConfigGetString("vault")
 			if vv != "" {
-				if strings.HasPrefix(vv, "v") {
-					nv := vv[1:]
-					v.stim.GetLogger().Info("Vault version set as:'{}', it DoesNot start with a 'v', changing to `{}`", vv, nv)
-					vv = nv
-				}
-				dlr = &VaultDownloader{env: *v, version: vv}
+				dlr = NewVaultDownloader(vv, v.GetEnvBinDir())
 			}
 			DownloadPackage(dlr)
 		},
