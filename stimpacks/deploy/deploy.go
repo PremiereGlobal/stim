@@ -87,7 +87,14 @@ func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 
 	d.log.Info("Deploying to '{}' environment in instance: {}", environment.Name, instance.Name)
 
+	deployMethod := d.stim.ConfigGetString("deploy.method")
 	// For now, only the kube-vault-deploy docker method is implemented but more could be added here...
-	d.startDeployContainer(instance)
+	if deployMethod == "docker" {
+		d.startDeployContainer(instance)
+	} else if deployMethod == "shell" {
+		d.startDeployShell(instance)
+	} else {
+		d.log.Fatal("Invalid deployment method provided.  Must be one of ['docker','shell']")
+	}
 
 }

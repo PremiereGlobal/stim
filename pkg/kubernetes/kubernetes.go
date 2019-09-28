@@ -40,7 +40,15 @@ func New(kconf *Config) (*Kubernetes, error) {
 func (k *Kubernetes) SetKubeconfig(kubeConfigOptions *KubeConfigOptions) error {
 
 	// configAccess is used by subcommands and methods in this package to load and modify the appropriate config files
-	k.configAccess = clientcmd.NewDefaultPathOptions()
+	// If we specified an explicit path, use that
+	if kubeConfigOptions.KubeConfigFilePath != "" {
+		pathOptions := &clientcmd.PathOptions{}
+		pathOptions.LoadingRules = clientcmd.NewDefaultClientConfigLoadingRules()
+		pathOptions.LoadingRules.ExplicitPath = kubeConfigOptions.KubeConfigFilePath
+		k.configAccess = pathOptions
+	} else {
+		k.configAccess = clientcmd.NewDefaultPathOptions()
+	}
 	k.log.Debug("Using kubeconfig file: " + k.configAccess.GetDefaultFilename())
 
 	err := k.modifyKubeconfig(kubeConfigOptions)

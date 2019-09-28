@@ -29,6 +29,8 @@ func (d *Deploy) Command(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("deploy.environment", deployCmd.PersistentFlags().Lookup("environment"))
 	deployCmd.PersistentFlags().StringP("instance", "i", "", "Instance to deploy to")
 	viper.BindPFlag("deploy.instance", deployCmd.PersistentFlags().Lookup("instance"))
+	deployCmd.PersistentFlags().StringP("method", "m", "docker", "Method to use for deployment.  Valid values are 'docker' or 'shell'")
+	viper.BindPFlag("deploy.method", deployCmd.PersistentFlags().Lookup("method"))
 
 	return deployCmd
 }
