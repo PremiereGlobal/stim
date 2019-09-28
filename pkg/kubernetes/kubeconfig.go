@@ -18,6 +18,9 @@ type KubeConfigOptions struct {
 
 	// Default namespace
 	ContextDefaultNamespace string
+
+	// Path to an explicit kubeconfig file
+	KubeConfigFilePath string
 }
 
 type AuthOptions struct {
