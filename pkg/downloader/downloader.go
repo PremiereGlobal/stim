@@ -1,4 +1,4 @@
-package env // import "github.com/PremiereGlobal/stim/stimpacks/env"
+package downloader
 
 import (
 	"archive/tar"
@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/krolaw/zipstream"
-
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 )
 
