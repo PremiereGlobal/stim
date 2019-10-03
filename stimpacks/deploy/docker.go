@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+"path/filepath"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/docker/docker/api/types"
@@ -43,7 +44,7 @@ func (d *Deploy) startDeployContainer(instance *Instance) {
 	if err != nil {
 		d.log.Fatal("Unable to determine home directory. {}", err)
 	}
-	cacheDir := fmt.Sprintf("%s/.kube-vault-deploy/bin-cache", home)
+	cacheDir := filepath.Join(home, ".stim/cache/linux")
 	err = utils.CreateDirIfNotExist(cacheDir, utils.UserGroupMode)
 	if err != nil {
 		d.log.Fatal("Could not create cache directory {}", cacheDir)
