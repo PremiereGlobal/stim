@@ -15,13 +15,6 @@ func (stim *Stim) Vault() *vault.Vault {
 		stim.log.Debug("Stim-Vault: Creating")
 
 		username := stim.ConfigGetString("vault-username")
-		if username == "" {
-			var err error
-			username, err = stim.User()
-			if err != nil {
-				stim.log.Fatal("Stim-vault: ", err)
-			}
-		}
 
 		// Note with ParseDuration: If you value is 28800 you will need to add an "s" at the end
 		var timeInDuration time.Duration
@@ -44,7 +37,7 @@ func (stim *Stim) Vault() *vault.Vault {
 			Noprompt:             stim.ConfigGetBool("noprompt") == false && stim.IsAutomated(),
 			AuthPath:             stim.ConfigGetString("auth.method"),
 			Username:             username, // If set in the configs, pass in user
-			UsernamePrompt:       stim.GetConfigBool("vault-username-prompt"),
+			UsernameSkipPrompt:   stim.ConfigGetBool("vault-username-skip-prompt"),
 			InitialTokenDuration: timeInDuration,
 			Log:                  stim.log,
 		})

@@ -3,7 +3,8 @@
 ## 0.1.2
 
 ### Improvement
-* Added configuration option: `vault-username-prompt`. If set to `false` stim will skip prompting the user for their username if the config option `vault-username` is set.
+* Added configuration option: `vault-username-skip-prompt`. If set to `true` stim will skip prompting the user for their username if the config option `vault-username` is set.
+  * Note: As part of this change, stim will no longer default to the system username. First-time users will be required to enter their username.
 
 ### Bugfix
 * Fixed bug where deployments would not utilize the VAULT_TOKEN env variable correctly

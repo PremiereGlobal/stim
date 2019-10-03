@@ -130,19 +130,20 @@ func (v *Vault) IsNewLogin() bool {
 // getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
-	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
-	if v.config.Username != "" {
-		if v.config.UsernamePrompt == false {
-			fmt.Printf("Going to use the username: %s\n", v.config.Username)
-		} else {
-			fmt.Printf("Username (%s): ", v.config.Username)
-		}
-	} else {
-		fmt.Printf("Username: ")
-	}
 
 	var username string
-	if v.config.Username != "" && v.config.UsernamePrompt != false {
+	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
+	if v.config.UsernameSkipPrompt && v.config.Username != "" {
+		v.log.Debug("Skipping username prompt. Using config value 'vault-username:{}'", v.config.Username)
+		fmt.Printf("Username: %s\n", v.config.Username)
+		username = v.config.Username
+	} else {
+		if v.config.Username != "" {
+			fmt.Printf("Username (%s): ", v.config.Username)
+		} else {
+			fmt.Printf("Username: ")
+		}
+
 		reader := bufio.NewReader(os.Stdin)
 		username, _ = reader.ReadString('\n')
 		username = strings.TrimSpace(username)
@@ -155,8 +156,6 @@ func (v *Vault) getCredentials() (string, string, error) {
 		} else {
 			v.config.Username = username
 		}
-	} else {
-		username = v.config.Username
 	}
 
 	fmt.Print("Password: ")
