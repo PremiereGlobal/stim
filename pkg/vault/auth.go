@@ -50,13 +50,11 @@ func (v *Vault) Login() error {
 
 // GetToken returns the raw token
 func (v *Vault) GetToken() (string, error) {
-	v.tokenHelper = token.InternalTokenHelper{}
-	token, err := v.tokenHelper.Get()
-	if err != nil {
-		return "", v.parseError(err).(error)
+	if token := v.client.Token(); token != "" {
+		return token, nil
 	}
 
-	return token, nil
+	return "", errors.New("No token set")
 }
 
 // isCurrentTokenValid returns flase if user needs to relogin

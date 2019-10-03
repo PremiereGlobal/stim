@@ -1,5 +1,11 @@
 # Stim Changelog
 
+## 0.1.2
+
+### Bugfix
+* Fixed bug where deployments would not utilize the VAULT_TOKEN env variable correctly
+* Fixed bug where having an empty stim cache directory (`~/.kube-vault-deploy/cache`) would cause a deployment failure
+
 ## 0.1.1
 
 ### Bugfix
