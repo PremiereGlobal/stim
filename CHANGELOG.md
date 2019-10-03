@@ -2,6 +2,9 @@
 
 ## 0.1.2
 
+### Improvement
+* Added configuration option: `vault-username-prompt`. If set to `false` stim will skip prompting the user for their username if the config option `vault-username` is set.
+
 ### Bugfix
 * Fixed bug where deployments would not utilize the VAULT_TOKEN env variable correctly
 * Fixed bug where having an empty stim cache directory (`~/.kube-vault-deploy/cache`) would cause a deployment failure

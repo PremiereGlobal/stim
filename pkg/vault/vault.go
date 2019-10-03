@@ -21,6 +21,7 @@ type Config struct {
 	Noprompt             bool
 	Address              string
 	Username             string
+	UsernamePrompt       bool
 	Timeout              time.Duration
 	InitialTokenDuration time.Duration
 	Log                  Logger

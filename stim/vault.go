@@ -44,6 +44,7 @@ func (stim *Stim) Vault() *vault.Vault {
 			Noprompt:             stim.ConfigGetBool("noprompt") == false && stim.IsAutomated(),
 			AuthPath:             stim.ConfigGetString("auth.method"),
 			Username:             username, // If set in the configs, pass in user
+			UsernamePrompt:       stim.GetConfigBool("vault-username-prompt"),
 			InitialTokenDuration: timeInDuration,
 			Log:                  stim.log,
 		})

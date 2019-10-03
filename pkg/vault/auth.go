@@ -132,21 +132,31 @@ func (v *Vault) IsNewLogin() bool {
 func (v *Vault) getCredentials() (string, string, error) {
 	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
 	if v.config.Username != "" {
-		fmt.Printf("Username (%s): ", v.config.Username)
+		if v.config.UsernamePrompt == false {
+			fmt.Printf("Going to use the username: %s\n", v.config.Username)
+		} else {
+			fmt.Printf("Username (%s): ", v.config.Username)
+		}
 	} else {
 		fmt.Printf("Username: ")
 	}
-	reader := bufio.NewReader(os.Stdin)
-	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
 
-	if len(username) <= 0 { // If user just clicked enter
-		if v.config.Username == "" { // If there also isn't default
-			return "", "", v.newError("No username given").(error)
+	var username string
+	if v.config.Username != "" && v.config.UsernamePrompt != false {
+		reader := bufio.NewReader(os.Stdin)
+		username, _ = reader.ReadString('\n')
+		username = strings.TrimSpace(username)
+
+		if len(username) <= 0 { // If user just clicked enter
+			if v.config.Username == "" { // If there also isn't default
+				return "", "", v.newError("No username given").(error)
+			}
+			username = v.config.Username
+		} else {
+			v.config.Username = username
 		}
-		username = v.config.Username
 	} else {
-		v.config.Username = username
+		username = v.config.Username
 	}
 
 	fmt.Print("Password: ")
