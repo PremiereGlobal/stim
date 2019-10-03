@@ -1,5 +1,16 @@
 # Stim Changelog
 
+## 0.1.2
+
+### Improvement
+* Added configuration option: `vault-username-skip-prompt`. If set to `true` stim will skip prompting the user for their username if the config option `vault-username` is set.
+  * Note: As part of this change, stim will no longer default to the system username. First-time users will be required to enter their username.
+* Changing the deployment binary cache directory to be within the `~/.stim` dir
+
+### Bugfix
+* Fixed bug where deployments would not utilize the VAULT_TOKEN env variable correctly
+* Fixed bug where having an empty stim cache directory (`~/.kube-vault-deploy/cache`) would cause a deployment failure
+
 ## 0.1.1
 
 ### Bugfix
