@@ -48,10 +48,11 @@ func New(config *Config) (*Prometheus, error) {
 }
 
 func (p *Prometheus) QueryInstant(query string) (string, error) {
-	result, err := p.API.Query(p.context, query, time.Now())
+	result, warnings, err := p.API.Query(p.context, query, time.Now())
 	if err != nil {
 		return "", err
 	}
+  p.log.Warn(warnings)
 
 	t := result.Type()
 	var d []byte
