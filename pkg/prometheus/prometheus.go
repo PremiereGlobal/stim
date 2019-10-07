@@ -6,7 +6,7 @@ import (
 
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/prometheus/client_golang/api"
-	"github.com/prometheus/client_golang/api/prometheus/v1"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
 type Prometheus struct {
@@ -52,7 +52,7 @@ func (p *Prometheus) QueryInstant(query string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-  p.log.Warn(warnings)
+	p.log.Warn(warnings)
 
 	t := result.Type()
 	var d []byte
