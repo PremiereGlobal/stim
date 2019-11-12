@@ -95,6 +95,7 @@ var stimLoggerCreateLock sync.Mutex = sync.Mutex{}
 
 func resetLogger() {
 	logger = nil
+	prefixLogger = nil
 }
 
 func GetLoggerConfig() StimLoggerConfig {
@@ -130,8 +131,9 @@ func GetLogger() StimLogger {
 
 //GetLogger gets a logger for logging in stim.
 func GetLoggerWithPrefix(prefix string) StimLogger {
+	baseLogger := GetLogger()
 	if prefix == "" {
-		return GetLogger()
+		return baseLogger
 	}
 	if prefixLogger == nil {
 		stimLoggerCreateLock.Lock()
@@ -145,7 +147,7 @@ func GetLoggerWithPrefix(prefix string) StimLogger {
 	if sl, ok := prefixLogger[prefix]; ok {
 		return sl
 	}
-	prefixLogger[prefix] = &StimPrefixLogger{stimLogger: GetLogger(), prefix: prefix}
+	prefixLogger[prefix] = &StimPrefixLogger{stimLogger: baseLogger, prefix: prefix}
 	return prefixLogger[prefix]
 }
 
