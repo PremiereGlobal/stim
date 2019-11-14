@@ -102,6 +102,28 @@ func TestSimpleLogNoFlush(t *testing.T) {
 	}
 }
 
+func TestLogPrefixFirst(t *testing.T) {
+	resetLogger()
+	sl := GetLoggerWithPrefix("PREFIX")
+	slc := GetLoggerConfig()
+	slc.EnableTimeLogging(false)
+	slc.EnableLevelLogging(false)
+	slc.RemoveLogFile("STDOUT")
+	slc.SetLevel(TraceLevel)
+	tmpfile, err := ioutil.TempFile("", "TESTLOG")
+	defer os.Remove(tmpfile.Name())
+	check(err)
+	slc.AddLogFile(tmpfile.Name(), sl.GetLogLevel())
+	sl.Warn("Warn {}", "Message")
+	sl.Info("Info {}", "Message")
+	sl.Verbose("Verbose {}", "Message")
+	sl.Debug("Debug {}", "Message")
+	sl.Trace("Trace {}", "Message")
+	data, err := ioutil.ReadFile(tmpfile.Name())
+	check(err)
+	assert.Equal(t, "PREFIX:Warn Message\nPREFIX:Info Message\nPREFIX:Verbose Message\nPREFIX:Debug Message\nPREFIX:Trace Message\n", string(data), "Loggers are not Equal!")
+}
+
 func TestSimpleLogPrefix(t *testing.T) {
 	resetLogger()
 	slc := GetLoggerConfig()
@@ -120,6 +142,7 @@ func TestSimpleLogPrefix(t *testing.T) {
 		sl.Verbose("Verbose {} {}", "Message", LL)
 		sl.Debug("Debug {} {}", "Message", LL)
 		sl.Trace("Trace {} {}", "Message", LL)
+		slc.ForceFlush(true)
 		data, err := ioutil.ReadFile(tmpfile.Name())
 		check(err)
 		if LL == WarnLevel {
