@@ -51,9 +51,10 @@ type Global struct {
 
 // Spec contains the spec of a given environment/instance
 type Spec struct {
-	Kubernetes      Kubernetes        `yaml:"kubernetes"`
-	Secrets         []*v2e.SecretItem `yaml:"secrets"`
-	EnvironmentVars []*EnvironmentVar `yaml:"env"`
+	Kubernetes            Kubernetes        `yaml:"kubernetes"`
+	Secrets               []*v2e.SecretItem `yaml:"secrets"`
+	EnvironmentVars       []*EnvironmentVar `yaml:"env"`
+	AddConfermationPrompt bool              `yaml:"addConfermationPrompt"`
 }
 
 // Kubernetes describes the Kubernetes configuration to use
@@ -64,10 +65,11 @@ type Kubernetes struct {
 
 // Environment describes a deployment environment (i.e. dev, stage, prod, etc.)
 type Environment struct {
-	Name        string      `yaml:"name"`
-	Spec        *Spec       `yaml:"spec"`
-	Instances   []*Instance `yaml:"instances"`
-	instanceMap map[string]int
+	Name            string      `yaml:"name"`
+	Spec            *Spec       `yaml:"spec"`
+	Instances       []*Instance `yaml:"instances"`
+	RemoveAllPrompt bool        `yaml:"removeAllPrompt"`
+	instanceMap     map[string]int
 }
 
 // Instance describes an instance of a deployment within an environment (i.e. us-west-2 for env prod)
