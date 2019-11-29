@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"os"
 	"strings"
 
 	log "github.com/PremiereGlobal/stim/pkg/stimlog"
@@ -54,16 +55,28 @@ func (d *Deploy) Run() {
 			environmentList[i] = e.Name
 		}
 		selectedEnvironmentName, _ = d.stim.PromptList("Which environment?", environmentList, d.stim.ConfigGetString("deploy.environment"))
+		if selectedEnvironmentName == "" {
+			d.log.Info("No environment selected! exiting")
+			os.Exit(0)
+		}
 	}
 	selectedEnvironment := d.config.Environments[d.config.environmentMap[selectedEnvironmentName]]
 
 	// Determine the selected instance (via cli param) or prompt the user
-	instanceList := make([]string, len(selectedEnvironment.Instances)+1)
-	instanceList[0] = allOptionPrompt
-	for i, inst := range selectedEnvironment.Instances {
-		instanceList[i+1] = inst.Name
+	instanceList := make([]string, 0)
+
+	//Check if we should remove all prompt or not
+	if !selectedEnvironment.RemoveAllPrompt {
+		instanceList = append(instanceList, allOptionPrompt)
+	}
+	for _, inst := range selectedEnvironment.Instances {
+		instanceList = append(instanceList, inst.Name)
 	}
 	selectedInstanceName, _ := d.stim.PromptList("Which instance?", instanceList, d.stim.ConfigGetString("deploy.instance"))
+	if selectedInstanceName == "" {
+		d.log.Info("No instance selected! exiting")
+		os.Exit(0)
+	}
 	if strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionPrompt) || strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionCli) {
 		selectedInstanceName = allOptionCli
 	} else if _, ok := selectedEnvironment.instanceMap[selectedInstanceName]; !ok {
@@ -73,11 +86,34 @@ func (d *Deploy) Run() {
 	// Run the deployment(s)
 	if selectedInstanceName == allOptionCli {
 		d.log.Info("Deploying to all clusters in environment: {}", selectedEnvironment.Name)
+		//Check if confermation prompt is required
+		if selectedEnvironment.Spec.AddConfermationPrompt {
+			//Do AddConfermationPrompt, only if the instance is not passed on the cli
+			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+			if !proceed {
+				os.Exit(1)
+			}
+		}
 		for _, inst := range selectedEnvironment.Instances {
+			if inst.Spec.AddConfermationPrompt {
+				//Do AddConfermationPrompt, only if the instance is not passed on the cli
+				proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+				if !proceed {
+					os.Exit(1)
+				}
+			}
 			d.Deploy(selectedEnvironment, inst)
 		}
 	} else {
-		d.Deploy(selectedEnvironment, selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]])
+		d.log.Info("Deploying to environment: {} and instance: {}", selectedInstanceName)
+		inst := selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]]
+		if selectedEnvironment.Spec.AddConfermationPrompt || inst.Spec.AddConfermationPrompt {
+			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+			if !proceed {
+				os.Exit(1)
+			}
+		}
+		d.Deploy(selectedEnvironment, inst)
 	}
 
 }
