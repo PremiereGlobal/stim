@@ -86,17 +86,17 @@ func (d *Deploy) Run() {
 	// Run the deployment(s)
 	if selectedInstanceName == allOptionCli {
 		d.log.Info("Deploying to all clusters in environment: {}", selectedEnvironment.Name)
-		//Check if confermation prompt is required
-		if selectedEnvironment.Spec.AddConfermationPrompt {
-			//Do AddConfermationPrompt, only if the instance is not passed on the cli
+		//Check if confirmation prompt is required
+		if selectedEnvironment.Spec.AddConfirmationPrompt {
+			//Do AddConfirmationPrompt, only if the instance is not passed on the cli
 			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
 			if !proceed {
 				os.Exit(1)
 			}
 		}
 		for _, inst := range selectedEnvironment.Instances {
-			if inst.Spec.AddConfermationPrompt {
-				//Do AddConfermationPrompt, only if the instance is not passed on the cli
+			if inst.Spec.AddConfirmationPrompt {
+				//Do AddConfirmationPrompt, only if the instance is not passed on the cli
 				proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
 				if !proceed {
 					os.Exit(1)
@@ -107,7 +107,7 @@ func (d *Deploy) Run() {
 	} else {
 		d.log.Info("Deploying to environment: {} and instance: {}", selectedInstanceName)
 		inst := selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]]
-		if selectedEnvironment.Spec.AddConfermationPrompt || inst.Spec.AddConfermationPrompt {
+		if selectedEnvironment.Spec.AddConfirmationPrompt || inst.Spec.AddConfirmationPrompt {
 			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
 			if !proceed {
 				os.Exit(1)

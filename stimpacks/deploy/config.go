@@ -54,7 +54,7 @@ type Spec struct {
 	Kubernetes            Kubernetes        `yaml:"kubernetes"`
 	Secrets               []*v2e.SecretItem `yaml:"secrets"`
 	EnvironmentVars       []*EnvironmentVar `yaml:"env"`
-	AddConfermationPrompt bool              `yaml:"addConfermationPrompt"`
+	AddConfirmationPrompt bool              `yaml:"addConfirmationPrompt"`
 }
 
 // Kubernetes describes the Kubernetes configuration to use
