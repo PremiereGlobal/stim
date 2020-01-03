@@ -67,3 +67,23 @@ Guidelines:
 [godoc-image]: https://godoc.org/github.com/PremiereGlobal/stim?status.svg
 [license-url]: http://opensource.org/licenses/MIT
 [license-image]: https://img.shields.io/npm/l/express.svg
+
+
+
+
+DOCKER
+PHASE1
+* Launch kube-vault-deploy container
+  * Volume mount current directory: $(pwd):/scripts
+  * Volume mount bin cache ${HOME}/.stim/bin-cache:/bin-cache
+* Entrypoint = stim deploy -method env -bin-cache-path /bin-cache -w /scripts ***?
+
+PHASE2
+* Launch stim docker container
+  * Volume mount current directory: $(pwd):/scripts
+  * Volume mount bin cache ${HOME}/.stim/bin-cache:/bin-cache
+* Entrypoint = stim deploy -method env -bin-cache-path /bin-cache -w /scripts ***?
+
+SHELL
+* Set KUBECONFIG path to $(pwd)/.kube (?) - delete when done
+* Specify bin cache location (default ${HOME}/.stim/bin-cache)

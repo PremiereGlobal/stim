@@ -1,8 +1,12 @@
 package deploy
 
 import (
+	"errors"
+	"fmt"
+	"os"
 	"strings"
 
+	"github.com/PremiereGlobal/stim/pkg/docker"
 	log "github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/stim"
 )
@@ -10,6 +14,12 @@ import (
 const (
 	allOptionPrompt = "--ALL--"
 	allOptionCli    = "all"
+)
+
+const (
+	DEPLOY_METHOD_UNKNOWN int = 0
+	DEPLOY_METHOD_DOCKER  int = 1
+	DEPLOY_METHOD_SHELL   int = 2
 )
 
 // Deploy is the primary type for the stim deploy subcommand
@@ -54,16 +64,28 @@ func (d *Deploy) Run() {
 			environmentList[i] = e.Name
 		}
 		selectedEnvironmentName, _ = d.stim.PromptList("Which environment?", environmentList, d.stim.ConfigGetString("deploy.environment"))
+		if selectedEnvironmentName == "" {
+			d.log.Info("No environment selected! exiting")
+			os.Exit(0)
+		}
 	}
 	selectedEnvironment := d.config.Environments[d.config.environmentMap[selectedEnvironmentName]]
 
 	// Determine the selected instance (via cli param) or prompt the user
-	instanceList := make([]string, len(selectedEnvironment.Instances)+1)
-	instanceList[0] = allOptionPrompt
-	for i, inst := range selectedEnvironment.Instances {
-		instanceList[i+1] = inst.Name
+	instanceList := make([]string, 0)
+
+	//Check if we should remove all prompt or not
+	if !selectedEnvironment.RemoveAllPrompt {
+		instanceList = append(instanceList, allOptionPrompt)
+	}
+	for _, inst := range selectedEnvironment.Instances {
+		instanceList = append(instanceList, inst.Name)
 	}
 	selectedInstanceName, _ := d.stim.PromptList("Which instance?", instanceList, d.stim.ConfigGetString("deploy.instance"))
+	if selectedInstanceName == "" {
+		d.log.Info("No instance selected! exiting")
+		os.Exit(0)
+	}
 	if strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionPrompt) || strings.ToLower(selectedInstanceName) == strings.ToLower(allOptionCli) {
 		selectedInstanceName = allOptionCli
 	} else if _, ok := selectedEnvironment.instanceMap[selectedInstanceName]; !ok {
@@ -73,11 +95,34 @@ func (d *Deploy) Run() {
 	// Run the deployment(s)
 	if selectedInstanceName == allOptionCli {
 		d.log.Info("Deploying to all clusters in environment: {}", selectedEnvironment.Name)
+		//Check if confirmation prompt is required
+		if selectedEnvironment.Spec.AddConfirmationPrompt {
+			//Do AddConfirmationPrompt, only if the instance is not passed on the cli
+			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+			if !proceed {
+				os.Exit(1)
+			}
+		}
 		for _, inst := range selectedEnvironment.Instances {
+			if inst.Spec.AddConfirmationPrompt {
+				//Do AddConfirmationPrompt, only if the instance is not passed on the cli
+				proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+				if !proceed {
+					os.Exit(1)
+				}
+			}
 			d.Deploy(selectedEnvironment, inst)
 		}
 	} else {
-		d.Deploy(selectedEnvironment, selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]])
+		d.log.Info("Deploying to environment: {} and instance: {}", selectedInstanceName)
+		inst := selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]]
+		if selectedEnvironment.Spec.AddConfirmationPrompt || inst.Spec.AddConfirmationPrompt {
+			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
+			if !proceed {
+				os.Exit(1)
+			}
+		}
+		d.Deploy(selectedEnvironment, inst)
 	}
 
 }
@@ -87,14 +132,91 @@ func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 
 	d.log.Info("Deploying to '{}' environment in instance: {}", environment.Name, instance.Name)
 
-	deployMethod := d.stim.ConfigGetString("deploy.method")
-	// For now, only the kube-vault-deploy docker method is implemented but more could be added here...
-	if deployMethod == "docker" {
-		d.startDeployContainer(instance)
-	} else if deployMethod == "shell" {
-		d.startDeployShell(instance)
-	} else {
-		d.log.Fatal("Invalid deployment method provided.  Must be one of ['docker','shell']")
+	deployMethod, err := d.DetermineDeployMethod()
+	if err != nil {
+		d.log.Fatal(err)
 	}
 
+	if deployMethod == DEPLOY_METHOD_DOCKER {
+		d.startDeployContainer(instance)
+	} else if deployMethod == DEPLOY_METHOD_SHELL {
+		d.startDeployShell(instance)
+	} else {
+		d.log.Fatal("Could not determine deployment method")
+	}
+
+}
+
+// DetermineDeployMethod figures out the deploy method based on user input
+// and availability
+func (d *Deploy) DetermineDeployMethod() (int, error) {
+
+	deployMethod := d.stim.ConfigGetString("deploy.method")
+
+	isInDocker := docker.IsInDocker()
+	isDockerAvailable, _ := docker.IsDockerAvailable()
+
+	if deployMethod == "auto" && isDockerAvailable && !isInDocker {
+		d.log.Debug("Using Docker to deploy (auto)")
+		return DEPLOY_METHOD_DOCKER, nil
+	}
+
+	if deployMethod == "docker" && isDockerAvailable && !isInDocker {
+		d.log.Debug("Using Docker to deploy (specified by user)")
+		return DEPLOY_METHOD_DOCKER, nil
+	}
+
+	// If we are already in a container, only shell is supported
+	if deployMethod == "auto" && isInDocker {
+		d.log.Debug("Using shell to deploy (auto) as detected we're running in Docker")
+		return DEPLOY_METHOD_SHELL, nil
+	}
+
+	// If docker is not available, use shell
+	if deployMethod == "auto" && !isDockerAvailable {
+		d.log.Debug("Using shell to deploy (auto) as Docker is not available")
+		return DEPLOY_METHOD_SHELL, nil
+	}
+
+	if deployMethod == "shell" {
+		d.log.Debug("Using shell to deploy (specified by user)")
+		return DEPLOY_METHOD_SHELL, nil
+	}
+
+	// Below we're detecting some specific error cases to give more info to the user
+
+	if deployMethod == "docker" && isInDocker {
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Cannot deploy with Docker as we are already in a container")
+	}
+	if deployMethod == "docker" && !isDockerAvailable {
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Cannot deploy with Docker as it is not available")
+	}
+
+	// 	// First, ensure
+	// 	if  {
+	// 		return DEPLOY_METHOD_SHELL
+	// 	}
+	//
+	// 	dockerAvailable, dockerAvailableErr :=
+	//
+	// 	if deployMethod == "docker" {
+	// 		if dockerAvailable {
+	// 			d.log.Debug("Using Docker as deploy method as specified by user")
+	// 			d.startDeployContainer(instance)
+	// 		} else {
+	// 			d.log.Fatal("Docker is unavailable as a deploy method. {}", dockerAvailableErr)
+	// 		}
+	// 	} else {
+	// 		d.log.Info("Auto-detecting best deploy method")
+	// 		if dockerAvailable {
+	// 			d.log.Info("Docker is available, using Docker to deploy")
+	//
+	// 		} else {
+	// 			d.log.Info("Docker is unavailable, using shell to deploy. Docker message: {}", dockerAvailableErr)
+	// 			d.startDeployShell(instance)
+	// 		}
+	// 	}
+	// }
+
+	return DEPLOY_METHOD_UNKNOWN, errors.New(fmt.Sprintf("Invalid deployment method '%s' provided.  Must be one of ['auto','docker','shell']", deployMethod))
 }

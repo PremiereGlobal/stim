@@ -39,11 +39,14 @@ func (stim *Stim) PromptBool(label string, override bool, defaultvalue bool) (bo
 		return true, nil
 	}
 
-	defaultstring := "n"
+	y := "y"
+	n := "n"
 	if defaultvalue {
-		defaultstring = "y"
+		y = strings.ToUpper(y)
+	} else {
+		n = strings.ToUpper(n)
 	}
-	label = label + " (y/n) [" + defaultstring + "]"
+	label = label + " (" + y + "/" + n + ")"
 
 	prompt := promptui.Prompt{
 		Label: label,
@@ -54,7 +57,11 @@ func (stim *Stim) PromptBool(label string, override bool, defaultvalue bool) (bo
 		return false, err
 	}
 
-	if result == "" || strings.ToLower(strings.TrimSpace(result))[0:1] == "y" {
+	if result == "" {
+		return defaultvalue, nil
+	}
+
+	if strings.ToLower(strings.TrimSpace(result))[0:1] == "y" {
 		return true, nil
 	}
 

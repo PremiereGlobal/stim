@@ -50,13 +50,11 @@ func (v *Vault) Login() error {
 
 // GetToken returns the raw token
 func (v *Vault) GetToken() (string, error) {
-	v.tokenHelper = token.InternalTokenHelper{}
-	token, err := v.tokenHelper.Get()
-	if err != nil {
-		return "", v.parseError(err).(error)
+	if token := v.client.Token(); token != "" {
+		return token, nil
 	}
 
-	return token, nil
+	return "", errors.New("No token set")
 }
 
 // isCurrentTokenValid returns flase if user needs to relogin
@@ -132,23 +130,32 @@ func (v *Vault) IsNewLogin() bool {
 // getCredentials gathers username and password from the user
 // Could also use: github.com/hashicorp/vault/helper/password
 func (v *Vault) getCredentials() (string, string, error) {
-	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
-	if v.config.Username != "" {
-		fmt.Printf("Username (%s): ", v.config.Username)
-	} else {
-		fmt.Printf("Username: ")
-	}
-	reader := bufio.NewReader(os.Stdin)
-	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
 
-	if len(username) <= 0 { // If user just clicked enter
-		if v.config.Username == "" { // If there also isn't default
-			return "", "", v.newError("No username given").(error)
-		}
+	var username string
+	fmt.Println("Please enter your [" + v.config.AuthPath + "] credentials")
+	if v.config.UsernameSkipPrompt && v.config.Username != "" {
+		v.log.Debug("Skipping username prompt. Using config value 'vault-username:{}'", v.config.Username)
+		fmt.Printf("Username: %s\n", v.config.Username)
 		username = v.config.Username
 	} else {
-		v.config.Username = username
+		if v.config.Username != "" {
+			fmt.Printf("Username (%s): ", v.config.Username)
+		} else {
+			fmt.Printf("Username: ")
+		}
+
+		reader := bufio.NewReader(os.Stdin)
+		username, _ = reader.ReadString('\n')
+		username = strings.TrimSpace(username)
+
+		if len(username) <= 0 { // If user just clicked enter
+			if v.config.Username == "" { // If there also isn't default
+				return "", "", v.newError("No username given").(error)
+			}
+			username = v.config.Username
+		} else {
+			v.config.Username = username
+		}
 	}
 
 	fmt.Print("Password: ")

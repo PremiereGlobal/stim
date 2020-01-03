@@ -15,7 +15,7 @@ import (
 
 const (
 	defaultContainerRepo   = "premiereglobal/kube-vault-deploy"
-	defaultContainerTag    = "0.3.1"
+	defaultContainerTag    = "0.3.2"
 	defaultDeployDirectory = "./"
 	defaultDeployScript    = "deploy.sh"
 	defaultConfigFile      = "./stim.deploy.yaml"
@@ -51,9 +51,10 @@ type Global struct {
 
 // Spec contains the spec of a given environment/instance
 type Spec struct {
-	Kubernetes      Kubernetes        `yaml:"kubernetes"`
-	Secrets         []*v2e.SecretItem `yaml:"secrets"`
-	EnvironmentVars []*EnvironmentVar `yaml:"env"`
+	Kubernetes            Kubernetes        `yaml:"kubernetes"`
+	Secrets               []*v2e.SecretItem `yaml:"secrets"`
+	EnvironmentVars       []*EnvironmentVar `yaml:"env"`
+	AddConfirmationPrompt bool              `yaml:"addConfirmationPrompt"`
 }
 
 // Kubernetes describes the Kubernetes configuration to use
@@ -64,10 +65,11 @@ type Kubernetes struct {
 
 // Environment describes a deployment environment (i.e. dev, stage, prod, etc.)
 type Environment struct {
-	Name        string      `yaml:"name"`
-	Spec        *Spec       `yaml:"spec"`
-	Instances   []*Instance `yaml:"instances"`
-	instanceMap map[string]int
+	Name            string      `yaml:"name"`
+	Spec            *Spec       `yaml:"spec"`
+	Instances       []*Instance `yaml:"instances"`
+	RemoveAllPrompt bool        `yaml:"removeAllPrompt"`
+	instanceMap     map[string]int
 }
 
 // Instance describes an instance of a deployment within an environment (i.e. us-west-2 for env prod)
@@ -234,6 +236,7 @@ func (d *Deploy) processConfig() {
 
 			// Add stim envs/secrets and ensure no reserved env vars have been set
 			d.finalizeEnv(instance, stimEnvs, stimSecrets)
+			// d.finalizeEnv(instance, stimEnvs)
 		}
 	}
 
@@ -247,9 +250,11 @@ func (d *Deploy) processConfig() {
 
 // Generate the list of reserved env var names
 func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, stimSecrets []*v2e.SecretItem) {
+	// func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar) {
 
 	// Generate the list of reserved env var names (additionally SECRET_CONFIG as we'll add that one at the end)
 	reservedVarNames := []string{"SECRET_CONFIG", "STIM_DEPLOY"}
+	// reservedVarNames := []string{"STIM_DEPLOY"}
 	for _, s := range stimEnvs {
 		reservedVarNames = append(reservedVarNames, s.Name)
 	}

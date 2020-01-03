@@ -6,13 +6,14 @@ import (
 
 	"github.com/PremiereGlobal/stim/pkg/env"
 	"github.com/PremiereGlobal/stim/pkg/kubernetes"
-	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
+	"github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
 )
 
 type EnvConfig struct {
 	EnvVars    []string
 	Kubernetes *EnvConfigKubernetes
 	Vault      *EnvConfigVault
+	WorkDir    string
 }
 
 type EnvConfigKubernetes struct {
@@ -22,7 +23,7 @@ type EnvConfigKubernetes struct {
 }
 
 type EnvConfigVault struct {
-	SecretConfig    []*v2e.SecretItem
+	SecretItems     []*vaulttoenvs.SecretItem
 	CliVersionVault string
 }
 
@@ -32,6 +33,8 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 	if err != nil {
 		stim.log.Fatal("Stim: Error creating new environment.", err)
 	}
+
+	e.SetWorkDir(config.WorkDir)
 
 	e.AddEnvVars(config.EnvVars...)
 
@@ -51,7 +54,7 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 
 		// If namespace not set use the default from Vault
 		defaultNamespace := config.Kubernetes.DefaultNamespace
-		if defaultNamespace != "" {
+		if defaultNamespace == "" {
 			defaultNamespace = secretValues["default-namespace"]
 		}
 
@@ -65,12 +68,15 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 			ContextName:             config.Kubernetes.Cluster,
 			ContextSetCurrent:       true,
 			ContextDefaultNamespace: defaultNamespace,
-			KubeConfigFilePath:      kubeConfigFilePath,
+			// KubeConfigFilePath:      kubeConfigFilePath,
 		}
 
+		kc := kubernetes.NewKubeConfig(kubeConfigFilePath)
+		// kc.SetKubeconfig(kubeConfigOptions)
+
 		// Write out the kubeconfig file
-		kube := stim.Kubernetes()
-		err = kube.SetKubeconfig(kubeConfigOptions)
+		// kube := stim.Kubernetes()
+		err = kc.ModifyConfig(kubeConfigOptions)
 		if err != nil {
 			stim.log.Fatal("Stim: Error creating kubeconfig for environment. {}", err)
 		}
@@ -78,8 +84,44 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 		// Tell the environment to use the kubeconfig in the environment PATH
 		e.AddEnvVars([]string{fmt.Sprintf("%s=%s", "KUBECONFIG", kubeConfigFilePath)}...)
 
+		// Get the verison of Kubernetes
+		// kube.
+
+		// Get the version of Helm
+		// kubectl get po -n ${TILLER_NAMESPACE} -l app=helm,name=tiller
+
 		// Link to our Kubernetes version
 		// e.PathLink("cach-dir/kubectl-v1.10.8", "kubectl")
+	}
+
+	// If requiring secrets, set those up
+	if config.Vault != nil && len(config.Vault.SecretItems) > 0 {
+
+		vault := stim.Vault()
+
+		vaultAddress, err := vault.GetAddress()
+		if err != nil {
+			stim.log.Fatal("Stim: Unable to get Vault address for environment. {}", err)
+		}
+
+		vaultToken, err := vault.GetToken()
+		if err != nil {
+			stim.log.Fatal("Stim: Unable to get Vault token for environment. {}", err)
+		}
+
+		v2e := vaulttoenvs.NewVaultToEnvs(&vaulttoenvs.Config{
+			VaultAddr: vaultAddress,
+		})
+		v2e.SetVaultToken(vaultToken)
+		v2e.AddSecretItems(config.Vault.SecretItems...)
+
+		secretEnvs, err := v2e.GetEnvs()
+		if err != nil {
+			stim.log.Fatal("Stim: Unable to get Vault secrets for environment. {}", err)
+		}
+
+		e.AddEnvVars(secretEnvs...)
+
 	}
 
 	return e

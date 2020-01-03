@@ -68,6 +68,20 @@ func (e *Env) Link(source string, newname string) error {
 	return err
 }
 
+// LinkWithPathOverride creates a symlink in the environment path to the source file
+// The pathOverride parameter overrides the source path
+// if newname is empty, will use the same filename
+func (e *Env) LinkWithPathOverride(source string, pathOverride string, newname string) error {
+
+	if newname == "" {
+		newname = filepath.Base(source)
+	}
+
+	err := os.Symlink(filepath.Join(pathOverride, filepath.Base(source)), filepath.Join(e.GetPath(), newname))
+
+	return err
+}
+
 // GetEnvVars combines the user provided envs with the environment PATH
 func (e *Env) GetEnvVars() []string {
 

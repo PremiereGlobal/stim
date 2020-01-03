@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"fmt"
+	// "path/filepath"
 
 	"github.com/PremiereGlobal/stim/stim"
 )
@@ -13,19 +14,43 @@ func (d *Deploy) startDeployShell(instance *Instance) {
 		envs[i] = fmt.Sprintf("%s=%s", e.Name, e.Value)
 	}
 
+	// e := stim.NewEnv()
+	// e.SetEnvs(envs)
+	// e.SetSecrets(instance.Spec.Secrets)
+	// e.SetKubeCluster(instance.Spec.Kubernetes.Cluster, instance.Spec.Kubernetes.ServiceAccount)
+
 	e := d.stim.Env(&stim.EnvConfig{
 		EnvVars: envs,
 		Kubernetes: &stim.EnvConfigKubernetes{
 			Cluster:          instance.Spec.Kubernetes.Cluster,
 			ServiceAccount:   instance.Spec.Kubernetes.ServiceAccount,
-			DefaultNamespace: ""},
-		Vault: &stim.EnvConfigVault{},
+			DefaultNamespace: "kube-system"},
+		Vault: &stim.EnvConfigVault{
+			SecretItems: instance.Spec.Secrets,
+		},
+		WorkDir: d.config.Deployment.fullDirectoryPath,
 	})
-	defer e.Close()
 
-	d.log.Info(e.Run("cat $KUBECONFIG"))
-	d.log.Info(e.Run("env"))
-	d.log.Info(e.Run("which kubectl"))
+	d.log.Debug("Setting working directory {}", d.config.Deployment.fullDirectoryPath)
+	// err := e.SetWorkDir()
+	// if err != nil {
+	// 	d.log.Fatal("Set work dir error {}", err)
+	// }
+
+	// d.log.Info(e.Run("cat $KUBECONFIG"))
+	d.log.Debug("Running script ./{}", d.config.Deployment.Script)
+	// d.log.Info(e.Run("ls "+filepath.Join(d.config.Deployment.fullDirectoryPath, d.config.Deployment.Script)))
+
+	// a,_ := e.Run("ls -al; pwd; env")
+	// d.log.Info(a)
+
+	// out, err := e.Run("./"+d.config.Deployment.Script)
+	out, err := e.Run("./" + d.config.Deployment.Script)
+	if err != nil {
+		d.log.Fatal("Error running command: {}", err)
+	}
+
+	d.log.Info(out)
 }
 
 //

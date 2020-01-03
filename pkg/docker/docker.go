@@ -1,9 +1,12 @@
 package docker
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 
 	docker "github.com/docker/docker/client"
 )
@@ -35,4 +38,31 @@ func IsDockerAvailable() (bool, error) {
 	}
 
 	return true, nil
+}
+
+// IsInDocker return true if stim is running in a container, false otherwise
+// No clear consensus on how to do this so it may need to change in the future
+func IsInDocker() bool {
+
+	// Check if a .dockerenv exists
+	// This should only be in docker containers but there's always a chance...
+	_, err := os.Stat("/.dockerenv")
+	if err == nil {
+		return true
+	}
+
+	// Check if our current process is in a docker cgroup
+	_, err = os.Stat("/proc/self/cgroup")
+	if err == nil {
+		if f, err := os.Open("/proc/self/cgroup"); err != nil {
+			scanner := bufio.NewScanner(f)
+			for scanner.Scan() {
+				if strings.Contains(scanner.Text(), "docker") {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }
