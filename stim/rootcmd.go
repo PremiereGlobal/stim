@@ -1,16 +1,15 @@
 package stim
 
 import (
-	"strings"
+	"os"
+	"path/filepath"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-func initRootCommand(viper *viper.Viper) *cobra.Command {
-	viper.SetEnvPrefix("stim")
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+func (stim *Stim) initRootCommand() {
+
 	var cmd = &cobra.Command{
 		Use:     "stim",
 		Short:   "stim (stimulation delivery package) - Use your psychoactive hyperstimulants responsibly.",
@@ -21,20 +20,39 @@ func initRootCommand(viper *viper.Viper) *cobra.Command {
 		},
 	}
 
+	// The default path for stim resources is in the ${HOME}/.stim directory
+	// Users can override this with the STIM_PATH env
+	// If the home directory cannot be determined, use a temp directory as the default
+	defaultStimPath := ""
+	home, err := homedir.Dir()
+	if err != nil {
+		defaultStimPath = filepath.Join(os.TempDir(), ".stim")
+	} else {
+		defaultStimPath = filepath.Join(home, ".stim")
+	}
+	stim.config.SetDefault("path", defaultStimPath)
+
+	// The default cache path for stim resources
+	// Can be overridden by a line in the config file or the env var STIM_CACHE_PATH
+	defaultStimCachePath := filepath.Join(defaultStimPath, "cache")
+	stim.config.SetDefault("cache-path", defaultStimCachePath)
+
 	// Set root-level flags
+	defaultStimConfigFilePath := filepath.Join(defaultStimPath, "config.yaml")
 	cmd.PersistentFlags().String("config", defaultStimConfigFilePath, "config file (default is "+defaultStimConfigFilePath+")")
-	viper.BindPFlag("config-file", cmd.PersistentFlags().Lookup("config"))
+	stim.config.BindPFlag("config-file", cmd.PersistentFlags().Lookup("config"))
+
 	cmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
-	viper.BindPFlag("verbose", cmd.PersistentFlags().Lookup("verbose"))
+	stim.config.BindPFlag("verbose", cmd.PersistentFlags().Lookup("verbose"))
 	cmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")
-	viper.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
+	stim.config.BindPFlag("noprompt", cmd.PersistentFlags().Lookup("noprompt"))
 	cmd.PersistentFlags().StringP("auth-method", "", "", "Default authentication method (ex: ldap, github, etc.)")
-	viper.BindPFlag("auth.method", cmd.PersistentFlags().Lookup("auth-method"))
+	stim.config.BindPFlag("auth.method", cmd.PersistentFlags().Lookup("auth-method"))
 	cmd.PersistentFlags().BoolP("is-automated", "", false, "Error on anything that needs to prompt and was not passed in as an ENV var or command flag")
-	viper.BindPFlag("is-automated", cmd.PersistentFlags().Lookup("is-automated"))
+	stim.config.BindPFlag("is-automated", cmd.PersistentFlags().Lookup("is-automated"))
 
 	// Set some defaults
-	viper.SetDefault("vault-timeout", 15)
+	stim.config.SetDefault("vault-timeout", 15)
 
-	return cmd
+	stim.rootCmd = cmd
 }

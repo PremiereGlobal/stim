@@ -4,10 +4,10 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/pkg/vault"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -16,12 +16,7 @@ var defaultStimConfigFilePath string
 var version string
 
 func init() {
-	home, err := homedir.Dir()
-	if err != nil {
-		defaultStimConfigFilePath = filepath.Join(os.TempDir(), ".stim", "config.yaml")
-	} else {
-		defaultStimConfigFilePath = filepath.Join(home, ".stim", "config.yaml")
-	}
+
 	// Set version for local testing if not set by build system
 	lv := "local"
 	if version == "" {
@@ -41,12 +36,16 @@ type Stim struct {
 //New gets the Stim struct, which is treated like a singleton so you will get the same one
 //as everywhere when this is called
 func New() *Stim {
-	log := stimlog.GetLogger()
-	logc := stimlog.GetLoggerConfig()
-	logc.ForceFlush(true)
-	config := viper.New()
-	root := initRootCommand(config)
-	return &Stim{log: log, logConfig: logc, config: config, rootCmd: root}
+	stim := &Stim{}
+	stim.log = stimlog.GetLogger()
+	stim.logConfig = stimlog.GetLoggerConfig()
+	stim.logConfig.ForceFlush(true)
+	stim.config = viper.New()
+	stim.config.SetEnvPrefix("stim")
+	stim.config.AutomaticEnv()
+	stim.config.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	stim.initRootCommand()
+	return stim
 }
 
 //GetLogger for Stim
@@ -62,8 +61,7 @@ func (stim *Stim) Execute() {
 
 func (stim *Stim) commandInit() {
 	// Load a config file (if present)
-	loadConfigErr := stim.configLoadConfigFile()
-	stim.configInitDefaultValues()
+	stim.configLoadConfigFile()
 
 	if !stim.ConfigGetBool("logging.file.disable") {
 		lfp := stim.ConfigGetString("logging.file.path")
@@ -81,7 +79,6 @@ func (stim *Stim) commandInit() {
 	}
 	// Set log level, this is done as early as possible so we can start using it
 	if stim.ConfigGetBool("verbose") == true {
-		// stim.log.SetLevel(logrus.DebugLevel)
 		stim.logConfig.SetLevel(stimlog.DebugLevel)
 		stim.log.Debug("Stim version: {}", version)
 		stim.log.Debug("Debug log level set")
@@ -93,12 +90,9 @@ func (stim *Stim) commandInit() {
 		stim.log.Info("Running in automated way")
 	}
 
-	if loadConfigErr == nil {
-		stim.log.Debug("Using config file: {}", stim.config.ConfigFileUsed())
-	} else if !stim.IsAutomated() {
-		stim.log.Warn("Issue loading config file use --verbose for more info")
-		stim.log.Debug(loadConfigErr)
-	}
+	stim.log.Debug("STIM_CONFIG_FILE: {}", stim.config.Get("config-file"))
+	stim.log.Debug("STIM_PATH: {}", stim.config.Get("path"))
+	stim.log.Debug("STIM_CACHE_PATH: {}", stim.config.Get("cache-path"))
 }
 
 func (stim *Stim) BindCommand(command *cobra.Command, parentCommand *cobra.Command) {

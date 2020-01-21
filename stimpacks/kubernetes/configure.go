@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	kubepkg "github.com/PremiereGlobal/stim/pkg/kubernetes"
+	"github.com/PremiereGlobal/stim/pkg/kubernetes"
 	// "github.com/davecgh/go-spew/spew"
 )
 
@@ -50,7 +50,7 @@ func (k *Kubernetes) configureContext() error {
 	}
 
 	// Build the config options
-	kubeConfigOptions := &kubepkg.KubeConfigOptions{
+	kubeConfigOptions := &kubernetes.ConfigOptions{
 		ClusterName:             cluster,
 		ClusterServer:           secretValues["cluster-server"],
 		ClusterCA:               secretValues["cluster-ca"],
@@ -61,9 +61,9 @@ func (k *Kubernetes) configureContext() error {
 		ContextDefaultNamespace: namespace,
 	}
 
-	// Set the kubeconfig
-	kube := k.stim.Kubernetes()
-	err = kube.SetKubeconfig(kubeConfigOptions)
+	// Gets us a kubeConfig object using the default kubeconfig paths, etc.
+	kubeConfig := kubernetes.NewConfig()
+	err = kubeConfig.Modify(kubeConfigOptions)
 	if err != nil {
 		return err
 	}
