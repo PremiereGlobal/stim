@@ -4,7 +4,7 @@ import (
 	"github.com/PremiereGlobal/stim/stim"
 	"github.com/PremiereGlobal/stim/stimpacks/aws"
 	"github.com/PremiereGlobal/stim/stimpacks/deploy"
-	"github.com/PremiereGlobal/stim/stimpacks/env"
+	// "github.com/PremiereGlobal/stim/stimpacks/env"
 	"github.com/PremiereGlobal/stim/stimpacks/kubernetes"
 	"github.com/PremiereGlobal/stim/stimpacks/pagerduty"
 	"github.com/PremiereGlobal/stim/stimpacks/slack"
@@ -22,6 +22,6 @@ func main() {
 	stim.AddStimpack(slack.New())
 	stim.AddStimpack(vault.New())
 	stim.AddStimpack(version.New())
-	stim.AddStimpack(env.New())
+	// stim.AddStimpack(env.New())
 	stim.Execute()
 }

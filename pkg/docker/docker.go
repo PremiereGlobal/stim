@@ -40,7 +40,7 @@ func IsDockerAvailable() (bool, error) {
 	return true, nil
 }
 
-// IsInDocker return true if stim is running in a container, false otherwise
+// IsInDocker return true if currently running in a container, false otherwise
 // No clear consensus on how to do this so it may need to change in the future
 func IsInDocker() bool {
 

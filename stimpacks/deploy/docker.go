@@ -4,15 +4,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"path/filepath"
 
 	"github.com/PremiereGlobal/stim/pkg/docker"
-	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
-	"github.com/mitchellh/go-homedir"
-	// "github.com/PremiereGlobal/stim/stim"
 )
 
 func (d *Deploy) startDeployContainer(instance *Instance) {
@@ -41,36 +37,13 @@ func (d *Deploy) startDeployContainer(instance *Instance) {
 		envs[i] = fmt.Sprintf("%s=%s", e.Name, e.Value)
 	}
 
-	// Get the "home" directory for storing cache files
-	home, err := homedir.Dir()
-	if err != nil {
-		d.log.Fatal("Unable to determine home directory. {}", err)
-	}
-	cacheDir := filepath.Join(home, ".stim/cache/linux")
-	err = utils.CreateDirIfNotExist(cacheDir, utils.UserGroupMode)
-	if err != nil {
-		d.log.Fatal("Could not create cache directory {}", cacheDir)
-	}
-
-	hostCacheDir := fmt.Sprintf("%s/.kube-vault-deploy/bin-cache", home)
-	hostCacheDir = filepath.Join(home, ".stim/cache/linux")
-	cacheDir = "/stim/cache/"
-	cacheDir = "/bin-cache"
-	workDir := "/stim/deploy"
-	workDir = "/scripts"
+	// Since we're using Docker, we need to mount the Linux binaries
+	hostCacheDir := d.stim.ConfigGetCacheDir("bin/linux")
+	cacheDir := "/bin-cache"
+	workDir := "/scripts"
 	pathDir := "/stim/path"
 
-	// Make an "env" on the host to hold the in-container symlinks
-	// e := d.stim.Env(&stim.EnvConfig{})
-	// defer e.Close()
-	// err = e.LinkWithPathOverride(filepath.Join(hostCacheDir, "kubectl-v1.10.8"), cacheDir, "kubectl")
-	// if err != nil {
-	// 	d.log.Fatal("Unable to link to path. {}", err)
-	// }
-	// d.log.Warn(e.Run(fmt.Sprintf("ls -alh %s", e.GetPath())))
-
 	// Create the container spec
-
 	cmd := []string{"/bin/sh", "-c", fmt.Sprintf("export PATH=%s:${PATH}; ./%s", pathDir, d.config.Deployment.Script)}
 	resp, err := dockerClient.ContainerCreate(ctx, &container.Config{
 		Image:        image,

@@ -1,16 +1,14 @@
 package stim
 
 import (
+	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/imdario/mergo"
-
-	"io/ioutil"
-	"os"
-
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -62,7 +60,12 @@ func (stim *Stim) ConfigRemoveKey(key string) error {
 	if err != nil {
 		return err
 	}
-	cm := config[keys[0]].(map[interface{}]interface{})
+	cm, ok := config[keys[0]].(map[interface{}]interface{})
+	if !ok {
+		// Key doesn't exist, not thing to remove
+		return nil
+	}
+
 	//This is super gross, not sure of a better way to deal with this
 Main:
 	for i, v := range keys[1:] {
@@ -180,7 +183,7 @@ func (stim *Stim) ConfigGetStimConfigDir() (string, error) {
 }
 
 // CreateConfigFile will create the stim config file if it doesn't exist
-// Used the frist time this code is ran so sub functions do not get errors when
+// Used the first time this code is ran so sub functions do not get errors when
 // writting to the config.
 func (stim *Stim) ConfigGetStimConfigFile() (string, error) {
 	cfp, err := filepath.Abs(stim.ConfigGetString("config-file"))
@@ -218,8 +221,17 @@ func (stim *Stim) configLoadConfigFile() error {
 			return nil
 		}
 	}
+
 	stim.config.SetConfigFile(configFile)
 	confErr := stim.config.ReadInConfig()
+
+	// If the config file has a config-file entry remove it to avoid any sort
+	// of circular reference.  This doesn't currently work so is commented out
+	// to be dealt with in the future.  It doensn't work but ConfigRemoveKey only
+	// removes it from the config file and not from the current stim.config
+	// stim.ConfigRemoveKey("config-file") // old way
+	// stim.ConfigRemoveKey("config.file") // new way
+
 	return confErr
 }
 
@@ -248,4 +260,19 @@ func (stim *Stim) configInitDefaultValues() {
 			stim.ConfigSetString("logging.file.level", "info")
 		}
 	}
+}
+
+// ConfigGetStimCacheDir returns the stim cache directory
+// subdir paramter optionally provides a subdirectory within the cache
+func (stim *Stim) ConfigGetCacheDir(subDir string) string {
+
+	cachePath := stim.ConfigGetString("cache-path")
+	cacheSubPath := filepath.Join(cachePath, subDir)
+
+	err := utils.CreateDirIfNotExist(cacheSubPath, utils.UserGroupMode)
+	if err != nil {
+		stim.log.Fatal("Error creating cache directory at {}", cacheSubPath)
+	}
+
+	return cacheSubPath
 }

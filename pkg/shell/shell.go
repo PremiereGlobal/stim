@@ -8,14 +8,15 @@ import (
 	"syscall"
 )
 
+// ShellCommand defines shell command parameters
 type ShellCommand struct {
 	Shell   []string
 	Envs    []string
 	Command []string
+	WorkDir string
 }
 
 // Run runs a shell command and returns the output
-// NEEDS WORk to handle output/errors better
 func Run(shellCommand ShellCommand) (string, error) {
 
 	// Set default shell
@@ -38,24 +39,19 @@ func Run(shellCommand ShellCommand) (string, error) {
 	}
 
 	// Capture stderr messages
-	// stderr, err := cmd.StderrPipe()
-	// if err != nil {
-	//   return "", errors.New(fmt.Sprintf("Error creating stderr pipe. %v", err))
-	// }
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Error creating stderr pipe. %v", err))
+	}
 
 	// Run the command (async)
 	if err := cmd.Start(); err != nil {
 		return "", errors.New(fmt.Sprintf("Error starting command %v", err))
 	}
 
-	// Output stdout
-	out, _ := ioutil.ReadAll(stdout)
-
-	// Output stderr
-	// scanner := bufio.NewScanner(stderr)
-	// for scanner.Scan() {
-	//   d.log.Warn(scanner.Text())
-	// }
+	// Output strings
+	stdoutMessage, _ := ioutil.ReadAll(stdout)
+	stderrMessage, _ := ioutil.ReadAll(stderr)
 
 	// Wait for command to finish
 	if err := cmd.Wait(); err != nil {
@@ -67,10 +63,10 @@ func Run(shellCommand ShellCommand) (string, error) {
 			// defined for both Unix and Windows and in both cases has
 			// an ExitStatus() method with the same signature.
 			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
-				return "", errors.New(fmt.Sprintf("Shell command exit with code %d. %v", status.ExitStatus(), err))
+				return "", errors.New(fmt.Sprintf("Shell command exit with code %d. %v", status.ExitStatus(), string(stderrMessage)))
 			}
 		}
 	}
 
-	return string(out), nil
+	return string(stdoutMessage), nil
 }

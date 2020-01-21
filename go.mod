@@ -27,10 +27,7 @@ require (
 	github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262
 	//	github.com/hashicorp/vault v1.0.2
 	github.com/imdario/mergo v0.3.8
-	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
-	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
-	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
