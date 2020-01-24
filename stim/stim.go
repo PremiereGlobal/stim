@@ -8,11 +8,11 @@ import (
 
 	"github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/pkg/vault"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var defaultStimConfigFilePath string
 var version string
 
 func init() {
@@ -60,8 +60,36 @@ func (stim *Stim) Execute() {
 }
 
 func (stim *Stim) commandInit() {
+
+	// Here we need to process certain config variables as this is the first time we have
+	// access to them, including command line flags.
+	// Particularly needed around flags that could change global pathing
+	basePath := stim.config.GetString("path")
+	if basePath == "" {
+		home, err := homedir.Dir()
+		if err != nil {
+			basePath = filepath.Join(os.TempDir(), ".stim")
+		} else {
+			basePath = filepath.Join(home, ".stim")
+		}
+	}
+
+	if stim.config.GetString("config-file") == "" {
+		stim.config.Set("config-file", filepath.Join(basePath, "config.yaml"))
+	}
+
 	// Load a config file (if present)
 	stim.configLoadConfigFile()
+
+	// Now that we've loaded the config file, do one final check (in case path was set in the file)
+	// If not set, use the basePath
+	if stim.config.GetString("path") == "" {
+		stim.config.Set("path", basePath)
+	}
+
+	if stim.config.GetString("cache-path") == "" {
+		stim.config.Set("cache-path", filepath.Join(stim.config.GetString("path"), "cache"))
+	}
 
 	if !stim.ConfigGetBool("logging.file.disable") {
 		lfp := stim.ConfigGetString("logging.file.path")

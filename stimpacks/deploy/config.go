@@ -10,12 +10,13 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
+	"github.com/PremiereGlobal/stim/stim"
 	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
 )
 
 const (
 	defaultContainerRepo   = "premiereglobal/kube-vault-deploy"
-	defaultContainerTag    = "0.3.2"
+	defaultContainerTag    = "0.3.3"
 	defaultDeployDirectory = "./"
 	defaultDeployScript    = "deploy.sh"
 	defaultConfigFile      = "./stim.deploy.yaml"
@@ -51,10 +52,11 @@ type Global struct {
 
 // Spec contains the spec of a given environment/instance
 type Spec struct {
-	Kubernetes            Kubernetes        `yaml:"kubernetes"`
-	Secrets               []*v2e.SecretItem `yaml:"secrets"`
-	EnvironmentVars       []*EnvironmentVar `yaml:"env"`
-	AddConfirmationPrompt bool              `yaml:"addConfirmationPrompt"`
+	Kubernetes            Kubernetes              `yaml:"kubernetes"`
+	Secrets               []*v2e.SecretItem       `yaml:"secrets"`
+	EnvironmentVars       []*EnvironmentVar       `yaml:"env"`
+	AddConfirmationPrompt bool                    `yaml:"addConfirmationPrompt"`
+	Tools                 map[string]stim.EnvTool `yaml:"tools"`
 }
 
 // Kubernetes describes the Kubernetes configuration to use
@@ -194,9 +196,9 @@ func (d *Deploy) processConfig() {
 				} else {
 					d.log.Fatal("Kubernetes cluster is not set for instance '{}' in environment '{}'", instance.Name, environment.Name)
 				}
-
 			}
 
+			instance.Spec.Tools = mergeTools(instance.Spec.Tools, environment.Spec.Tools, d.config.Global.Spec.Tools)
 			instance.Spec.EnvironmentVars = mergeEnvVars(instance.Spec.EnvironmentVars, environment.Spec.EnvironmentVars, d.config.Global.Spec.EnvironmentVars)
 			instance.Spec.Secrets = mergeSecrets(instance.Spec.Secrets, environment.Spec.Secrets, d.config.Global.Spec.Secrets)
 
@@ -236,7 +238,6 @@ func (d *Deploy) processConfig() {
 
 			// Add stim envs/secrets and ensure no reserved env vars have been set
 			d.finalizeEnv(instance, stimEnvs, stimSecrets)
-			// d.finalizeEnv(instance, stimEnvs)
 		}
 	}
 
@@ -250,11 +251,10 @@ func (d *Deploy) processConfig() {
 
 // Generate the list of reserved env var names
 func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, stimSecrets []*v2e.SecretItem) {
-	// func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar) {
 
 	// Generate the list of reserved env var names (additionally SECRET_CONFIG as we'll add that one at the end)
 	reservedVarNames := []string{"SECRET_CONFIG", "STIM_DEPLOY"}
-	// reservedVarNames := []string{"STIM_DEPLOY"}
+
 	for _, s := range stimEnvs {
 		reservedVarNames = append(reservedVarNames, s.Name)
 	}
@@ -345,6 +345,34 @@ func mergeSecrets(instance []*v2e.SecretItem, environment []*v2e.SecretItem, glo
 	// Add global envVars to instance (if they don't already exist)
 	for _, inst := range instance {
 		result = append(result, inst)
+	}
+
+	return result
+}
+
+// mergeTools is used to merge tool configurations
+func mergeTools(instance map[string]stim.EnvTool, environment map[string]stim.EnvTool, global map[string]stim.EnvTool) map[string]stim.EnvTool {
+
+	result := global
+
+	// Overwrite with instance tools
+	for k, v := range environment {
+		// fmt.Printf("%v:%v", k, v)
+		if v.Unset == true {
+			delete(result, k)
+		} else {
+			result[k] = v
+		}
+	}
+
+	// Overwrite with instance tools
+	for k, v := range instance {
+		// fmt.Printf("%v:%v", k, v)
+		if v.Unset == true {
+			delete(result, k)
+		} else {
+			result[k] = v
+		}
 	}
 
 	return result

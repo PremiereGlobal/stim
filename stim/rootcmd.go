@@ -1,10 +1,10 @@
 package stim
 
 import (
-	"os"
-	"path/filepath"
+	// "os"
+	// "path/filepath"
 
-	"github.com/mitchellh/go-homedir"
+	// "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
 
@@ -20,28 +20,12 @@ func (stim *Stim) initRootCommand() {
 		},
 	}
 
-	// The default path for stim resources is in the ${HOME}/.stim directory
-	// Users can override this with the STIM_PATH env
-	// If the home directory cannot be determined, use a temp directory as the default
-	defaultStimPath := ""
-	home, err := homedir.Dir()
-	if err != nil {
-		defaultStimPath = filepath.Join(os.TempDir(), ".stim")
-	} else {
-		defaultStimPath = filepath.Join(home, ".stim")
-	}
-	stim.config.SetDefault("path", defaultStimPath)
-
-	// The default cache path for stim resources
-	// Can be overridden by a line in the config file or the env var STIM_CACHE_PATH
-	defaultStimCachePath := filepath.Join(defaultStimPath, "cache")
-	stim.config.SetDefault("cache-path", defaultStimCachePath)
-
-	// Set root-level flags
-	defaultStimConfigFilePath := filepath.Join(defaultStimPath, "config.yaml")
-	cmd.PersistentFlags().String("config", defaultStimConfigFilePath, "config file (default is "+defaultStimConfigFilePath+")")
+	cmd.PersistentFlags().String("path", "", "Path for stim configuration files (defaults to ${HOME}/.stim)")
+	stim.config.BindPFlag("path", cmd.PersistentFlags().Lookup("path"))
+	cmd.PersistentFlags().String("cache-path", "", "Path for storing cache files (defaults to ${STIM_PATH}/cache)")
+	stim.config.BindPFlag("cache-path", cmd.PersistentFlags().Lookup("cache-path"))
+	cmd.PersistentFlags().String("config", "", "Path to an explicit config file (defaults to ${STIM_PATH}/config.yaml)")
 	stim.config.BindPFlag("config-file", cmd.PersistentFlags().Lookup("config"))
-
 	cmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
 	stim.config.BindPFlag("verbose", cmd.PersistentFlags().Lookup("verbose"))
 	cmd.PersistentFlags().BoolP("noprompt", "x", false, "Do not prompt for input. Will default to true for Jenkin builds.")

@@ -2,10 +2,8 @@
 
 Stim can be used to deploy to Kubernetes using Vault to configure a deployment environment.
 
-> WARNING: this functionality has not been tested for automated deploys.  Use at your own risk.
-
 ## Prerequisites
-To use this functionality, the [Docker](https://docs.docker.com/install/) daemon must be installed and running on the machine.
+This functionality relies on a running [Docker](https://docs.docker.com/install/) daemon. It can also be run inside a container.
 
 ## Usage
 
@@ -18,6 +16,7 @@ To use this functionality, the [Docker](https://docs.docker.com/install/) daemon
 | `-f, --deploy-file` | Location of the deployment config file to use.  Defaults to `./stim.deploy.yaml` |
 | `-e, --environment` | Environment to deploy. If no value is provided, the user will be prompted. |
 | `-i, --instance` | Instance to deploy to. The special value of "all" can be specified to deploy to all environments. If no value is provided, the user will be prompted. |
+| `-m, --method` | Method to use for deployment.  Valid values are 'auto' 'docker' or 'shell'.  Auto will use docker if it is available or fall back to shell if not. 'shell' is not recommended unless in a controlled environment. (default "auto") |
 
 ## Configuration
 `stim deploy` is configured with a YAML file (`./stim.deploy.yaml` by default) that provides an inventory of the deployment environments as well as the configuration of those environments.
@@ -128,6 +127,7 @@ The *Spec* represents a set of environment configurations that determine where t
 | `kubernetes` | Kubernetes configuration | [Kubernetes](#kubernetes) | `false` | |
 | `env` | Static environment variables | [[]EnvVar](#envvar) | `false` | |
 | `secrets` | Secret configuration specification | [[]Secret](#secret) | `false` | |
+| `tools` | Configuration for CLI tools required for deployment | [Tools](#tools) | `false` | |
 
 ### Kubernetes
 
@@ -159,3 +159,21 @@ The *SecretSpec* type represents a definition of a Vault secret being pulled int
 | `set` | Key-value mappings of environment variable names to secret field names | `map[string]string` | `true` | |
 | `version` | The version to pull for Vault kv2 secrets.  Can be negative to "go back" x number of version.  For example, `-1` will pull the last previous version.  | `unsigned int` | `true` | |
 | `ttl` | The time-to-live, in seconds, for dynamic secrets. | `int`| `false` | |
+
+### Tools
+
+The *Tools* configuration specifies which CLI tools are required.
+
+| Field | Description | Type | Required | Default |
+| ----- | ----------- | ------ | -------- | -------- |
+| `helm` | Include if `helm` is required.   | [ToolSpec](#toolspec) | `false` | |
+| `kubectl` | Include if `kubectl` is required. Will match version to the cluster if `version` is not specified. | [ToolSpec](#toolspec) | `false` | |
+| `vault` | Include if `vault` is required. Will match version to the server if `version` is not specified. | [ToolSpec](#toolspec) | `false` | |
+
+### ToolSpec
+
+Describes the requirement of the CLI tool
+
+| Field | Description | Type | Required | Default |
+| ----- | ----------- | ------ | -------- | -------- |
+| `version` | The version of the tool needed. | `string` | `only for helm` | |

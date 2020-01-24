@@ -114,7 +114,6 @@ func (d *Deploy) Run() {
 			d.Deploy(selectedEnvironment, inst)
 		}
 	} else {
-		d.log.Info("Deploying to environment: {} and instance: {}", selectedInstanceName)
 		inst := selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]]
 		if selectedEnvironment.Spec.AddConfirmationPrompt || inst.Spec.AddConfirmationPrompt {
 			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
@@ -172,10 +171,10 @@ func (d *Deploy) DetermineDeployMethod() (int, error) {
 		return DEPLOY_METHOD_SHELL, nil
 	}
 
-	// If docker is not available, use shell
+	// If docker is not available, and auto is selected, force the user to specify --shell
+	// This is to avoid inadvertently running shell commands on their machine
 	if deployMethod == "auto" && !isDockerAvailable {
-		d.log.Debug("Using shell to deploy (auto) as Docker is not available")
-		return DEPLOY_METHOD_SHELL, nil
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Docker is not available.  To deploy using shell use '--method=shell' argument (this is not recommended)")
 	}
 
 	if deployMethod == "shell" {
@@ -191,32 +190,6 @@ func (d *Deploy) DetermineDeployMethod() (int, error) {
 	if deployMethod == "docker" && !isDockerAvailable {
 		return DEPLOY_METHOD_UNKNOWN, errors.New("Cannot deploy with Docker as it is not available")
 	}
-
-	// 	// First, ensure
-	// 	if  {
-	// 		return DEPLOY_METHOD_SHELL
-	// 	}
-	//
-	// 	dockerAvailable, dockerAvailableErr :=
-	//
-	// 	if deployMethod == "docker" {
-	// 		if dockerAvailable {
-	// 			d.log.Debug("Using Docker as deploy method as specified by user")
-	// 			d.startDeployContainer(instance)
-	// 		} else {
-	// 			d.log.Fatal("Docker is unavailable as a deploy method. {}", dockerAvailableErr)
-	// 		}
-	// 	} else {
-	// 		d.log.Info("Auto-detecting best deploy method")
-	// 		if dockerAvailable {
-	// 			d.log.Info("Docker is available, using Docker to deploy")
-	//
-	// 		} else {
-	// 			d.log.Info("Docker is unavailable, using shell to deploy. Docker message: {}", dockerAvailableErr)
-	// 			d.startDeployShell(instance)
-	// 		}
-	// 	}
-	// }
 
 	return DEPLOY_METHOD_UNKNOWN, errors.New(fmt.Sprintf("Invalid deployment method '%s' provided.  Must be one of ['auto','docker','shell']", deployMethod))
 }
