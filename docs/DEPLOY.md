@@ -54,13 +54,13 @@ The following environment variables are created by `stim deploy` and can be used
 | ----- | ----------- |
 | `VAULT_ADDR` | Vault address |
 | `VAULT_TOKEN` | Vault token |
-<!-- | `SECRET_CONFIG` | Vault secret config specification | -->
+| `SECRET_CONFIG` | Vault secret config specification |
 | `DEPLOY_ENVIRONMENT` | Name of the environment which is being deployed to |
 | `DEPLOY_INSTANCE` | Name of the `instance` that is being deployed to |
 | `DEPLOY_CLUSTER` | Name of the Kubernetes cluster which is being deployed to |
-<!-- | `CLUSTER_SERVER` | API endpoint for the Kubernetes cluster | -->
-<!-- | `CLUSTER_CA` | Cluster CA for the Kubernetes cluster | -->
-<!-- | `USER_TOKEN` | Token used to authenticate against the Kubernetes cluster | -->
+| `CLUSTER_SERVER` | API endpoint for the Kubernetes cluster |
+| `CLUSTER_CA` | Cluster CA for the Kubernetes cluster |
+| `USER_TOKEN` | Token used to authenticate against the Kubernetes cluster |
 | `STIM_DEPLOY` | Indicates that the process is running inside a stim deployment.  Is set to `true`. |
 
 

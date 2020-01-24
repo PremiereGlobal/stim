@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 GOOS=${GOOS} go build -mod vendor -ldflags "-X github.com/Prem
 
 FROM alpine:latest
 
-ENV PATH=/stim
+ENV STIM_PATH=/stim
 ENV STIM_CACHE_PATH=/cache
 
 VOLUME /stim

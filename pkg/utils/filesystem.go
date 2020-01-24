@@ -14,7 +14,7 @@ const (
 	WorldMode     os.FileMode = 0777
 )
 
-// CreateFileIfNotExist sttempts to create the path and file if it does not exist
+// CreateFileIfNotExist attempts to create the path and file if it does not exist
 func CreateFileIfNotExist(filePath string, perm os.FileMode) error {
 	log := stimlog.GetLogger()
 
@@ -93,9 +93,18 @@ func EnsureLink(source, target string) error {
 				return nil
 			}
 
+			// Symlink is not pointing to the right place, remove it
+			err = os.Remove(target)
+			if err != nil {
+				return err
+			}
+
 		} else {
 			// File is not a symlink, remove it
-			os.Remove(target)
+			err := os.Remove(target)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
