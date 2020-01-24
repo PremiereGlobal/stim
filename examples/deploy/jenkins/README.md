@@ -1,5 +1,4 @@
-# Multi-cluster deployment with Stim
+# Jenkins deployment with Stim
 
-In this example we're deploying an instance of Grafana to two environments: `stage` and `production`.  This differs slightly from the [basic example](../basic).  Here, our production environment has two instances, in two different Kubernetes clusters.  We're also pulling dynamic secrets from Vault for our database credentials.
-
+In this example we're deploying a Nginx container with Jenkins. This also uses Helm 3 and the stim version 1.3 that can run without the need of a second container in Jenkins. The goal is to have a simple Jenkinsfile with the logic in the deploy.sh so you can test locally.
 To run this example, simply run `stim deploy` from this directory.
