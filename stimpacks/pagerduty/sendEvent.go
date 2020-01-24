@@ -40,6 +40,42 @@ func (p *Pagerduty) SendEvent() {
 
 	}
 
+	// Prompt for the detail text (if not provided)
+	details := p.stim.ConfigGetString("pagerduty-details")
+	if details == "" && !p.stim.IsAutomated() {
+		details, err = p.stim.PromptString("Detailed Text", "")
+	}
+
+	// Prompt for the source text (if not provided)
+	source := p.stim.ConfigGetString("pagerduty-source")
+	if source == "" && !p.stim.IsAutomated() {
+		source, err = p.stim.PromptString("Source Text", "")
+	}
+
+	// Prompt for the component text (if not provided)
+	component := p.stim.ConfigGetString("pagerduty-component")
+	if component == "" && !p.stim.IsAutomated() {
+		component, err = p.stim.PromptString("Component Text", "")
+	}
+
+	// Prompt for the group text (if not provided)
+	group := p.stim.ConfigGetString("pagerduty-group")
+	if group == "" && !p.stim.IsAutomated() {
+		group, err = p.stim.PromptString("Group Text", "")
+	}
+
+	// Prompt for the class text (if not provided)
+	class := p.stim.ConfigGetString("pagerduty-class")
+	if class == "" && !p.stim.IsAutomated() {
+		class, err = p.stim.PromptString("Class Text", "")
+	}
+
+	// Prompt for the dedupkey text (if not provided)
+	dedupKey := p.stim.ConfigGetString("pagerduty-dedupkey")
+	if dedupKey == "" && !p.stim.IsAutomated() {
+		dedupKey, err = p.stim.PromptString("Dedupkey Text", "")
+	}
+
 	// Prompt for the action (if not provided)
 	action := p.stim.ConfigGetString("pagerduty-action")
 	if action == "" && p.stim.IsAutomated() {
@@ -65,10 +101,16 @@ func (p *Pagerduty) SendEvent() {
 	}
 
 	event := &pd.Event{
-		Service:  serviceName,
-		Summary:  summary,
-		Action:   action,
-		Severity: severity,
+		Service:   serviceName,
+		Summary:   summary,
+		Details:   details,
+		Action:    action,
+		Severity:  severity,
+		Source:    source,
+		Component: component,
+		Group:     group,
+		Class:     class,
+		DedupKey:  dedupKey,
 	}
 
 	err = pagerduty.SendEvent(event)
