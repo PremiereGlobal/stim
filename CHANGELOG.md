@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.1.3
+
+### Bugfix
+* Fixed Pagerduty request to include all CLI parameters (for example source, component, etc.) as those were not actually being sent to Pagerduty previously
+
 ## 0.1.2
 
 ### Improvement
