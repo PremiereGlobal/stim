@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -eu -o pipefail
 
 # Exit if not running with `stim deploy`
