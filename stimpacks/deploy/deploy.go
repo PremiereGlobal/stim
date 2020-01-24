@@ -1,9 +1,12 @@
 package deploy
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 
+	"github.com/PremiereGlobal/stim/pkg/docker"
 	log "github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/stim"
 )
@@ -11,6 +14,12 @@ import (
 const (
 	allOptionPrompt = "--ALL--"
 	allOptionCli    = "all"
+)
+
+const (
+	DEPLOY_METHOD_UNKNOWN int = 0
+	DEPLOY_METHOD_DOCKER  int = 1
+	DEPLOY_METHOD_SHELL   int = 2
 )
 
 // Deploy is the primary type for the stim deploy subcommand
@@ -105,7 +114,6 @@ func (d *Deploy) Run() {
 			d.Deploy(selectedEnvironment, inst)
 		}
 	} else {
-		d.log.Info("Deploying to environment: {} and instance: {}", selectedInstanceName)
 		inst := selectedEnvironment.Instances[selectedEnvironment.instanceMap[selectedInstanceName]]
 		if selectedEnvironment.Spec.AddConfirmationPrompt || inst.Spec.AddConfirmationPrompt {
 			proceed, _ := d.stim.PromptBool("Proceed?", d.stim.ConfigGetString("deploy.instance") != "", false)
@@ -123,7 +131,65 @@ func (d *Deploy) Deploy(environment *Environment, instance *Instance) {
 
 	d.log.Info("Deploying to '{}' environment in instance: {}", environment.Name, instance.Name)
 
-	// For now, only the kube-vault-deploy docker method is implemented but more could be added here...
-	d.startDeployContainer(instance)
+	deployMethod, err := d.DetermineDeployMethod()
+	if err != nil {
+		d.log.Fatal(err)
+	}
 
+	if deployMethod == DEPLOY_METHOD_DOCKER {
+		d.startDeployContainer(instance)
+	} else if deployMethod == DEPLOY_METHOD_SHELL {
+		d.startDeployShell(instance)
+	} else {
+		d.log.Fatal("Could not determine deployment method")
+	}
+
+}
+
+// DetermineDeployMethod figures out the deploy method based on user input
+// and availability
+func (d *Deploy) DetermineDeployMethod() (int, error) {
+
+	deployMethod := d.stim.ConfigGetString("deploy.method")
+
+	isInDocker := docker.IsInDocker()
+	isDockerAvailable, _ := docker.IsDockerAvailable()
+
+	if deployMethod == "auto" && isDockerAvailable && !isInDocker {
+		d.log.Debug("Using Docker to deploy (auto)")
+		return DEPLOY_METHOD_DOCKER, nil
+	}
+
+	if deployMethod == "docker" && isDockerAvailable && !isInDocker {
+		d.log.Debug("Using Docker to deploy (specified by user)")
+		return DEPLOY_METHOD_DOCKER, nil
+	}
+
+	// If we are already in a container, only shell is supported
+	if deployMethod == "auto" && isInDocker {
+		d.log.Debug("Using shell to deploy (auto) as detected we're running in Docker")
+		return DEPLOY_METHOD_SHELL, nil
+	}
+
+	// If docker is not available, and auto is selected, force the user to specify --shell
+	// This is to avoid inadvertently running shell commands on their machine
+	if deployMethod == "auto" && !isDockerAvailable {
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Docker is not available.  To deploy using shell use '--method=shell' argument (this is not recommended)")
+	}
+
+	if deployMethod == "shell" {
+		d.log.Debug("Using shell to deploy (specified by user)")
+		return DEPLOY_METHOD_SHELL, nil
+	}
+
+	// Below we're detecting some specific error cases to give more info to the user
+
+	if deployMethod == "docker" && isInDocker {
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Cannot deploy with Docker as we are already in a container")
+	}
+	if deployMethod == "docker" && !isDockerAvailable {
+		return DEPLOY_METHOD_UNKNOWN, errors.New("Cannot deploy with Docker as it is not available")
+	}
+
+	return DEPLOY_METHOD_UNKNOWN, errors.New(fmt.Sprintf("Invalid deployment method '%s' provided.  Must be one of ['auto','docker','shell']", deployMethod))
 }

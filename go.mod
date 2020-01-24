@@ -11,25 +11,31 @@ replace (
 )
 
 require (
+	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/PagerDuty/go-pagerduty v0.0.0-20191002190746-f60f4fc45222
-	github.com/PremiereGlobal/vault-to-envs v0.2.1
+	github.com/PremiereGlobal/vault-to-envs v0.2.2-0.20190928170516-b94151c229ae
 	github.com/aws/aws-sdk-go v1.25.6
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
 	github.com/go-ini/ini v1.48.0
+	github.com/googleapis/gnostic v0.3.1 // indirect
+	github.com/gorilla/mux v1.7.3 // indirect
+	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/vault v1.2.3
 	github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262
+	//	github.com/hashicorp/vault v1.0.2
 	github.com/imdario/mergo v0.3.8
+	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nlopes/slack v0.6.0
+	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_golang v1.1.0
 	github.com/skratchdot/open-golang v0.0.0-20190402232053-79abb63cd66e
-	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0 // indirect

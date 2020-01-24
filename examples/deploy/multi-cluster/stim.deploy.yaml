@@ -4,13 +4,12 @@ deployment:
   script: helm.sh
 
 global:
-
   # Global spec (applies to all environments)
   spec:
-
-    # All deployments will be deployed with the same chart version
-  - name: HELM_CHART_VERSION
-    value: 3.8.5
+    env:
+      # All deployments will be deployed with the same chart version
+      - name: HELM_CHART_VERSION
+        value: 3.8.5
 
 # List of environment definitions
 environments:

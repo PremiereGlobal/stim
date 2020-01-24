@@ -13,6 +13,12 @@ RUN CGO_ENABLED=0 GOOS=${GOOS} go build -mod vendor -ldflags "-X github.com/Prem
 
 FROM alpine:latest
 
+ENV STIM_PATH=/stim
+ENV STIM_CACHE_PATH=/cache
+
+VOLUME /stim
+VOLUME /cache
+
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /go/src/github.com/PremiereGlobal/stim/bin/stim /usr/bin

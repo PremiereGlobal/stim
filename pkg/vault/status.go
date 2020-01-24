@@ -4,11 +4,13 @@ import (
 	"errors"
 	"strconv"
 	"time"
+
+	"github.com/hashicorp/vault/api"
 )
 
 func (v *Vault) isVaultHealthy() (bool, CustomError) {
 
-	result, err := v.client.Sys().Health()
+	result, err := v.GetHealth()
 	if err != nil {
 		return false, v.parseError(err)
 	}
@@ -33,4 +35,14 @@ func (v *Vault) GetAddress() (string, error) {
 	}
 
 	return v.config.Address, nil
+}
+
+// GetHealth returns the Vault api health response
+func (v *Vault) GetHealth() (*api.HealthResponse, error) {
+	result, err := v.client.Sys().Health()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

@@ -1,16 +1,14 @@
 package stim
 
 import (
+	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/imdario/mergo"
-
-	"io/ioutil"
-	"os"
-
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -62,7 +60,12 @@ func (stim *Stim) ConfigRemoveKey(key string) error {
 	if err != nil {
 		return err
 	}
-	cm := config[keys[0]].(map[interface{}]interface{})
+	cm, ok := config[keys[0]].(map[interface{}]interface{})
+	if !ok {
+		// Key doesn't exist, not thing to remove
+		return nil
+	}
+
 	//This is super gross, not sure of a better way to deal with this
 Main:
 	for i, v := range keys[1:] {
@@ -165,11 +168,6 @@ func (stim *Stim) getConfigData() (map[string]interface{}, error) {
 	return config, err
 }
 
-func (stim *Stim) ConfigIsCustom() bool {
-	cfp, _ := filepath.Abs(stim.ConfigGetString("config-file"))
-	return defaultStimConfigFilePath != cfp
-}
-
 func (stim *Stim) ConfigGetStimConfigDir() (string, error) {
 	cfp, err := stim.ConfigGetStimConfigFile()
 	if err != nil {
@@ -179,73 +177,54 @@ func (stim *Stim) ConfigGetStimConfigDir() (string, error) {
 	return dir, nil
 }
 
-// CreateConfigFile will create the stim config file if it doesn't exist
-// Used the frist time this code is ran so sub functions do not get errors when
-// writting to the config.
+// ConfigGetStimConfigFile gets the current stim config file (creating it if necessary)
 func (stim *Stim) ConfigGetStimConfigFile() (string, error) {
+
 	cfp, err := filepath.Abs(stim.ConfigGetString("config-file"))
-	custom := defaultStimConfigFilePath != cfp
-	if err != nil {
-		return "", err
-	}
-	_, err = os.Stat(cfp)
-	if err != nil && !os.IsNotExist(err) {
-		return "", err
-	} else if err != nil && custom && os.IsNotExist(err) {
-		return "", err
-	} else if err == nil {
-		return cfp, nil
-	}
+
+	// Create the config file if it doesn't exist
+	// Probably want to abstract this to create default values as well
 	err = utils.CreateFileIfNotExist(cfp, utils.UserOnlyMode)
 	if err != nil {
 		return "", err
 	}
+
 	return cfp, nil
 }
 
-func (stim *Stim) configLoadConfigFile() error {
-	// Set the config file type
+func (stim *Stim) configLoadConfigFile() {
+
 	stim.config.SetConfigType("yaml")
-	// Don't forget to read config either from CfgFile or from home directory!
 	configFile, err := stim.ConfigGetStimConfigFile()
 	if err != nil {
-		stim.log.Warn("{}", err)
-		if stim.ConfigIsCustom() {
-			stim.log.Fatal("Problem loading config file from custom path:'{}', exiting!", configFile)
-		} else {
-			stim.log.Warn("Problem loading config file:'{}', continuing using ENV", configFile)
-			//We return no error here since its not always a problem to not have a config file
-			return nil
-		}
+		stim.log.Fatal("Problem accessing config file: {}", err)
 	}
+
 	stim.config.SetConfigFile(configFile)
-	confErr := stim.config.ReadInConfig()
-	return confErr
+	err = stim.config.ReadInConfig()
+	if err != nil {
+		stim.log.Fatal("Problem loading config file: {}", err)
+	}
+
+	// If the config file has a config-file entry remove it to avoid any sort
+	// of circular reference.  This doesn't currently work so is commented out
+	// to be dealt with in the future.  It doensn't work but ConfigRemoveKey only
+	// removes it from the config file and not from the current stim.config
+	// stim.ConfigRemoveKey("config-file") // old way
+	// stim.ConfigRemoveKey("config.file") // new way
 }
 
-func (stim *Stim) configInitDefaultValues() {
-	if stim.ConfigIsCustom() {
-		//Custom set Config file skip this
-		return
+// ConfigGetStimCacheDir returns the stim cache directory
+// subdir paramter optionally provides a subdirectory within the cache
+func (stim *Stim) ConfigGetCacheDir(subDir string) string {
+
+	cachePath := stim.ConfigGetString("cache-path")
+	cacheSubPath := filepath.Join(cachePath, subDir)
+
+	err := utils.CreateDirIfNotExist(cacheSubPath, utils.UserGroupMode)
+	if err != nil {
+		stim.log.Fatal("Error creating cache directory at {}", cacheSubPath)
 	}
-	//We can use this to upgrade configs in the future
-	//Skipping this for now
-	if false {
-		if !stim.ConfigHasValue("stim.version") {
-			stim.ConfigSetString("stim.version", stim.GetVersion())
-		}
-		if !stim.ConfigHasValue("logging.file.disable") {
-			stim.ConfigSetBool("logging.file.disable", false)
-		}
-		if !stim.ConfigHasValue("logging.file.path") {
-			sh, err := stim.ConfigGetStimConfigDir()
-			if err == nil {
-				lfp := filepath.Join(sh, "stim.log")
-				stim.ConfigSetString("logging.file.path", lfp)
-			}
-		}
-		if !stim.ConfigHasValue("logging.file.level") {
-			stim.ConfigSetString("logging.file.level", "info")
-		}
-	}
+
+	return cacheSubPath
 }

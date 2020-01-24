@@ -1,52 +1,36 @@
 package kubernetes
 
 import (
-	"github.com/PremiereGlobal/stim/pkg/stimlog"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/kubernetes"
 )
 
+// Kubernetes represents a interface with a Kubernetes cluster
 type Kubernetes struct {
-	// client *api.Client
 	config *Config
-	log    Logger
-	// This allows us to read/write the kube config
-	// It takes into account KUBECONFIG env var for setting the location
-	configAccess clientcmd.ConfigAccess
 }
 
-type Config struct {
-	Log Logger
+// New returns a new Kubernetes object with the given config
+func New(config *Config) (*Kubernetes, error) {
+	return &Kubernetes{config: config}, nil
 }
 
-type Logger interface {
-	Debug(...interface{})
-	Warn(...interface{})
-	Fatal(...interface{})
+// GetConfig returns the config object assicated with this instance
+func (k *Kubernetes) GetConfig() *Config {
+	return k.config
 }
 
-func New(kconf *Config) (*Kubernetes, error) {
+// GetClientset returns the Kubernetes clientset, which can be acted on directly
+// to perform API calls
+func (k *Kubernetes) GetClientset() (*kubernetes.Clientset, error) {
 
-	k := &Kubernetes{config: kconf}
-
-	if kconf.Log != nil {
-		k.log = kconf.Log
-	} else {
-		k.log = stimlog.GetLogger()
-	}
-
-	return k, nil
-}
-
-func (k *Kubernetes) SetKubeconfig(kubeConfigOptions *KubeConfigOptions) error {
-
-	// configAccess is used by subcommands and methods in this package to load and modify the appropriate config files
-	k.configAccess = clientcmd.NewDefaultPathOptions()
-	k.log.Debug("Using kubeconfig file: " + k.configAccess.GetDefaultFilename())
-
-	err := k.modifyKubeconfig(kubeConfigOptions)
+	restClientConfig, err := k.GetConfig().GetRestClientConfig()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	clientSet, err := kubernetes.NewForConfig(restClientConfig)
+	if err != nil {
+		return nil, err
+	}
+	return clientSet, nil
 }

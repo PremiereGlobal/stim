@@ -13,7 +13,6 @@ import (
 
 func main() {
 	stim := stim.New()
-	//	stim.AddStimpack(discover.New())
 	stim.AddStimpack(aws.New())
 	stim.AddStimpack(deploy.New())
 	stim.AddStimpack(kubernetes.New())

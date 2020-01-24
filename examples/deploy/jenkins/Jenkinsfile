@@ -1,0 +1,25 @@
+def label = "buildpod-${env.JOB_NAME}-${env.BUILD_NUMBER}".replace('_', '-').replace('/', '-')
+
+podTemplate(
+  label: label,
+  containers: [
+    containerTemplate(
+      name: 'stim',
+      image: 'premiereglobal/stim:latest',
+      command: 'cat',
+      ttyEnabled: true,
+      envVars: [ envVar( key: 'VAULT_ADDR', value: '<Vault URL for your company>')]
+    )
+  ]
+) {
+  node(label) {
+    checkout scm
+    stage('Deploy') {
+      container(name: 'stim') {
+        withCredentials([string(credentialsId: 'vault-default', variable: 'VAULT_TOKEN')]) {
+          sh 'stim deploy --environment dev --instance all'
+        }
+      }
+    }
+  }
+}
