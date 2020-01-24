@@ -51,6 +51,10 @@ func New(config Config) (*Env, error) {
 
 	env := Env{config: config}
 
+	// Adding the tmp directory as the home directory so any scripts/binaries that
+	// use the homedir for storing data will not be put in an unknown place
+	env.AddEnvVars(fmt.Sprintf("HOME=%v", env.config.Path.Directory))
+
 	return &env, nil
 }
 
