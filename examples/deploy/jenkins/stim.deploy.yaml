@@ -1,0 +1,21 @@
+# Configuration for kicking off the deployment (files and directories)
+global:
+  spec:
+    kubernetes:
+      serviceAccount: sre
+    tools:
+        helm:
+          version: "v3.0.2"
+    env:
+      - name: IMAGE_TAG
+        value: "latest"
+environments:
+  - name: dev
+    instances:
+      - name: devcluster
+        spec:
+          kubernetes:
+            cluster: devcluster.my-domain.com
+          env:
+          - name: NAMESPACE
+            value: default
