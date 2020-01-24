@@ -1,5 +1,12 @@
 # Stim Changelog
 
+## 0.1.3
+
+### Improvements
+* Added `--method` to `stim deploy` allowing optional `shell` deployment.  Will auto-select the best options if left empty.
+  * `shell` deploy will be auto-selected if it detects that it is running in a container
+* Added configuration option for cache location. See [docs/CONFIG.md](docs/CONFIG.md)
+
 ## 0.1.2
 
 ### Improvement
