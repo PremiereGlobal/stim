@@ -13,7 +13,7 @@ mkdir -p bin
 docker build --build-arg VERSION=${VERSION} --build-arg GOOS=${GOOS} -t ${DOCKER_REPO}:${VERSION}-${GOOS} ./
 
 # Extract the binary from the container
-docker run --rm --entrypoint "" --name stim-build -v $(pwd)/bin:/stim-bin -d ${DOCKER_REPO}:${VERSION}-${GOOS} sh -c "cp /usr/bin/stim /stim-bin"
+docker run --rm --entrypoint "" --name stim-build -v $(pwd)/bin:/stim-bin ${DOCKER_REPO}:${VERSION}-${GOOS} sh -c "cp /usr/bin/stim /stim-bin"
 
 # Zip up the binary
 cd bin
