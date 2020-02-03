@@ -18,7 +18,6 @@ docker run --rm --entrypoint "" --name stim-build -v $(pwd)/bin:/stim-bin ${DOCK
 # Zip up the binary
 cd bin
 tar -cvzf stim-${GOOS}-${VERSION}.tar.gz stim
-rm stim
 cd ..
 
 # Build the deploy container
