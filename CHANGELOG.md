@@ -1,5 +1,15 @@
 # Stim Changelog
 
+## 0.1.4
+
+### Improvements
+* Added new Docker image with the format `premiereglobal/stim:v0.1.4-deploy`.  This container provides additional features for deployments with stim
+  * Contains additional deploy utilities such as: `bash`, `curl`, `zip`, `jq`, `less`, `python`, `git`, `yq`, and `aws`
+  * Entrypoint is `bash` to make it easier to run with custom commands
+* Updated Docker tagging
+  * Master builds will now have the Docker tag `master` and `master-deploy`, with the `stim version` of `stim/master`
+  * Tagged releases will continue having the tag scheme `v0.1.4` and `v0.1.4-deploy`, but will also update the latest tags `latest` and `latest-deploy`.  Doing `stim version` on any `latest` image will now reveal the actual version `stim/vX.X.X`, instead of `stim/master`.
+
 ## 0.1.3
 
 ### Improvements

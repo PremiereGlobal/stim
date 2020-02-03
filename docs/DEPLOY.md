@@ -3,7 +3,7 @@
 Stim can be used to deploy to Kubernetes using Vault to configure a deployment environment.
 
 ## Prerequisites
-This functionality relies on a running [Docker](https://docs.docker.com/install/) daemon. It can also be run inside a container.
+This functionality relies on a running [Docker](https://docs.docker.com/install/) daemon. It can also be run inside a container.  If running inside a container, it is recommended that you use the `premiereglobal/stim:vx.x.x-deploy` image as it contains additional utilities (such as `bash`) which are useful for deploys.
 
 ## Usage
 
