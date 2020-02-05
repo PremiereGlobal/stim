@@ -19,16 +19,16 @@ deploy:
     tags: true
 - provider: script
   script:
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH} ${TRAVIS_BRANCH}
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH}-deploy ${TRAVIS_BRANCH}-deploy
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH} latest
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH}-deploy latest-deploy
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH} ${TRAVIS_BRANCH} &&
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH}-deploy ${TRAVIS_BRANCH}-deploy &&
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH} latest &&
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH}-deploy latest-deploy
   on:
     tags: true
 - provider: script
   script:
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH} master
-  - scripts/publish_docker.sh ${TRAVIS_BRANCH} master-deploy
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH} master &&
+    ./scripts/publish_docker.sh ${TRAVIS_BRANCH} master-deploy
   on:
     branch: master
 env:
