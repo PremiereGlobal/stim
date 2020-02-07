@@ -70,10 +70,14 @@ func (v *Vault) GetUsername() (string, error) {
 		return "", v.parseError(err)
 	}
 
-	return metadata["username"], nil
+	if val, ok := metadata["username"]; ok {
+		return val, nil
+	}
+
+	return "", errors.New("No username set")
 }
 
-// isCurrentTokenValid returns flase if user needs to relogin
+// isCurrentTokenValid returns false if user needs to re-login
 // I am not happy with this way of testing the token.
 func (v *Vault) isCurrentTokenValid() bool {
 	duration, err := v.GetCurrentTokenTTL()
@@ -97,15 +101,6 @@ func (v *Vault) userLogin() error {
 	if err != nil {
 		return err
 	}
-
-	// No hacking: Test username
-	// https://stackoverflow.com/questions/6949667/what-are-the-real-rules-for-linux-usernames-on-centos-6-and-rhel-6
-	// match, err := regexp.MatchString("^[a-z_][a-z0-9_]{0,30}$", username)
-	// check(err)
-	// if match != true {
-	// 	// Safe to exit, we know we are in a user interface
-	// 	log.Fatal("Username does not match BSD 4.3 standards (32 character string 0f [a-z0-9_])")
-	// }
 
 	// Login and obtain a token
 	authPath := path.Join("auth/", v.config.AuthPath, "/login/", username)
