@@ -57,6 +57,22 @@ func (v *Vault) GetToken() (string, error) {
 	return "", errors.New("No token set")
 }
 
+// GetMeta returns the username metadata for the current token
+func (v *Vault) GetUsername() (string, error) {
+
+	secret, err := v.client.Auth().Token().LookupSelf()
+	if err != nil {
+		return "", v.parseError(err)
+	}
+
+	metadata, err := secret.TokenMetadata()
+	if err != nil {
+		return "", v.parseError(err)
+	}
+
+	return metadata["username"], nil
+}
+
 // isCurrentTokenValid returns flase if user needs to relogin
 // I am not happy with this way of testing the token.
 func (v *Vault) isCurrentTokenValid() bool {

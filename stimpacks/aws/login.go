@@ -121,9 +121,10 @@ func (a *Aws) Login() error {
 		a.aws.CreateSession(accessKey, secretKey)
 		a.aws.WaitForActiveCreds()
 
-		federatedUsername := a.stim.ConfigGetString("vault-username")
-		if federatedUsername == "" {
-			federatedUsername = "stim-user"
+		// Get the username from Vault for the current token
+		federatedUsername, err := a.vault.GetUsername()
+		if err != nil || federatedUsername == "" {
+			return errors.New(fmt.Sprintf("Error getting the username from Vault: %s", err))
 		}
 
 		federationCreds := a.aws.GetFederationToken(federatedUsername, webTtl)
