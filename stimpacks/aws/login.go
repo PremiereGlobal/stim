@@ -120,7 +120,14 @@ func (a *Aws) Login() error {
 
 		a.aws.CreateSession(accessKey, secretKey)
 		a.aws.WaitForActiveCreds()
-		federationCreds := a.aws.GetFederationToken("stim-user", webTtl)
+
+		// Get the username from Vault for the current token
+		federatedUsername, err := a.vault.GetUsername()
+		if err != nil || federatedUsername == "" {
+			return errors.New(fmt.Sprintf("Error getting the username from Vault: %s", err))
+		}
+
+		federationCreds := a.aws.GetFederationToken(federatedUsername, webTtl)
 		a.log.Debug("AWS Federated Access Key: " + *federationCreds.AccessKeyId)
 		a.log.Debug("AWS Federated Access Expires: " + federationCreds.Expiration.Sub(time.Now()).String() + " from now")
 		loginURL, err := awspkg.CreateAWSLoginURL(*federationCreds.AccessKeyId, *federationCreds.SecretAccessKey, *federationCreds.SessionToken, stimURL)

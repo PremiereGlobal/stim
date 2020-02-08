@@ -39,13 +39,14 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0 // indirect
-	golang.org/x/crypto v0.0.0-20191002192127-34f69633bfdc
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
 	golang.org/x/net v0.0.0-20190923162816-aa69164e4478 // indirect
-	golang.org/x/sys v0.0.0-20190922100055-0a153f010e69 // indirect
-	golang.org/x/tools v0.0.0-20190930201159-7c411dea38b0 // indirect
+	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
+	golang.org/x/tools v0.0.0-20200203023011-6f24f261dadb // indirect
 	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.8
 	gopkg.in/yaml.v3 v3.0.0-20190924164351-c8b7dadae555
 	gotest.tools v2.2.0+incompatible
 	k8s.io/client-go v11.0.0+incompatible
