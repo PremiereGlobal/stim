@@ -54,6 +54,7 @@ func (stim *Stim) GetLogger() stimlog.StimLogger {
 }
 
 func (stim *Stim) Execute() {
+	defer stimlog.GetLoggerConfig().Flush()
 	cobra.OnInitialize(stim.commandInit)
 	err := stim.rootCmd.Execute()
 	stim.Fatal(err)
