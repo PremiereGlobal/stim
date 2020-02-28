@@ -1,8 +1,10 @@
 # Stim Changelog
 
 ## 0.1.5
-* Changed displayed username in AWS web console for the STS federated login. The username was 'stim-user' and now matches the LDAP sAMAccountName short name.
 
+### Bugfix
+* `stim deploy` - Fixed issue with cascading tool versions not working correctly. Certain instance tool versions would overwrite the tool version for other instances.
+* Changed displayed username in AWS web console for the STS federated login. The username was 'stim-user' and now matches the LDAP sAMAccountName short name.
 
 ## 0.1.4
 
