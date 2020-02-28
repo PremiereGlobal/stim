@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.1.5
+
+### Bugfix
+* `stim deploy` - Fixed issue with cascading tool versions not working correctly. Certain instance tool versions would overwrite the tool version for other instances.
+
 ## 0.1.4
 
 ### Improvements

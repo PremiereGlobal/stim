@@ -353,11 +353,15 @@ func mergeSecrets(instance []*v2e.SecretItem, environment []*v2e.SecretItem, glo
 // mergeTools is used to merge tool configurations
 func mergeTools(instance map[string]stim.EnvTool, environment map[string]stim.EnvTool, global map[string]stim.EnvTool) map[string]stim.EnvTool {
 
-	result := global
+	result := make(map[string]stim.EnvTool)
+
+	// Set Global tools
+	for k, v := range environment {
+		result[k] = v
+	}
 
 	// Overwrite with instance tools
 	for k, v := range environment {
-		// fmt.Printf("%v:%v", k, v)
 		if v.Unset == true {
 			delete(result, k)
 		} else {
@@ -367,7 +371,6 @@ func mergeTools(instance map[string]stim.EnvTool, environment map[string]stim.En
 
 	// Overwrite with instance tools
 	for k, v := range instance {
-		// fmt.Printf("%v:%v", k, v)
 		if v.Unset == true {
 			delete(result, k)
 		} else {
