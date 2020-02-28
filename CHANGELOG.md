@@ -1,5 +1,9 @@
 # Stim Changelog
 
+## 0.1.5
+* Changed displayed username in AWS web console for the STS federated login. The username was 'stim-user' and now matches the LDAP sAMAccountName short name.
+
+
 ## 0.1.4
 
 ### Improvements
