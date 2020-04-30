@@ -123,8 +123,13 @@ func (a *Aws) Login() error {
 
 		// Get the username from Vault for the current token
 		federatedUsername, err := a.vault.GetUsername()
-		if err != nil || federatedUsername == "" {
-			return errors.New(fmt.Sprintf("Error getting the username from Vault: %s", err))
+		if err != nil {
+			a.log.Warn("Got Error getting User name from vault: {}", err)
+			federatedUsername = "UnknownUser"
+		}
+		if federatedUsername == "" {
+			a.log.Warn("Got empty user from vault")
+			federatedUsername = "UnknownUser"
 		}
 
 		federationCreds := a.aws.GetFederationToken(federatedUsername, webTtl)
