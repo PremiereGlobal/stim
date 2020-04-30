@@ -16,6 +16,11 @@ func (v *Vault) GetCurrentTokenTTL() (time.Duration, error) {
 
 	// Get our TTL from the Vault secret interface{}
 	ttl, err := secret.Data["ttl"].(json.Number).Int64()
+	if secret.Data["expire_time"] == nil {
+		//We have an unexpiring token
+		return 24 * time.Hour, nil
+	}
+	v.log.Debug("Data:", secret.Data)
 	if err != nil {
 		return 0, err
 	}
