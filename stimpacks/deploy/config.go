@@ -356,7 +356,7 @@ func mergeTools(instance map[string]stim.EnvTool, environment map[string]stim.En
 	result := make(map[string]stim.EnvTool)
 
 	// Set Global tools
-	for k, v := range environment {
+	for k, v := range global {
 		result[k] = v
 	}
 
