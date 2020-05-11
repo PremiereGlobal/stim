@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.1.6
+
+### Bugfix
+* Fixed bug in deploy config when setting variables in the global section did not propagate into subsections, like environments.
+
 ## 0.1.5
 
 ### Bugfix
