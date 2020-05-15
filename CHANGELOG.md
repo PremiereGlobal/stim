@@ -1,5 +1,14 @@
 # Stim Changelog
 
+## 0.1.7
+
+### **Deprecations**
+* For `stim deploy`, the `HELM_VERSION` environment variable for specifying Helm versions is now deprecated.  Please use the `.spec.tools.helm` configuration for specifying the helm version to use. See [deploy docs](https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md) for more details.
+* For `stim deploy`, auto-detection of Helm v2 versions is now deprecated.  Please use the `.spec.tools.helm` configuration for specifying the helm version to use. See [deploy docs](https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md) for more details.
+
+### Bugfix
+* Fixed a bug where running `stim deploy` via the default Docker method would not respect the `spec.tools.helm` version.
+
 ## 0.1.6
 
 ### Bugfix
