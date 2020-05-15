@@ -36,7 +36,6 @@ func (d *Deploy) startDeployContainer(instance *Instance) {
 	var envs []string
 	deprecatedHelmVersionSet := false
 	for _, e := range instance.Spec.EnvironmentVars {
-		// Using this environment variable for
 		if e.Name == "HELM_VERSION" {
 			d.log.Warn("The use of the HELM_VERSION environment variable for specifying Helm versions has been deprecated.  Use the `.spec.tools.helm` configuration for specifying the helm version to use.  See https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md for more details.")
 			deprecatedHelmVersionSet = true
