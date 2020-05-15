@@ -20,7 +20,6 @@ func (v *Vault) GetCurrentTokenTTL() (time.Duration, error) {
 		//We have an unexpiring token
 		return 24 * time.Hour, nil
 	}
-	v.log.Debug("Data:", secret.Data)
 	if err != nil {
 		return 0, err
 	}
