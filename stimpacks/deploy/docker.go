@@ -32,9 +32,19 @@ func (d *Deploy) startDeployContainer(instance *Instance) {
 		d.log.Debug(scanner.Text())
 	}
 
-	envs := make([]string, len(instance.Spec.EnvironmentVars))
-	for i, e := range instance.Spec.EnvironmentVars {
-		envs[i] = fmt.Sprintf("%s=%s", e.Name, e.Value)
+	var envs []string
+	deprecatedHelmVersionSet := false
+	for _, e := range instance.Spec.EnvironmentVars {
+		// Using this environment variable for
+		if e.Name == "HELM_VERSION" {
+			d.log.Warn("The use of the HELM_VERSION environment variable for specifying Helm versions has been deprecated.  This will be removed in the future.  Please use the 'tools' config section instead.  See https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md for more details.")
+			deprecatedHelmVersionSet = true
+		}
+		envs = append(envs, fmt.Sprintf("%s=%s", e.Name, e.Value))
+	}
+
+  if _, ok := instance.Spec.Tools["helm"]; ok && !deprecatedHelmVersionSet {
+		envs = append(envs, fmt.Sprintf("HELM_VERSION=%s", instance.Spec.Tools["helm"].Version))
 	}
 
 	// Since we're using Docker, we need to mount the Linux binaries
