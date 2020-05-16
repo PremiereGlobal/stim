@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/PremiereGlobal/stim/pkg/docker"
+	"github.com/PremiereGlobal/stim/pkg/downloader"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -32,9 +33,27 @@ func (d *Deploy) startDeployContainer(instance *Instance) {
 		d.log.Debug(scanner.Text())
 	}
 
-	envs := make([]string, len(instance.Spec.EnvironmentVars))
-	for i, e := range instance.Spec.EnvironmentVars {
-		envs[i] = fmt.Sprintf("%s=%s", e.Name, e.Value)
+	var envs []string
+	deprecatedHelmVersionSet := ""
+	for _, e := range instance.Spec.EnvironmentVars {
+		if e.Name == "HELM_VERSION" {
+			d.log.Warn("The use of the HELM_VERSION environment variable for specifying Helm versions has been deprecated.  Use the `.spec.tools.helm` configuration for specifying the helm version to use.  See https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md for more details.")
+			deprecatedHelmVersionSet = e.Value
+		}
+		envs = append(envs, fmt.Sprintf("%s=%s", e.Name, e.Value))
+	}
+
+	if _, ok := instance.Spec.Tools["helm"]; ok {
+		if deprecatedHelmVersionSet == "" {
+			envs = append(envs, fmt.Sprintf("HELM_VERSION=%s", downloader.GetBaseVersion(instance.Spec.Tools["helm"].Version)))
+		} else {
+			d.log.Warn("Both `spec.tools.helm` and the deprecated HELM_VERSION environment variable are set.  HELM_VERSION of '{}' is taking precedence", deprecatedHelmVersionSet)
+		}
+	} else if deprecatedHelmVersionSet == "" {
+		d.log.Warn("Auto-detection of Helm v2 versions is now deprecated.  Use the `.spec.tools.helm` configuration for specifying the helm version to use. See https://github.com/PremiereGlobal/stim/blob/master/docs/DEPLOY.md for more details.")
+		// DEPRECATION: Auto-matching helm version is deprecated and the env variable below should be uncommented
+		// once this feature is removed
+		// envs = append(envs, "HELM_MATCH_SERVER=false")
 	}
 
 	// Since we're using Docker, we need to mount the Linux binaries

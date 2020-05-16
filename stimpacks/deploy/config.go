@@ -7,11 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/PremiereGlobal/stim/stim"
 	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -137,6 +136,8 @@ func (d *Deploy) processConfig() {
 		d.config.Global.Spec = &Spec{}
 	}
 
+	d.validateSpec(d.config.Global.Spec)
+
 	d.config.environmentMap = make(map[string]int)
 	for i, environment := range d.config.Environments {
 
@@ -157,6 +158,8 @@ func (d *Deploy) processConfig() {
 			environment.Spec = &Spec{}
 		}
 
+		d.validateSpec(environment.Spec)
+
 		environment.instanceMap = make(map[string]int)
 		for j, instance := range environment.Instances {
 
@@ -176,6 +179,8 @@ func (d *Deploy) processConfig() {
 			if instance.Spec == nil {
 				instance.Spec = &Spec{}
 			}
+
+			d.validateSpec(instance.Spec)
 
 			// Merge all of the secrets and environment variables
 			// Instance-level specs take precedence, followed by environment-level then global-level
@@ -292,6 +297,16 @@ func (d *Deploy) finalizeEnv(instance *Instance, stimEnvs []*EnvironmentVar, sti
 	// Combine our env vars
 	instance.Spec.EnvironmentVars = append(instance.Spec.EnvironmentVars, stimEnvs...)
 
+}
+
+// validateSpec validates fields in a config 'spec' section to ensure that it
+// meets all requirements
+func (d *Deploy) validateSpec(spec *Spec) {
+	for toolName, toolSpec := range spec.Tools {
+		if toolName == "helm" && toolSpec.Version == "" {
+			d.log.Fatal("Version detection not supported for helm, please specify a version in the `spec.tools.helm` config")
+		}
+	}
 }
 
 // mergeEnvVars is used to merge environment variable configuration at the various levels it can be set at
