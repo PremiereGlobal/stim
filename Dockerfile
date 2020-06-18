@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=${GOOS} go build -mod vendor -ldflags "-s -w -X github.co
 
 # Stage 2
 
-FROM alpine:latest
+FROM alpine:3.11
 
 ENV STIM_PATH=/stim
 ENV STIM_CACHE_PATH=/cache
