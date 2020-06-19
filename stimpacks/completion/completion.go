@@ -40,6 +40,7 @@ loading it with compinit.
 
 		`,
 		ValidArgs: []string{"bash", "zsh"},
+		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := c.stim.GetCompletion(args[0]); err != nil {
 				fmt.Println(err)
