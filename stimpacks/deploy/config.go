@@ -87,6 +87,12 @@ type EnvironmentVar struct {
 	Value string `yaml:"value"`
 }
 
+// HelmifySet is the interpolated output of the HelmifySet function which creates '--set'
+// strings from specialized environment variables.
+type HelmifySet struct {
+	Output string
+}
+
 // parseConfig opens the deployment config file and ensures it is valid
 func (d *Deploy) parseConfig() {
 
