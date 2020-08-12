@@ -205,7 +205,7 @@ func (d *Deploy) processConfig() {
 
 			instance.Spec.Tools = mergeTools(instance.Spec.Tools, environment.Spec.Tools, d.config.Global.Spec.Tools)
 			instance.Spec.EnvironmentVars = mergeEnvVars(instance.Spec.EnvironmentVars, environment.Spec.EnvironmentVars, d.config.Global.Spec.EnvironmentVars)
-                        instance.Spec.EnvironmentVars = helmifyDoSets(instance.Spec.EnvironmentVars)
+			instance.Spec.EnvironmentVars = helmifyDoSets(instance.Spec.EnvironmentVars)
 			instance.Spec.Secrets = mergeSecrets(instance.Spec.Secrets, environment.Spec.Secrets, d.config.Global.Spec.Secrets)
 
 			// Get Vault details
@@ -224,11 +224,11 @@ func (d *Deploy) processConfig() {
 			stimEnvs := []*EnvironmentVar{}
 
 			stimEnvs = append(stimEnvs, []*EnvironmentVar{
-				&EnvironmentVar{Name: "VAULT_ADDR", Value: vaultAddress},
-				&EnvironmentVar{Name: "VAULT_TOKEN", Value: vaultToken},
-				&EnvironmentVar{Name: "DEPLOY_ENVIRONMENT", Value: environment.Name},
-				&EnvironmentVar{Name: "DEPLOY_INSTANCE", Value: instance.Name},
-				&EnvironmentVar{Name: "DEPLOY_CLUSTER", Value: instance.Spec.Kubernetes.Cluster},
+				{Name: "VAULT_ADDR", Value: vaultAddress},
+				{Name: "VAULT_TOKEN", Value: vaultToken},
+				{Name: "DEPLOY_ENVIRONMENT", Value: environment.Name},
+				{Name: "DEPLOY_INSTANCE", Value: instance.Name},
+				{Name: "DEPLOY_CLUSTER", Value: instance.Spec.Kubernetes.Cluster},
 			}...)
 
 			// Generate the Kube config secret
@@ -313,28 +313,28 @@ func (d *Deploy) validateSpec(spec *Spec) {
 // helmifyDoSets looks for any variables starting with "STIM_HELM" and converts them into giant '--set' list and returns string.
 func helmifyDoSets(instance []*EnvironmentVar) []*EnvironmentVar {
 
-      var slug = defaultHelmifyPrefix
-      envMap := make(map[string]string)
-      setSlice := []string{}
-      result := instance
+	var slug = defaultHelmifyPrefix
+	envMap := make(map[string]string)
+	setSlice := []string{}
+	result := instance
 
-      for _, s := range instance {
-            if strings.Contains(s.Name, slug) {
-                  if _, ok := envMap[s.Name]; !ok {
-                        envMap[s.Name] = s.Value
-                  }
-            }
-      }
-      for k, v := range envMap {
-            var command = strings.TrimPrefix(k, slug)
-            command = fmt.Sprintf("--set %s=%s", command, v)
-            setSlice = append(setSlice, command)
-      }
-      v := new(EnvironmentVar)
-      v.Name = defaultHelmifySlug
-      v.Value = strings.Join(setSlice, " \\ \n")
-      result = append(result, v)
-      return result
+	for _, s := range instance {
+		if strings.Contains(s.Name, slug) {
+			if _, ok := envMap[s.Name]; !ok {
+				envMap[s.Name] = s.Value
+			}
+		}
+	}
+	for k, v := range envMap {
+		var command = strings.TrimPrefix(k, slug)
+		command = fmt.Sprintf("--set %s=%s", command, v)
+		setSlice = append(setSlice, command)
+	}
+	v := new(EnvironmentVar)
+	v.Name = defaultHelmifySlug
+	v.Value = strings.Join(setSlice, " \\ \n")
+	result = append(result, v)
+	return result
 }
 
 // mergeEnvVars is used to merge environment variable configuration at the various levels it can be set at
