@@ -19,6 +19,8 @@ const (
 	defaultDeployDirectory = "./"
 	defaultDeployScript    = "deploy.sh"
 	defaultConfigFile      = "./stim.deploy.yaml"
+	defaultHelmifyPrefix   = "STIM_HELM_"
+	defaultHelmifySlug     = "STIM_HELM_SETS"
 )
 
 // Config is the root structure for the deployment configuration
