@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/mod/semver"
 )
 
 var version string
@@ -18,9 +19,12 @@ var version string
 func init() {
 
 	// Set version for local testing if not set by build system
-	lv := "local"
+	lv := "v0.0.0-local"
 	if version == "" {
 		version = lv
+	}
+	if !semver.IsValid(version) {
+		stimlog.GetLogger().Fatal("Bad Version:{}", version)
 	}
 }
 

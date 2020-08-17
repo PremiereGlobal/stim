@@ -445,7 +445,7 @@ func (stimLogger *fullStimLogger) Fatal(message ...interface{}) {
 		if stimLogger.setLogger == nil {
 			wg := &sync.WaitGroup{}
 			wg.Add(1)
-			stimLogger.logQueue <- stimLogger.wrapMessage(InfoLevel, wg, message...)
+			stimLogger.logQueue <- stimLogger.wrapMessage(FatalLevel, wg, message...)
 			wg.Wait()
 		} else {
 			stimLogger.setLogger.Fatal(message...)

@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+
 	stim := stim.New()
 	stim.AddStimpack(aws.New())
 	stim.AddStimpack(completion.New())

@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+
 	"github.com/PremiereGlobal/stim/stim"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -31,7 +32,7 @@ func (v *Version) Command(viper *viper.Viper) *cobra.Command {
 		Short: "Print the client version",
 		Long:  `Print the client version`,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("stim/%v\n", v.stim.GetVersion())
+			fmt.Printf("stim: %v\n", v.stim.GetVersion())
 		},
 	}
 
