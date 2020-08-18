@@ -17,6 +17,7 @@ require (
 	github.com/aws/aws-sdk-go v1.25.6
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
 	github.com/go-ini/ini v1.48.0
@@ -30,6 +31,7 @@ require (
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nlopes/slack v0.6.0

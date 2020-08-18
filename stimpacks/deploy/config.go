@@ -1,16 +1,17 @@
 package deploy
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/PremiereGlobal/stim/stim"
 	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
 )
 
 const (
@@ -19,8 +20,9 @@ const (
 	defaultDeployDirectory = "./"
 	defaultDeployScript    = "deploy.sh"
 	defaultConfigFile      = "./stim.deploy.yaml"
-	defaultHelmifyPrefix   = "STIM_HELM_"
-	defaultHelmifySlug     = "STIM_HELM_SETS"
+	defaultStencilVars     = "STENCIL_VAR_"
+	defaultStencil         = "STENCIL"
+	defaultStencilRendered = "STENCIL_OUT"
 )
 
 // Config is the root structure for the deployment configuration
@@ -87,10 +89,10 @@ type EnvironmentVar struct {
 	Value string `yaml:"value"`
 }
 
-// HelmifySet is the interpolated output of the HelmifySet function which creates '--set'
-// strings from specialized environment variables.
-type HelmifySet struct {
-	Output string
+// StencilMap poop pooppooppooppooppooppooppooppooppooppooppooppoop
+type StencilMap struct {
+	Key   string
+	Value string
 }
 
 // parseConfig opens the deployment config file and ensures it is valid
@@ -213,7 +215,7 @@ func (d *Deploy) processConfig() {
 
 			instance.Spec.Tools = mergeTools(instance.Spec.Tools, environment.Spec.Tools, d.config.Global.Spec.Tools)
 			instance.Spec.EnvironmentVars = mergeEnvVars(instance.Spec.EnvironmentVars, environment.Spec.EnvironmentVars, d.config.Global.Spec.EnvironmentVars)
-			instance.Spec.EnvironmentVars = helmifyDoSets(instance.Spec.EnvironmentVars)
+			instance.Spec.EnvironmentVars = d.stenciler(instance.Spec.EnvironmentVars)
 			instance.Spec.Secrets = mergeSecrets(instance.Spec.Secrets, environment.Spec.Secrets, d.config.Global.Spec.Secrets)
 
 			// Get Vault details
@@ -318,30 +320,63 @@ func (d *Deploy) validateSpec(spec *Spec) {
 	}
 }
 
-// helmifyDoSets looks for any variables starting with "STIM_HELM" and converts them into giant '--set' list and returns string.
-func helmifyDoSets(instance []*EnvironmentVar) []*EnvironmentVar {
+// stenciler looks for any variables starting with "defaultStencilVars" and utilizes GO TEMPLATING
+// within the "STENCIL" variable.
+//
+// Variables can be accessed as map[string]map[string]string{}
+//
+// This gives you the ability to access named variable as "Key" and "Value"
+//
+// Example:
+//  - name: STENCIL_VAR_test
+//    value: mytest
+//
+// Will use JSON for ease of explaining:
+//
+// { "test" : {
+//    "Key" : "test"
+//    "Value" : "mytest"
+// }
+// Which will then allow the following to be used in a template
+//
+// echo {{ .test.Key }} ={{ .test.Value }}
+//
+// Finally the "STENCIL_SLUG" will be replaced within the deploy.sh the go template output.
+func (d *Deploy) stenciler(instance []*EnvironmentVar) []*EnvironmentVar {
 
-	var slug = defaultHelmifyPrefix
-	envMap := make(map[string]string)
-	setSlice := []string{}
+	var setStencil string
+	var tmplBuffer bytes.Buffer
+	stencilMap := map[string]map[string]string{}
+
 	result := instance
 
 	for _, s := range instance {
-		if strings.Contains(s.Name, slug) {
-			if _, ok := envMap[s.Name]; !ok {
-				envMap[s.Name] = s.Value
+		if strings.Contains(s.Name, defaultStencil) {
+			setStencil = s.Value
+		}
+		if strings.Contains(s.Name, defaultStencilVars) {
+			var k = strings.TrimPrefix(s.Name, defaultStencilVars)
+			if _, ok := stencilMap[k]; !ok {
+				stencilMap[k] = map[string]string{}
+				stencilMap[k]["Key"] = k
+				stencilMap[k]["Value"] = s.Value
 			}
 		}
 	}
-	for k, v := range envMap {
-		var command = strings.TrimPrefix(k, slug)
-		command = fmt.Sprintf("--set %s=%s", command, v)
-		setSlice = append(setSlice, command)
+	thisTemplate, err := template.New("stencil").Parse(setStencil)
+	if err != nil {
+		d.log.Fatal("Deployment STENCIL template variable could not be parsed: {}", err)
 	}
-	v := new(EnvironmentVar)
-	v.Name = defaultHelmifySlug
-	v.Value = strings.Join(setSlice, " \\ \n")
-	result = append(result, v)
+	err = thisTemplate.Execute(&tmplBuffer, stencilMap)
+	if err != nil {
+		d.log.Fatal("Deployment STENCIL template variable could not be executed: {}", err)
+	}
+	if tmplBuffer.String() != "" {
+		s := new(EnvironmentVar)
+		s.Name = defaultStencilRendered
+		s.Value = tmplBuffer.String()
+		result = append(result, s)
+	}
 	return result
 }
 
