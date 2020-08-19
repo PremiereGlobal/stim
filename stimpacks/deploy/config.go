@@ -374,7 +374,9 @@ func (d *Deploy) stenciler(instance []*EnvironmentVar) []*EnvironmentVar {
 	if tmplBuffer.String() != "" {
 		s := new(EnvironmentVar)
 		s.Name = defaultStencilRendered
-		s.Value = tmplBuffer.String()
+		stringBuf := tmplBuffer.String()
+		stringBuf = strings.Replace(stringBuf, "\n", "\n", -1)
+		s.Value = stringBuf
 		result = append(result, s)
 	}
 	return result
