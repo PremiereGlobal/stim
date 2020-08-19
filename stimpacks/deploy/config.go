@@ -89,12 +89,6 @@ type EnvironmentVar struct {
 	Value string `yaml:"value"`
 }
 
-// StencilMap poop pooppooppooppooppooppooppooppooppooppooppooppoop
-type StencilMap struct {
-	Key   string
-	Value string
-}
-
 // parseConfig opens the deployment config file and ensures it is valid
 func (d *Deploy) parseConfig() {
 
@@ -320,28 +314,41 @@ func (d *Deploy) validateSpec(spec *Spec) {
 	}
 }
 
-// stenciler looks for any variables starting with "defaultStencilVars" and utilizes GO TEMPLATING
-// within the "STENCIL" variable.
-//
-// Variables can be accessed as map[string]map[string]string{}
-//
-// This gives you the ability to access named variable as "Key" and "Value"
+// stenciler looks for any variables starting with "defaultStencilVars" and produces maps for go templates..
 //
 // Example:
-//  - name: STENCIL_VAR_test
-//    value: mytest
+//environments:
+//  - name: nonprod
+//    spec:
+//      env:
+//        - name: ENVIRONMENT
+//          value: nonprod
+//        - name: STENCIL_VAR_test1
+//          value: my_value_1
+//        - name: STENCIL_VAR_test2
+//          value: my_value_2
+//        - name: STENCIL
+//          value: >
+//            {{.test1}}
+//            {{ range .test1 }}
+//              {{.}}
+//            {{ end }}
+//            --set {{ .test1.Key }}={{ .test1.Value }}
+//            --set {{ .test2.Key }}={{ .test2.Value }}
 //
-// Will use JSON for ease of explaining:
+// Creates Go objects:
+//      map[Key:test1 Value:my_value_1]
+//      map[Key:test2 Value:my_value_2]
 //
-// { "test" : {
-//    "Key" : "test"
-//    "Value" : "mytest"
-// }
-// Which will then allow the following to be used in a template
+// Executes on STENCIL variable template producing:
+// map[Key:test1 Value:my_value_1]
+//   test1
 //
-// echo {{ .test.Key }} ={{ .test.Value }}
+//   my_value_1
+//  --set test1=my_value_1 --set test2=my_value_2
 //
-// Finally the "STENCIL_SLUG" will be replaced within the deploy.sh the go template output.
+// When using "${STENCIL_OUT}" within your deploy.sh it will be replaced with the rendered
+// template passed within the STENCIL var automagically!
 func (d *Deploy) stenciler(instance []*EnvironmentVar) []*EnvironmentVar {
 
 	var setStencil string
