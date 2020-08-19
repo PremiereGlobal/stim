@@ -49,16 +49,16 @@ func (d *Deploy) Run() {
 
 	// Read in the config file and set up defaults
 	d.parseConfig()
-	if d.config.Global.RequiredVersion != "" {
-		d.log.Info("Deploy has set RequiredVersion to:{}, currently:{}", d.config.Global.RequiredVersion, d.stim.GetVersion())
-		if semver.Compare(d.stim.GetVersion(), d.config.Global.RequiredVersion) != 0 {
-			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, required:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Global.RequiredVersion)
+	if d.config.Deployment.RequiredVersion != "" {
+		d.log.Info("Deploy has set RequiredVersion to:{}, currently:{}", d.config.Deployment.RequiredVersion, d.stim.GetVersion())
+		if semver.Compare(d.stim.GetVersion(), d.config.Deployment.RequiredVersion) != 0 {
+			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, required:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Deployment.RequiredVersion)
 		}
 	}
-	if d.config.Global.MinimumVersion != "" {
-		d.log.Info("Deploy has set MinimumVersion to:{}, currently:{}", d.config.Global.MinimumVersion, d.stim.GetVersion())
-		if semver.Compare(d.stim.GetVersion(), d.config.Global.MinimumVersion) < 0 {
-			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, minimum:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Global.MinimumVersion)
+	if d.config.Deployment.MinimumVersion != "" {
+		d.log.Info("Deploy has set MinimumVersion to:{}, currently:{}", d.config.Deployment.MinimumVersion, d.stim.GetVersion())
+		if semver.Compare(d.stim.GetVersion(), d.config.Deployment.MinimumVersion) < 0 {
+			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, minimum:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Deployment.MinimumVersion)
 		}
 	}
 

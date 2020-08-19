@@ -37,6 +37,8 @@ type Deployment struct {
 	Directory         string    `yaml:"directory"`
 	Script            string    `yaml:"script"`
 	Container         Container `yaml:"container"`
+	RequiredVersion   string    `yaml:"requiredVersion"`
+	MinimumVersion    string    `yaml:"minimumVersion"`
 	fullDirectoryPath string
 }
 
@@ -48,9 +50,7 @@ type Container struct {
 
 // Global describes global environment specs
 type Global struct {
-	Spec            *Spec  `yaml:"spec"`
-	RequiredVersion string `yaml:"requiredVersion"`
-	MinimumVersion  string `yaml:"minimumVersion"`
+	Spec *Spec `yaml:"spec"`
 }
 
 // Spec contains the spec of a given environment/instance
@@ -140,18 +140,18 @@ func (d *Deploy) processConfig() {
 		d.config.Global.Spec = &Spec{}
 	}
 
-	if d.config.Global.RequiredVersion != "" {
-		if d.config.Global.MinimumVersion != "" {
+	if d.config.Deployment.RequiredVersion != "" {
+		if d.config.Deployment.MinimumVersion != "" {
 			log.Fatal("Can not use both MinimumVersion and RequiredVersion, Choose one.")
 		}
-		if !semver.IsValid(d.config.Global.RequiredVersion) {
-			d.log.Fatal("Bad RequiredVersion set:{}, exiting...", d.config.Global.RequiredVersion)
+		if !semver.IsValid(d.config.Deployment.RequiredVersion) {
+			d.log.Fatal("Bad RequiredVersion set:{}, exiting...", d.config.Deployment.RequiredVersion)
 		}
 	}
 
-	if d.config.Global.MinimumVersion != "" {
-		if !semver.IsValid(d.config.Global.MinimumVersion) {
-			d.log.Fatal("Bad MinimumVersion set:{}, exiting...", d.config.Global.MinimumVersion)
+	if d.config.Deployment.MinimumVersion != "" {
+		if !semver.IsValid(d.config.Deployment.MinimumVersion) {
+			d.log.Fatal("Bad MinimumVersion set:{}, exiting...", d.config.Deployment.MinimumVersion)
 		}
 	}
 
