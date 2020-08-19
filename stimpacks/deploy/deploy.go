@@ -54,12 +54,11 @@ func (d *Deploy) Run() {
 		if semver.Compare(d.stim.GetVersion(), d.config.Global.RequiredVersion) != 0 {
 			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, required:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Global.RequiredVersion)
 		}
-	} else {
-		if d.config.Global.MinimumVersion != "" {
-			d.log.Info("Deploy has set MinimumVersion to:{}, currently:{}", d.config.Global.MinimumVersion, d.stim.GetVersion())
-			if semver.Compare(d.stim.GetVersion(), d.config.Global.MinimumVersion) < 0 {
-				d.log.Fatal("Stim is not at the Required version for deploy, current:{}, minimum:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Global.MinimumVersion)
-			}
+	}
+	if d.config.Global.MinimumVersion != "" {
+		d.log.Info("Deploy has set MinimumVersion to:{}, currently:{}", d.config.Global.MinimumVersion, d.stim.GetVersion())
+		if semver.Compare(d.stim.GetVersion(), d.config.Global.MinimumVersion) < 0 {
+			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, minimum:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Global.MinimumVersion)
 		}
 	}
 
