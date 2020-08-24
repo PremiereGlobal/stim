@@ -9,6 +9,7 @@ import (
 	"github.com/PremiereGlobal/stim/pkg/docker"
 	log "github.com/PremiereGlobal/stim/pkg/stimlog"
 	"github.com/PremiereGlobal/stim/stim"
+	"golang.org/x/mod/semver"
 )
 
 const (
@@ -48,6 +49,18 @@ func (d *Deploy) Run() {
 
 	// Read in the config file and set up defaults
 	d.parseConfig()
+	if d.config.Deployment.RequiredVersion != "" {
+		d.log.Info("Deploy has set RequiredVersion to:{}, currently:{}", d.config.Deployment.RequiredVersion, d.stim.GetVersion())
+		if semver.Compare(d.stim.GetVersion(), d.config.Deployment.RequiredVersion) != 0 {
+			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, required:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Deployment.RequiredVersion)
+		}
+	}
+	if d.config.Deployment.MinimumVersion != "" {
+		d.log.Info("Deploy has set MinimumVersion to:{}, currently:{}", d.config.Deployment.MinimumVersion, d.stim.GetVersion())
+		if semver.Compare(d.stim.GetVersion(), d.config.Deployment.MinimumVersion) < 0 {
+			d.log.Fatal("Stim is not at the Required version for deploy, current:{}, minimum:{}\n\t Please check https://github.com/PremiereGlobal/stim/releases for new versions", d.stim.GetVersion(), d.config.Deployment.MinimumVersion)
+		}
+	}
 
 	// Determine the selected environment (via cli param) or prompt the user
 	selectedEnvironmentName := ""

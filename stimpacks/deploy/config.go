@@ -3,6 +3,7 @@ package deploy
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/PremiereGlobal/stim/stim"
 	v2e "github.com/PremiereGlobal/vault-to-envs/pkg/vaulttoenvs"
+	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v2"
 )
 
@@ -35,6 +37,8 @@ type Deployment struct {
 	Directory         string    `yaml:"directory"`
 	Script            string    `yaml:"script"`
 	Container         Container `yaml:"container"`
+	RequiredVersion   string    `yaml:"requiredVersion"`
+	MinimumVersion    string    `yaml:"minimumVersion"`
 	fullDirectoryPath string
 }
 
@@ -134,6 +138,21 @@ func (d *Deploy) processConfig() {
 	// Create our global spec if it doesn't exist so we don't have to keep checking if it exists
 	if d.config.Global.Spec == nil {
 		d.config.Global.Spec = &Spec{}
+	}
+
+	if d.config.Deployment.RequiredVersion != "" {
+		if d.config.Deployment.MinimumVersion != "" {
+			log.Fatal("Can not use both MinimumVersion and RequiredVersion, Choose one.")
+		}
+		if !semver.IsValid(d.config.Deployment.RequiredVersion) {
+			d.log.Fatal("Bad RequiredVersion set:{}, exiting...", d.config.Deployment.RequiredVersion)
+		}
+	}
+
+	if d.config.Deployment.MinimumVersion != "" {
+		if !semver.IsValid(d.config.Deployment.MinimumVersion) {
+			d.log.Fatal("Bad MinimumVersion set:{}, exiting...", d.config.Deployment.MinimumVersion)
+		}
 	}
 
 	d.validateSpec(d.config.Global.Spec)
