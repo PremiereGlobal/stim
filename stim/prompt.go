@@ -2,6 +2,7 @@ package stim
 
 import (
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/chzyer/readline"
@@ -119,20 +120,38 @@ func (stim *Stim) PromptList(label string, list []string, override string) (stri
 // PromptListVault uses a path from vault and prompts to select the list
 // of secrets within that list.  Returns the value selected.
 // If override string is not empty it will be returned without
-func (stim *Stim) PromptListVault(vaultPath string, label string, override string) (string, error) {
+func (stim *Stim) PromptListVault(vaultPath string, label string, overrideVaultPath string, regex string) (string, error) {
 
-	if override != "" {
-		stim.Debug("PromptListVault: Using override value of `" + override + "`")
-		return override, nil
+	vaultScanPath := vaultPath
+	if overrideVaultPath != "" {
+		vaultScanPath = overrideVaultPath
 	}
-
+	stim.log.Debug("PromptListVault: Using value of \"{}\"", vaultScanPath)
 	vault := stim.Vault()
-	list, err := vault.ListSecrets(vaultPath)
+	list, err := vault.ListSecrets(vaultScanPath)
 	if err != nil {
 		return "", err
 	}
 
-	result, err := stim.PromptList(label, list, "")
+	listRegex := make([]string, 0)
+	if regex != "" {
+		stim.log.Debug("Doing Regex on vault list: \"{}\"", regex)
+		matcher, err := regexp.Compile(regex)
+		if err != nil {
+			stim.log.Warn("Problem parsing regex filter:\"{}\", err:{}, skipping regex.", regex, err)
+			listRegex = list
+		} else {
+			for _, v := range list {
+				if matcher.MatchString(v) {
+					listRegex = append(listRegex, v)
+				}
+			}
+		}
+	} else {
+		listRegex = list
+	}
+
+	result, err := stim.PromptList(label, listRegex, "")
 	if err != nil {
 		return "", err
 	}

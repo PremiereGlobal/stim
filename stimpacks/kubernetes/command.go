@@ -38,6 +38,10 @@ func (k *Kubernetes) Command(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("kube-current-context", configCmd.Flags().Lookup("current-context"))
 	configCmd.Flags().StringP("namespace", "n", "", "Optional. Name of default namespace")
 	viper.BindPFlag("kube-config-namespace", configCmd.Flags().Lookup("namespace"))
+	configCmd.Flags().StringP("cf", "", "", "Optional. Cluster regex filter")
+	viper.BindPFlag("kube.cluster.filter", configCmd.Flags().Lookup("cf"))
+	configCmd.Flags().StringP("saf", "", "", "Optional. Service Account regex filter")
+	viper.BindPFlag("kube.service-account.filter", configCmd.Flags().Lookup("saf"))
 
 	k.stim.BindCommand(configCmd, cmd)
 
