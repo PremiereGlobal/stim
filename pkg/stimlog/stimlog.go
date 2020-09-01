@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cornelk/hashmap"
+	"github.com/tevino/abool"
 )
 
 type Logger interface {
@@ -76,7 +77,7 @@ type fullStimLogger struct {
 	dateFMT      string
 	logfiles     hashmap.HashMap
 	logQueue     chan *logMessage
-	forceFlush   bool
+	forceFlush   *abool.AtomicBool
 	logLevel     bool
 	logTime      bool
 	// wqc          *sync.Cond
@@ -119,7 +120,7 @@ func GetLogger() StimLogger {
 				dateFMT:      dateFMT,
 				logQueue:     make(chan *logMessage, 1000),
 				logfiles:     hashmap.HashMap{},
-				forceFlush:   true,
+				forceFlush:   abool.NewBool(true),
 				logLevel:     true,
 				logTime:      true,
 			}
@@ -212,27 +213,30 @@ func (stimLogger *fullStimLogger) AddLogFile(file string, logLevel Level) error 
 }
 
 func (stimLogger *fullStimLogger) writeLogQueue() {
-	syncNone := time.Duration(time.Hour * 100)
-	syncSoon := time.Duration(time.Millisecond * 100)
-	syncDelay := syncNone
+	syncSoon := time.Duration(100 * time.Millisecond)
+	syncLate := time.Duration(10000 * time.Millisecond)
+	delay := time.NewTimer(syncSoon)
+	if stimLogger.forceFlush.IsSet() {
+		delay.Reset(syncLate)
+	}
+	defer delay.Stop()
 	for {
+		if stimLogger.forceFlush.IsSet() {
+			delay.Reset(syncLate)
+		} else {
+			delay.Reset(syncSoon)
+		}
 		select {
 		case lm := <-stimLogger.logQueue:
 			stimLogger.writeLogs(lm.logLevel, lm.wg != nil, stimLogger.formatLogMessage(lm))
 			if lm.wg != nil {
 				lm.wg.Done()
-				syncDelay = syncNone
-			} else {
-				if !stimLogger.forceFlush {
-					syncDelay = syncSoon
-				}
 			}
-		case <-time.After(syncDelay):
+		case <-delay.C:
 			for kv := range stimLogger.logfiles.Iter() {
 				lgr := kv.Value.(*logFile)
 				lgr.fp.Sync()
 			}
-			syncDelay = syncNone
 		}
 	}
 }
@@ -281,7 +285,7 @@ func (stimLogger *fullStimLogger) writeLogs(logLevel Level, sync bool, msg strin
 		lgr := kv.Value.(*logFile)
 		if lgr.logLevel >= logLevel || (lgr.logLevel == defaultLevel && stimLogger.currentLevel >= logLevel) {
 			lgr.fp.WriteString(msg)
-			if stimLogger.forceFlush || sync {
+			if stimLogger.forceFlush.IsSet() || sync {
 				lgr.fp.Sync()
 			}
 		}
@@ -316,7 +320,7 @@ func (stimLogger *fullStimLogger) Flush() {
 
 //ForceFlush enables/disables forcing sync on logfiles after every write
 func (stimLogger *fullStimLogger) ForceFlush(ff bool) {
-	stimLogger.forceFlush = ff
+	stimLogger.forceFlush.SetTo(ff)
 	if ff {
 		stimLogger.Flush()
 	}
@@ -351,7 +355,7 @@ func (stimLogger *fullStimLogger) SetLevel(level Level) {
 func (stimLogger *fullStimLogger) Debug(message ...interface{}) {
 	if stimLogger.highestLevel >= DebugLevel {
 		if stimLogger.setLogger == nil {
-			if stimLogger.forceFlush {
+			if stimLogger.forceFlush.IsSet() {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
 				stimLogger.logQueue <- stimLogger.wrapMessage(DebugLevel, wg, message...)
@@ -369,7 +373,7 @@ func (stimLogger *fullStimLogger) Debug(message ...interface{}) {
 func (stimLogger *fullStimLogger) Verbose(message ...interface{}) {
 	if stimLogger.highestLevel >= VerboseLevel {
 		if stimLogger.setLogger == nil {
-			if stimLogger.forceFlush {
+			if stimLogger.forceFlush.IsSet() {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
 				stimLogger.logQueue <- stimLogger.wrapMessage(VerboseLevel, wg, message...)
@@ -387,7 +391,7 @@ func (stimLogger *fullStimLogger) Verbose(message ...interface{}) {
 func (stimLogger *fullStimLogger) Warn(message ...interface{}) {
 	if stimLogger.highestLevel >= WarnLevel {
 		if stimLogger.setLogger == nil {
-			if stimLogger.forceFlush {
+			if stimLogger.forceFlush.IsSet() {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
 				stimLogger.logQueue <- stimLogger.wrapMessage(WarnLevel, wg, message...)
@@ -405,7 +409,7 @@ func (stimLogger *fullStimLogger) Warn(message ...interface{}) {
 func (stimLogger *fullStimLogger) Trace(message ...interface{}) {
 	if stimLogger.highestLevel >= TraceLevel {
 		if stimLogger.setLogger == nil {
-			if stimLogger.forceFlush {
+			if stimLogger.forceFlush.IsSet() {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
 				stimLogger.logQueue <- stimLogger.wrapMessage(TraceLevel, wg, message...)
@@ -424,7 +428,7 @@ func (stimLogger *fullStimLogger) Info(message ...interface{}) {
 	if stimLogger.highestLevel >= InfoLevel {
 		if stimLogger.setLogger == nil {
 
-			if stimLogger.forceFlush {
+			if stimLogger.forceFlush.IsSet() {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
 				stimLogger.logQueue <- stimLogger.wrapMessage(InfoLevel, wg, message...)
