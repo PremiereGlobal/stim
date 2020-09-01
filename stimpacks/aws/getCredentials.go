@@ -25,7 +25,7 @@ func (a *Aws) GetCredentials() (string, string, error) {
 	if vaultRole == "" && a.stim.IsAutomated() {
 		a.stim.Fatal(errors.New("Vault aws role not specified"))
 	} else if vaultRole == "" {
-		vaultRole, err = a.stim.PromptListVault(vaultAccount+"/roles", "Select Role", "")
+		vaultRole, err = a.stim.PromptListVault(vaultAccount+"/roles", "Select Role", "", "")
 		a.stim.Fatal(err)
 	}
 

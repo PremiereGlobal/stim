@@ -12,12 +12,12 @@ func (k *Kubernetes) configureContext() error {
 
 	var err error
 
-	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.ConfigGetString("kube-config-cluster"))
+	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.ConfigGetString("kube-config-cluster"), k.stim.ConfigGetString("kube.cluster.filter"))
 	if err != nil {
 		return err
 	}
 
-	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.ConfigGetString("kube-service-account"))
+	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.ConfigGetString("kube-service-account"), k.stim.ConfigGetString("kube.service-account.filter"))
 	if err != nil {
 		return err
 	}
