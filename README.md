@@ -24,7 +24,33 @@ docker run \
 `stim deploy` makes it easier to deploy with a simple config file.  See [docs/DEPLOY.md](docs/DEPLOY.md) for more details.
 
 ## Examples
-See the [examples directory](examples) for examples of certain subocommands.
+See the [examples directory](examples) for examples of certain subcommands.
+
+## Configuration
+
+In addition to accepting config via CLI options and environment variables, Stim reads configuration from a file (`${HOME}/.stim/config.yaml` by default). You can pass alternate config file paths at runtime via the `--config` CLI option, for example:
+
+```
+stim vault login --config ~/.stim/alt-config-file.yaml
+```
+
+Configuration files are YAML-formatted and allow you to configure settings for AWS, Vault, logging, etc. For a full list of configuration options and related info, see the [Config documentation](docs/CONFIG.md). A sample configuration file for a Vault instance in which you use Github as an auth backend might look like:
+
+```
+auth:
+    # the name of a pre-configured Vault auth method
+    method: github
+aws:
+    default-profile: true
+    ttl: 10h
+    use-profiles: true
+    web-ttl: 10h
+# the URL of your Vault instance
+vault-address: https://vault.example.com
+vault-initial-token-duration: 10h
+vault-username: github-login
+vault-username-skip-prompt: true
+```
 
 ## Developing with Stim
 
