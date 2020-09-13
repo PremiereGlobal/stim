@@ -4,6 +4,10 @@ set -eo pipefail
 
 VERSION=${1:-master}
 
+if [[ "${VERSION}" == "master" ]]; then
+  VERSION="v0.0.0-${TRAVIS_BRANCH}"
+fi
+
 mkdir -p bin
 cp install.sh bin
 cd bin
