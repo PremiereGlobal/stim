@@ -6,6 +6,10 @@ VERSION=${1:-v0.0.0-local}
 GOOS=${2:-linux}
 DOCKER_REPO="premiereglobal/stim"
 
+if [[ "${VERSION}" == "master" ]]; then
+  VERSION="v0.0.0-${TRAVIS_BRANCH}"
+fi
+
 if [[ ${VERSION:0:1} != "v" ]]; then
   echo "VERSION must start with a v (ie v0.0.0-branch) and is currently ${VERSION}"
   exit 1
