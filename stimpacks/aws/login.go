@@ -108,6 +108,11 @@ func (a *Aws) Login() error {
 			a.log.Debug("Setting {} credentials as default", profileName)
 		}
 		a.aws.SaveProfile(profileName, &profile, defaultProfile, &stimProfile)
+
+		a.log.Info("Saved {} in ~/.aws/credentials", profileName)
+		if defaultProfile {
+			a.log.Info("Set {} credentials as default", profileName)
+		}
 	}
 
 	if stsLogin {
