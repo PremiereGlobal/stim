@@ -1,5 +1,9 @@
 # Stim Changelog
 
+## 0.2.0
+### Bugfix
+* Upped version of `kube-vault-deploy` to fix checksum issue downloading kubectl >= 1.18
+
 ## 0.1.7
 
 ### **Deprecations**

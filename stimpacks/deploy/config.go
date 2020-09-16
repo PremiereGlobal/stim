@@ -17,7 +17,7 @@ import (
 
 const (
 	defaultContainerRepo   = "premiereglobal/kube-vault-deploy"
-	defaultContainerTag    = "0.3.3"
+	defaultContainerTag    = "0.3.4"
 	defaultDeployDirectory = "./"
 	defaultDeployScript    = "deploy.sh"
 	defaultConfigFile      = "./stim.deploy.yaml"
