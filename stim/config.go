@@ -1,6 +1,7 @@
 package stim
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -46,7 +47,16 @@ func (stim *Stim) ConfigGetString(configKey string) string {
 func (stim *Stim) ConfigGetBool(configKey string) bool {
 	configValue := stim.ConfigGetRaw(configKey)
 	if configValue != nil {
-		return configValue.(bool)
+		switch v := configValue.(type) {
+		case bool:
+			return v
+		case string:
+			lc := strings.ToLower(v)
+			return lc == "true" || lc == "t"
+		default:
+			stim.log.Warn("Unknown type for bool, type:{}, value of:{}", fmt.Sprintf("%T", v), v)
+		}
+
 	}
 	return false
 }
