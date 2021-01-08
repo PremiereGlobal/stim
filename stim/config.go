@@ -1,6 +1,7 @@
 package stim
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -13,7 +14,15 @@ import (
 )
 
 func (stim *Stim) ConfigGetRaw(configKey string) interface{} {
+	var envCV interface{} = nil
 	configValue := stim.config.Get(configKey)
+	if strings.Contains(configKey, ".") {
+		envCK := strings.ReplaceAll(configKey, ".", "-")
+		envCV = stim.config.Get(envCK)
+	}
+	if envCV != nil {
+		return envCV
+	}
 	if configValue != nil {
 		return configValue
 	}
@@ -22,21 +31,45 @@ func (stim *Stim) ConfigGetRaw(configKey string) interface{} {
 }
 
 func (stim *Stim) ConfigGetString(configKey string) string {
+	var envCV string = ""
 	configValue := stim.config.GetString(configKey)
+	if strings.Contains(configKey, ".") {
+		envCK := strings.ReplaceAll(configKey, ".", "-")
+		envCV = stim.config.GetString(envCK)
+	}
+	if envCV != "" {
+		return envCV
+	}
 	return configValue
 }
 
 // GetConfigBool takes a config key and returns the boolean result
 func (stim *Stim) ConfigGetBool(configKey string) bool {
-	configValue := stim.config.Get(configKey)
+	configValue := stim.ConfigGetRaw(configKey)
 	if configValue != nil {
-		return configValue.(bool)
+		switch v := configValue.(type) {
+		case bool:
+			return v
+		case string:
+			lc := strings.ToLower(v)
+			return lc == "true" || lc == "t"
+		default:
+			stim.log.Warn("Unknown type for bool, type:{}, value of:{}", fmt.Sprintf("%T", v), v)
+		}
+
 	}
 	return false
 }
 
 func (stim *Stim) ConfigHasValue(configKey string) bool {
 	configValue := stim.config.Get(configKey)
+	if strings.Contains(configKey, ".") {
+		envCK := strings.ReplaceAll(configKey, ".", "-")
+		envCV := stim.config.Get(envCK)
+		if envCV != nil {
+			return true
+		}
+	}
 	if configValue != nil {
 		return true
 	}
@@ -141,6 +174,7 @@ func (stim *Stim) writeConfigData(config map[string]interface{}) error {
 		stim.log.Debug("Problem writing configfile:{}", err)
 		return err
 	}
+	stim.getConfigData()
 	return nil
 }
 
