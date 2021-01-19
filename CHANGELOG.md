@@ -2,6 +2,13 @@
 
 ## 0.2.0
 ### Bugfix
+* added filters for cluster and service account
+* moved version to only output version nothing else.  Removed unneeded else statement
+* added semver requirement, and checking.  Deploy added global.requiredVersion and global.minimumVersion to the stim.deploy.yaml, so you can enforce versions.  Fixed minor issue with logging Fatal, showing as Info
+* Adding validation to check for no arg for completion cmd
+* hard set to alpine:3.11 since alpine:3.12 does not support py2 anymore
+* tab completion functionality for bash and zsh
+* Allow all config options to also be envVars using subpaths as _ which then get translated to - in viper config
 * Upped version of `kube-vault-deploy` to fix checksum issue downloading kubectl >= 1.18
 
 ## 0.1.7
