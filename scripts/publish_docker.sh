@@ -7,7 +7,7 @@ PUBLISH_VERSION=${2:-$SOURCE_VERSION}
 DOCKER_REPO="premiereglobal/stim"
 
 if [[ "${SOURCE_VERSION}" == "master" ]]; then
-  VERSION="v0.0.0-${TRAVIS_BRANCH}"
+  SOURCE_VERSION="v0.0.0-${TRAVIS_BRANCH}"
 fi
 
 docker tag ${DOCKER_REPO}:${SOURCE_VERSION}-linux ${DOCKER_REPO}:${PUBLISH_VERSION}
