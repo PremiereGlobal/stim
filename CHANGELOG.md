@@ -2,6 +2,7 @@
 
 ## 0.2.0
 ### Bugfix
+* fixed build/publish for versions
 * added filters for cluster and service account
 * moved version to only output version nothing else.  Removed unneeded else statement
 * added semver requirement, and checking.  Deploy added global.requiredVersion and global.minimumVersion to the stim.deploy.yaml, so you can enforce versions.  Fixed minor issue with logging Fatal, showing as Info
