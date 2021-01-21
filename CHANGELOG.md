@@ -1,5 +1,9 @@
 # Stim Changelog
 
+## 0.2.1
+### Bugfix
+* Fixed defaulted value for prompt list.
+
 ## 0.2.0
 ### Bugfix
 * fixed build/publish for versions
