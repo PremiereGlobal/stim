@@ -120,11 +120,11 @@ func (stim *Stim) PromptList(label string, list []string, override string) (stri
 // PromptListVault uses a path from vault and prompts to select the list
 // of secrets within that list.  Returns the value selected.
 // If override string is not empty it will be returned without
-func (stim *Stim) PromptListVault(vaultPath string, label string, overrideVaultPath string, regex string) (string, error) {
+func (stim *Stim) PromptListVault(vaultPath string, label string, defaultedValue string, regex string) (string, error) {
 
 	vaultScanPath := vaultPath
-	if overrideVaultPath != "" {
-		vaultScanPath = overrideVaultPath
+	if defaultedValue != "" {
+		return defaultedValue, nil
 	}
 	stim.log.Debug("PromptListVault: Using value of \"{}\"", vaultScanPath)
 	vault := stim.Vault()
