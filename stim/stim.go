@@ -45,6 +45,7 @@ func New() *Stim {
 	stim.logConfig = stimlog.GetLoggerConfig()
 	stim.logConfig.ForceFlush(true)
 	stim.config = viper.New()
+	stim.ConfigSetDefaultValues()
 	stim.config.SetEnvPrefix("stim")
 	stim.config.AutomaticEnv()
 	stim.config.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
@@ -144,9 +145,9 @@ func (stim *Stim) User() (string, error) {
 // UpdateVaultUser updates the user's stim config file with given username
 // This username will be the default option when authenticating against Vault
 func (stim *Stim) UpdateVaultUser(username string) error {
-	if username != stim.ConfigGetString("vault-username") {
-		stim.ConfigSetString("vault-username", username)
-		err := stim.ConfigSetRaw("vault-username", username)
+	if username != stim.ConfigGetString("vault.username") {
+		stim.ConfigSetString("vault.username", username)
+		err := stim.ConfigSetRaw("vault.username", username)
 		if err != nil {
 			return err
 		}

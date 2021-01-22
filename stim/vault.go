@@ -14,22 +14,32 @@ func (stim *Stim) Vault() *vault.Vault {
 
 		stim.log.Debug("Stim-Vault: Creating")
 
-		username := stim.ConfigGetString("vault-username")
+		username := stim.ConfigGetString("vault.username")
 
 		// Note with ParseDuration: If you value is 28800 you will need to add an "s" at the end
 		var timeInDuration time.Duration
 		var err error
-		vtd := stim.ConfigGetString("vault-initial-token-duration")
-		if vtd != "" {
-			timeInDuration, err = time.ParseDuration(vtd)
-			if err != nil {
-				stim.log.Warn("Stim-vault: bad duration value:{} caused error:{}", vtd, err)
-				timeInDuration = time.Duration(0)
+
+		timeInDuration = stim.ConfigGetDuration("vault.default-ttl")
+		if timeInDuration == time.Duration(0) {
+			vtd := stim.ConfigGetString("vault-initial-token-duration") //TODO: depreciated config should be removed
+			if vtd != "" {
+				timeInDuration, err = time.ParseDuration(vtd)
+				if err != nil {
+					stim.log.Warn("Stim-vault: bad duration value:{} caused error:{}", vtd, err)
+					timeInDuration = time.Duration(0)
+				}
 			}
 		}
 
-		va := stim.ConfigGetString("vault-address")
+		va := stim.ConfigGetString("vault.address")
 		stim.log.Debug("Vault Address: ({})", va)
+
+		skipUserPrompt := false
+		skipUserPrompt = stim.ConfigGetBool("vault.skip-username-prompt")
+		if !skipUserPrompt {
+			skipUserPrompt = stim.ConfigGetBool("vault-username-skip-prompt") //TODO: depreciated config should be removed
+		}
 
 		// Create the Vault object and pass in the needed address
 		vault, err := vault.New(&vault.Config{
@@ -37,7 +47,7 @@ func (stim *Stim) Vault() *vault.Vault {
 			Noprompt:             stim.ConfigGetBool("noprompt") == false && stim.IsAutomated(),
 			AuthPath:             stim.ConfigGetString("auth.method"),
 			Username:             username, // If set in the configs, pass in user
-			UsernameSkipPrompt:   stim.ConfigGetBool("vault-username-skip-prompt"),
+			UsernameSkipPrompt:   skipUserPrompt,
 			InitialTokenDuration: timeInDuration,
 			Log:                  stim.log,
 		})

@@ -58,9 +58,14 @@ func (a *Aws) Login() error {
 		}
 	}
 
-	envSource := a.stim.ConfigGetBool("env-source")
-	stsLogin := a.stim.ConfigGetBool("aws-web")
-	onlyOutput := a.stim.ConfigGetBool("aws-output")
+	envSource := false
+	if !a.stim.ConfigHasValue("aws.envsource") {
+		envSource = a.stim.ConfigGetBool("aws.envsource")
+	} else {
+		envSource = a.stim.ConfigGetBool("env-source") //TODO: depreciated config should be removed
+	}
+	stsLogin := a.stim.ConfigGetBool("aws.web")
+	onlyOutput := a.stim.ConfigGetBool("aws.output")
 
 	if stsLogin && a.stim.IsAutomated() {
 		a.log.Fatal(errors.New("IsAutomated is detected: web login can not be used."))
