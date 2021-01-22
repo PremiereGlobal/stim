@@ -1,5 +1,10 @@
 # Stim Changelog
 
+## 0.3.0***
+### Improvements
+* Allow vault to retry getting AWS creditials on throttle message: `vault.retryOnThrottle:bool`
+* Start work to commonize all configs to using more map style config based on stimpack name `stimpack.key`, IE `vault.address` `kube.config.namespace`
+
 ## 0.2.1
 ### Bugfix
 * Fixed defaulted value for prompt list.
