@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"time"
 
 	"github.com/PremiereGlobal/stim/pkg/downloader"
 	"github.com/PremiereGlobal/stim/pkg/env"
@@ -133,9 +135,22 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 		v2e.SetVaultToken(vaultToken)
 		v2e.AddSecretItems(config.Vault.SecretItems...)
 
-		secretEnvs, err := v2e.GetEnvs()
-		if err != nil {
-			stim.log.Fatal("Stim: Unable to get Vault secrets for environment. {}", err)
+		sleepTime := time.Duration(time.Second)
+
+		var secretEnvs []string
+
+		for i := 0; i < 3; i++ {
+			secretEnvs, err = v2e.GetEnvs()
+			if err != nil {
+				if stim.ConfigGetBool("vault.retryOnThrottle") && strings.Contains(err.Error(), "Throttling: Rate exceeded") {
+					stim.log.Info("Stim: Got Throttling error waiting {} then trying again, try number:{}", sleepTime, i+1)
+					time.Sleep(sleepTime)
+					sleepTime += time.Duration(time.Second)
+					continue
+				}
+				stim.log.Fatal("Stim: Unable to get Vault secrets for environment. {}", err)
+			}
+			break
 		}
 
 		e.AddEnvVars(secretEnvs...)

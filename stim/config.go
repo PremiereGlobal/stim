@@ -7,11 +7,19 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/imdario/mergo"
 	yaml "gopkg.in/yaml.v3"
 )
+
+func (stim *Stim) ConfigSetDefaultValues() {
+	stim.ConfigSetString("kube.config.path", "secret/kubernetes/")
+	stim.ConfigSetString("kube.config.keyname", "kube-config")
+	stim.ConfigSetBool("vault.retryOnThrottle", false)
+	stim.ConfigSetString("vault.address", "https://127.0.0.1:8200/")
+}
 
 func (stim *Stim) ConfigGetRaw(configKey string) interface{} {
 	var envCV interface{} = nil
@@ -38,6 +46,19 @@ func (stim *Stim) ConfigGetString(configKey string) string {
 		envCV = stim.config.GetString(envCK)
 	}
 	if envCV != "" {
+		return envCV
+	}
+	return configValue
+}
+
+func (stim *Stim) ConfigGetDuration(configKey string) time.Duration {
+	var envCV time.Duration
+	configValue := stim.config.GetDuration(configKey)
+	if strings.Contains(configKey, ".") {
+		envCK := strings.ReplaceAll(configKey, ".", "-")
+		envCV = stim.config.GetDuration(envCK)
+	}
+	if envCV != time.Duration(0) {
 		return envCV
 	}
 	return configValue

@@ -12,23 +12,40 @@ func (k *Kubernetes) configureContext() error {
 
 	var err error
 
-	cluster, err := k.stim.PromptListVault("secret/kubernetes", "Select Cluster", k.stim.ConfigGetString("kube-config-cluster"), k.stim.ConfigGetString("kube.cluster.filter"))
+	cluster := k.stim.ConfigGetString("kube.config.cluster")
+	if cluster == "" {
+		cluster = k.stim.ConfigGetString("kube-config-cluster") //TODO: depreciated config should be removed
+	}
+	kubeClusterFilter := k.stim.ConfigGetString("kube.cluster.filter")
+
+	kubePath := k.stim.ConfigGetString("kube.config.path")
+
+	cluster, err = k.stim.PromptListVault(kubePath, "Select Cluster", cluster, kubeClusterFilter)
 	if err != nil {
 		return err
 	}
 
-	sa, err := k.stim.PromptListVault("secret/kubernetes/"+cluster, "Select Service Account", k.stim.ConfigGetString("kube-service-account"), k.stim.ConfigGetString("kube.service-account.filter"))
+	sa := k.stim.ConfigGetString("kube.config.serviceaccount")
+	if sa == "" {
+		sa = k.stim.ConfigGetString("kube-service-account") //TODO: depreciated config should be removed
+	}
+	saFilter := k.stim.ConfigGetString("kube.config.serviceaccountfilter")
+
+	sa, err = k.stim.PromptListVault(kubePath+"/"+cluster, "Select Service Account", sa, saFilter)
 	if err != nil {
 		return err
 	}
+
+	kubeKeyName := k.stim.ConfigGetString("kube.config.keyname")
 
 	// Get secrets from Vault
-	secretValues, err := k.vault.GetSecretKeys("secret/kubernetes/" + cluster + "/" + sa + "/kube-config")
+	secretValues, err := k.vault.GetSecretKeys(kubePath + "/" + cluster + "/" + sa + "/" + kubeKeyName)
 	if err != nil {
 		return err
 	}
 
-	namespace := k.stim.ConfigGetString("kube-config-namespace")
+	namespace := k.stim.ConfigGetString("kube.config.namespace")
+
 	if namespace == "" {
 		namespace, err = k.stim.PromptString("Select Default Namespace", secretValues["default-namespace"])
 		if err != nil {
@@ -36,7 +53,11 @@ func (k *Kubernetes) configureContext() error {
 		}
 	}
 
-	context := k.stim.ConfigGetString("kube-context")
+	context := k.stim.ConfigGetString("kube.config.context")
+	if context == "" {
+		context = k.stim.ConfigGetString("kube-context") //TODO: depreciated config should be removed
+	}
+
 	if context == "" {
 		context, err = k.stim.PromptString("Context Name", cluster)
 		if err != nil {
@@ -44,7 +65,14 @@ func (k *Kubernetes) configureContext() error {
 		}
 	}
 
-	currentContext, err := k.stim.PromptBool("Set as current context?", k.stim.ConfigGetBool("kube-current-context"), true)
+	kcc := false
+	if k.stim.ConfigHasValue("kube.config.setcontext") {
+		kcc = k.stim.ConfigGetBool("kube.config.setcontext")
+	} else {
+		kcc = k.stim.ConfigGetBool("kube-current-context") //TODO: depreciated config should be removed
+	}
+
+	currentContext, err := k.stim.PromptBool("Set as current context?", kcc, true)
 	if err != nil {
 		return err
 	}
