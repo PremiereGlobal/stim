@@ -135,22 +135,25 @@ func (stim *Stim) Env(config *EnvConfig) *env.Env {
 		v2e.SetVaultToken(vaultToken)
 		v2e.AddSecretItems(config.Vault.SecretItems...)
 
-		sleepTime := time.Duration(time.Second)
+		sleepTime := time.Duration(time.Second * 2)
 
 		var secretEnvs []string
 
-		for i := 0; i < 3; i++ {
+		for i := 0; i < 5; i++ {
 			secretEnvs, err = v2e.GetEnvs()
 			if err != nil {
 				if stim.ConfigGetBool("vault.retryOnThrottle") && strings.Contains(err.Error(), "Throttling: Rate exceeded") {
 					stim.log.Info("Stim: Got Throttling error waiting {} then trying again, try number:{}", sleepTime, i+1)
 					time.Sleep(sleepTime)
-					sleepTime += time.Duration(time.Second)
+					sleepTime += sleepTime
 					continue
 				}
 				stim.log.Fatal("Stim: Unable to get Vault secrets for environment. {}", err)
 			}
 			break
+		}
+		if err != nil {
+			stim.log.Fatal("Stim: Unable to get Vault secrets for environment. {}", err)
 		}
 
 		e.AddEnvVars(secretEnvs...)

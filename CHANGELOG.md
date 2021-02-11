@@ -1,5 +1,12 @@
 # Stim Changelog
 
+## 0.3.1
+### Improvements
+* changed thottle to 5 times and 2/4/8/16/32 sec
+### Bugfix
+* still fail if throttling happens more then 5 times
+
+
 ## 0.3.0
 ### Improvements
 * Allow vault to retry getting AWS creditials on throttle message: `vault.retryOnThrottle:bool`
