@@ -1,4 +1,9 @@
 # Stim Changelog
+## 0.3.2
+### Bugfix
+* Fixed setting of default values
+
+
 
 ## 0.3.1
 ### Improvements

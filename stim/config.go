@@ -15,10 +15,10 @@ import (
 )
 
 func (stim *Stim) ConfigSetDefaultValues() {
-	stim.ConfigSetString("kube.config.path", "secret/kubernetes/")
-	stim.ConfigSetString("kube.config.keyname", "kube-config")
-	stim.ConfigSetBool("vault.retryOnThrottle", false)
-	stim.ConfigSetString("vault.address", "https://127.0.0.1:8200/")
+	stim.config.SetDefault("kube.config.path", "secret/kubernetes/")
+	stim.config.SetDefault("kube.config.keyname", "kube-config")
+	stim.config.SetDefault("vault.retryOnThrottle", false)
+	stim.config.SetDefault("vault.address", "https://127.0.0.1:8200/")
 }
 
 func (stim *Stim) ConfigGetRaw(configKey string) interface{} {
@@ -143,6 +143,7 @@ Main:
 }
 
 func (stim *Stim) ConfigSetRaw(key string, value interface{}) error {
+
 	config := make(map[string]interface{})
 	sc := make(map[string]interface{})
 	if strings.Contains(key, ".") {
