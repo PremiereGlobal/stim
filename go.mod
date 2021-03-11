@@ -30,6 +30,7 @@ require (
 	github.com/krolaw/zipstream v0.0.0-20180621105154-0a2661891f94
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/nlopes/slack v0.6.0
