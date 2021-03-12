@@ -1,16 +1,18 @@
 # Stim Changelog
+
+## 0.4.0
+### Improvements
+* Added `--filter-prompts` to `aws login` to limit shown accounts and roles according to Vault token capabilities
+
 ## 0.3.2
 ### Bugfix
 * Fixed setting of default values
-
-
 
 ## 0.3.1
 ### Improvements
 * changed thottle to 5 times and 2/4/8/16/32 sec
 ### Bugfix
 * still fail if throttling happens more then 5 times
-
 
 ## 0.3.0
 ### Improvements
