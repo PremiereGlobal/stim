@@ -23,7 +23,7 @@ func (v *Vault) Filter(paths []string, withCapabilities []string) ([]string, err
 	}
 
 	var filteredPaths []string
-	for path, capabilities := range results {
+	for path, capabilities := range results.Data {
 		for _, capability := range withCapabilities {
 			if utils.Contains(capabilities, capability) {
 				filteredPaths = append(filteredPaths, path)

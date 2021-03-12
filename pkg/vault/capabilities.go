@@ -1,19 +1,19 @@
 package vault
 
 import (
-	"github.com/hashicorp/vault/api"
-	"github.com/mitchellh/mapstructure"
-
 	"context"
+	"encoding/json"
 )
 
 type CapabilitiesSelfOptions struct {
 	Paths []string `json:"paths,omitempty"`
 }
 
-type CapabilitiesSelfResults map[string][]string
+type CapabilitiesSelfResults struct {
+	Data map[string][]string `json:"data"`
+}
 
-func (v *Vault) CapabilitiesSelf(opts *CapabilitiesSelfOptions) (CapabilitiesSelfResults, error) {
+func (v *Vault) CapabilitiesSelf(opts *CapabilitiesSelfOptions) (*CapabilitiesSelfResults, error) {
 	request := v.client.NewRequest("POST", "/v1/sys/capabilities-self")
 	if err := request.SetJSONBody(opts); err != nil {
 		return nil, err
@@ -27,16 +27,11 @@ func (v *Vault) CapabilitiesSelf(opts *CapabilitiesSelfOptions) (CapabilitiesSel
 	}
 	defer response.Body.Close()
 
-	parsedSecret, err := api.ParseSecret(response.Body)
+	results := CapabilitiesSelfResults{}
+	err = json.NewDecoder(response.Body).Decode(&results)
 	if err != nil {
 		return nil, err
 	}
 
-	var results CapabilitiesSelfResults
-	err = mapstructure.Decode(parsedSecret.Data, &results)
-	if err != nil {
-		return nil, err
-	}
-
-	return results, nil
+	return &results, nil
 }
