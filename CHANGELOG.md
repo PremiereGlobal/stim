@@ -2,7 +2,8 @@
 
 ## 0.4.0
 ### Improvements
-* Added `--filter-prompts` to `aws login` to limit shown accounts and roles according to Vault token capabilities
+* Added `--filter-by-token` to `aws login` to limit shown accounts and roles according to Vault token capabilities
+* Added `--filter-by-token` to `kube config` to limit shown service accounts according to Vault token capabilities
 
 ## 0.3.2
 ### Bugfix

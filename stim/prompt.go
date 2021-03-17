@@ -2,9 +2,9 @@ package stim
 
 import (
 	"os"
-	"regexp"
 	"strings"
 
+	"github.com/PremiereGlobal/stim/pkg/utils"
 	"github.com/chzyer/readline"
 	"github.com/manifoldco/promptui"
 )
@@ -133,25 +133,12 @@ func (stim *Stim) PromptListVault(vaultPath string, label string, defaultedValue
 		return "", err
 	}
 
-	listRegex := make([]string, 0)
-	if regex != "" {
-		stim.log.Debug("Doing Regex on vault list: \"{}\"", regex)
-		matcher, err := regexp.Compile(regex)
-		if err != nil {
-			stim.log.Warn("Problem parsing regex filter:\"{}\", err:{}, skipping regex.", regex, err)
-			listRegex = list
-		} else {
-			for _, v := range list {
-				if matcher.MatchString(v) {
-					listRegex = append(listRegex, v)
-				}
-			}
-		}
-	} else {
-		listRegex = list
+	filteredList, err := utils.Filter(list, regex)
+	if err != nil {
+		return "", err
 	}
 
-	result, err := stim.PromptList(label, listRegex, "")
+	result, err := stim.PromptList(label, filteredList, "")
 	if err != nil {
 		return "", err
 	}

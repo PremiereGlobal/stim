@@ -62,8 +62,8 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 	loginCmd.Flags().StringP("web-ttl", "b", "1h", "Time-to-live for AWS web console access (min 15m, max 36h)")
 	viper.BindPFlag("aws.web-ttl", loginCmd.Flags().Lookup("web-ttl"))
 
-	loginCmd.Flags().BoolP("filter-prompts", "", false, "Show accounts and roles according to Vault token capabilities")
-	viper.BindPFlag("aws.filter-prompts", loginCmd.Flags().Lookup("filter-prompts"))
+	loginCmd.Flags().BoolP("filter-by-token", "", false, "Show accounts and roles according to Vault token capabilities")
+	viper.BindPFlag("aws.filter-by-token", loginCmd.Flags().Lookup("filter-by-token"))
 
 	return cmd
 }

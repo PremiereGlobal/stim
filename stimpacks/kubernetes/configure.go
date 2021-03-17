@@ -2,7 +2,11 @@ package kubernetes
 
 import (
 	"github.com/PremiereGlobal/stim/pkg/kubernetes"
+	"github.com/PremiereGlobal/stim/pkg/utils"
+
 	// "github.com/davecgh/go-spew/spew"
+	"sort"
+	"strings"
 )
 
 func (k *Kubernetes) configureContext() error {
@@ -29,9 +33,13 @@ func (k *Kubernetes) configureContext() error {
 	if sa == "" {
 		sa = k.stim.ConfigGetString("kube-service-account") //TODO: depreciated config should be removed
 	}
-	saFilter := k.stim.ConfigGetString("kube.config.serviceaccountfilter")
+	saFilter := k.stim.ConfigGetString("kube.service-account.filter")
 
-	sa, err = k.stim.PromptListVault(kubePath+"/"+cluster, "Select Service Account", sa, saFilter)
+	filteredServiceAccounts, err := k.filterServiceAccounts(kubePath+"/"+cluster, saFilter)
+	if err != nil {
+		return err
+	}
+	sa, err = k.stim.PromptList("Select Service Account", filteredServiceAccounts, sa)
 	if err != nil {
 		return err
 	}
@@ -97,4 +105,34 @@ func (k *Kubernetes) configureContext() error {
 	}
 
 	return nil
+}
+
+func (k *Kubernetes) filterServiceAccounts(path string, saFilter string) ([]string, error) {
+	serviceAccounts, err := k.vault.ListSecrets(path)
+	k.stim.Fatal(err)
+	regexFilteredServiceAccounts, err := utils.Filter(serviceAccounts, saFilter)
+	k.stim.Fatal(err)
+
+	if !k.stim.ConfigGetBool("kube.filter-by-token") {
+		return regexFilteredServiceAccounts, nil
+	}
+
+	kubeKeyName := k.stim.ConfigGetString("kube.config.keyname")
+	var paths []string
+	for _, serviceAccount := range regexFilteredServiceAccounts {
+		paths = append(paths, path+"/"+serviceAccount+"/"+kubeKeyName)
+	}
+
+	filteredPaths, err := k.vault.Filter(paths, []string{"read"})
+	k.stim.Fatal(err)
+
+	var tokenFilteredServiceAccounts []string
+	for _, filteredPath := range filteredPaths {
+		sa := strings.TrimSuffix(filteredPath, "/"+kubeKeyName)
+		sa = strings.TrimPrefix(sa, path+"/")
+		tokenFilteredServiceAccounts = append(tokenFilteredServiceAccounts, sa)
+	}
+
+	sort.Strings(tokenFilteredServiceAccounts)
+	return tokenFilteredServiceAccounts, nil
 }

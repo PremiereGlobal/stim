@@ -42,6 +42,8 @@ func (k *Kubernetes) Command(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("kube.cluster.filter", configCmd.Flags().Lookup("cf"))
 	configCmd.Flags().StringP("saf", "", "", "Optional. Service Account regex filter")
 	viper.BindPFlag("kube.service-account.filter", configCmd.Flags().Lookup("saf"))
+	configCmd.Flags().BoolP("filter-by-token", "", false, "Optional. Show service accounts by Vault token capabilities")
+	viper.BindPFlag("kube.filter-by-token", configCmd.Flags().Lookup("filter-by-token"))
 
 	k.stim.BindCommand(configCmd, cmd)
 

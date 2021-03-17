@@ -36,7 +36,7 @@ func (a *Aws) GetCredentials() (string, string, error) {
 func (a *Aws) filterAccounts() ([]string, error) {
 	mounts, err := a.vault.GetMounts("aws")
 	a.stim.Fatal(err)
-	if !a.stim.ConfigGetBool("aws.filter-prompts") {
+	if !a.stim.ConfigGetBool("aws.filter-by-token") {
 		return mounts, nil
 	}
 
@@ -61,7 +61,7 @@ func (a *Aws) filterAccounts() ([]string, error) {
 func (a *Aws) filterRoles(vaultAccount string) ([]string, error) {
 	roles, err := a.vault.ListSecrets(vaultAccount + "/roles")
 	a.stim.Fatal(err)
-	if !a.stim.ConfigGetBool("aws.filter-prompts") {
+	if !a.stim.ConfigGetBool("aws.filter-by-token") {
 		return roles, nil
 	}
 

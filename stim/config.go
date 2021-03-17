@@ -15,7 +15,7 @@ import (
 )
 
 func (stim *Stim) ConfigSetDefaultValues() {
-	stim.config.SetDefault("kube.config.path", "secret/kubernetes/")
+	stim.config.SetDefault("kube.config.path", "secret/kubernetes")
 	stim.config.SetDefault("kube.config.keyname", "kube-config")
 	stim.config.SetDefault("vault.retryOnThrottle", false)
 	stim.config.SetDefault("vault.address", "https://127.0.0.1:8200/")
