@@ -20,7 +20,7 @@ func (k *Kubernetes) configureContext() error {
 	if cluster == "" {
 		cluster = k.stim.ConfigGetString("kube-config-cluster") //TODO: depreciated config should be removed
 	}
-	kubeClusterFilter := k.stim.ConfigGetString("kube.cluster.filter")
+	kubeClusterFilter := k.stim.ConfigGetString("kube.config.cluster-filter")
 
 	kubePath := k.stim.ConfigGetString("kube.config.path")
 
@@ -33,7 +33,7 @@ func (k *Kubernetes) configureContext() error {
 	if sa == "" {
 		sa = k.stim.ConfigGetString("kube-service-account") //TODO: depreciated config should be removed
 	}
-	saFilter := k.stim.ConfigGetString("kube.service-account.filter")
+	saFilter := k.stim.ConfigGetString("kube.config.service-account-filter")
 
 	filteredServiceAccounts, err := k.filterServiceAccounts(kubePath+"/"+cluster, saFilter)
 	if err != nil {
@@ -113,7 +113,7 @@ func (k *Kubernetes) filterServiceAccounts(path string, saFilter string) ([]stri
 	regexFilteredServiceAccounts, err := utils.Filter(serviceAccounts, saFilter)
 	k.stim.Fatal(err)
 
-	if !k.stim.ConfigGetBool("kube.filter-by-token") {
+	if !k.stim.ConfigGetBool("kube.config.filter-by-token") {
 		return regexFilteredServiceAccounts, nil
 	}
 

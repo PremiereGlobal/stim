@@ -63,7 +63,7 @@ func (a *Aws) Command(viper *viper.Viper) *cobra.Command {
 	viper.BindPFlag("aws.web-ttl", loginCmd.Flags().Lookup("web-ttl"))
 
 	loginCmd.Flags().BoolP("filter-by-token", "", false, "Show accounts and roles according to Vault token capabilities")
-	viper.BindPFlag("aws.filter-by-token", loginCmd.Flags().Lookup("filter-by-token"))
+	viper.BindPFlag("aws.login.filter-by-token", loginCmd.Flags().Lookup("filter-by-token"))
 
 	return cmd
 }
