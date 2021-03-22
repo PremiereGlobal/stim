@@ -21,6 +21,9 @@ func (k *Kubernetes) configureContext() error {
 		cluster = k.stim.ConfigGetString("kube-config-cluster") //TODO: depreciated config should be removed
 	}
 	kubeClusterFilter := k.stim.ConfigGetString("kube.config.cluster-filter")
+	if kubeClusterFilter == "" {
+		kubeClusterFilter = k.stim.ConfigGetString("kube.cluster.filter") //TODO: depreciated config should be removed
+	}
 
 	kubePath := k.stim.ConfigGetString("kube.config.path")
 
@@ -34,6 +37,9 @@ func (k *Kubernetes) configureContext() error {
 		sa = k.stim.ConfigGetString("kube-service-account") //TODO: depreciated config should be removed
 	}
 	saFilter := k.stim.ConfigGetString("kube.config.service-account-filter")
+	if saFilter == "" {
+		saFilter = k.stim.ConfigGetString("kube.config.serviceaccountfilter") //TODO: depreciated config should be removed
+	}
 
 	filteredServiceAccounts, err := k.filterServiceAccounts(kubePath+"/"+cluster, saFilter)
 	if err != nil {
