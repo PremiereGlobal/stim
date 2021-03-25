@@ -39,9 +39,11 @@ func (k *Kubernetes) Command(viper *viper.Viper) *cobra.Command {
 	configCmd.Flags().StringP("namespace", "n", "", "Optional. Name of default namespace")
 	viper.BindPFlag("kube-config-namespace", configCmd.Flags().Lookup("namespace"))
 	configCmd.Flags().StringP("cf", "", "", "Optional. Cluster regex filter")
-	viper.BindPFlag("kube.cluster.filter", configCmd.Flags().Lookup("cf"))
+	viper.BindPFlag("kube.config.cluster-filter", configCmd.Flags().Lookup("cf"))
 	configCmd.Flags().StringP("saf", "", "", "Optional. Service Account regex filter")
-	viper.BindPFlag("kube.service-account.filter", configCmd.Flags().Lookup("saf"))
+	viper.BindPFlag("kube.config.service-account-filter", configCmd.Flags().Lookup("saf"))
+	configCmd.Flags().BoolP("filter-by-token", "", false, "Optional. Show service accounts by Vault token capabilities")
+	viper.BindPFlag("kube.config.filter-by-token", configCmd.Flags().Lookup("filter-by-token"))
 
 	k.stim.BindCommand(configCmd, cmd)
 

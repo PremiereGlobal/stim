@@ -26,8 +26,10 @@ func (v *Vault) Filter(paths []string, withCapabilities []string) ([]string, err
 	for path, capabilities := range results.Data {
 		for _, capability := range withCapabilities {
 			if utils.Contains(capabilities, capability) {
-				filteredPaths = append(filteredPaths, path)
-				break
+				if path != "capabilities" {
+					filteredPaths = append(filteredPaths, path)
+					break
+				}
 			}
 		}
 	}
