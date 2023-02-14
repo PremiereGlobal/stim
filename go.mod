@@ -14,7 +14,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/PagerDuty/go-pagerduty v0.0.0-20191002190746-f60f4fc45222
 	github.com/PremiereGlobal/vault-to-envs v0.2.2-0.20190928170516-b94151c229ae
-	github.com/aws/aws-sdk-go v1.25.6
+	github.com/aws/aws-sdk-go v1.34.0
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cornelk/hashmap v1.0.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
@@ -38,12 +38,10 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20190402232053-79abb63cd66e
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/tevino/abool v1.2.0
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
 	golang.org/x/mod v0.1.1-0.20191105210325-c90efee705ee
-	golang.org/x/net v0.0.0-20190923162816-aa69164e4478 // indirect
 	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
 	golang.org/x/tools v0.0.0-20200203023011-6f24f261dadb // indirect
 	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
