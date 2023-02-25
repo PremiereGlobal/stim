@@ -40,12 +40,9 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/tevino/abool v1.2.0
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/crypto v0.1.0
 	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
-	golang.org/x/mod v0.1.1-0.20191105210325-c90efee705ee
-	golang.org/x/net v0.0.0-20190923162816-aa69164e4478 // indirect
-	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
-	golang.org/x/tools v0.0.0-20200203023011-6f24f261dadb // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.2.8
